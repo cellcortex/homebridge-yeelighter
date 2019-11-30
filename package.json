@@ -1,0 +1,79 @@
+{
+  "name": "homebridge-yeelighter",
+  "version": "1.0.0",
+  "description": "Yeelight support for Homebridge: https://github.com/nfarina/homebridge",
+  "license": "MIT",
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cellcortex/homebridge-yeelighter.git"
+  },
+  "bugs": {
+    "url": "http://github.com/cellcortex/homebridge-yeelighter/issues"
+  },
+  "engines": {
+    "node": ">=10.0.0",
+    "homebridge": ">=0.2.0"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsc --noEmit && lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint . --fix",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.4.4",
+    "yeelight-platform": "ssh://git@github.com:sahilchaddha/yeelight-platform.git"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.2",
+    "@babel/plugin-proposal-class-properties": "^7.7.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/preset-typescript": "^7.7.2",
+    "@types/debug": "^4.1.5",
+    "@types/events": "^3.0.0",
+    "@types/node": "^12.12.7",
+    "@typescript-eslint/eslint-plugin": "^2.6.1",
+    "@typescript-eslint/parser": "^2.6.1",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-eslint-comments": "^3.1.2",
+    "eslint-plugin-jest": "^23.0.3",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-unicorn": "^13.0.0",
+    "hap-nodejs": "^0.5.3",
+    "homebridge": "^0.4.50",
+    "husky": "^3.0.9",
+    "lint-staged": "^9.4.2",
+    "prettier": "^1.19.1",
+    "rollup": "^1.26.3",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript": "^1.0.1",
+    "tslib": "^1.10.0",
+    "typescript": "^3.7.2"
+  },
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build",
+    "lint": "tsc --noEmit && eslint 'src/**/*.{js,ts,tsx}'",
+    "debug": "DEBUG=* /usr/local/bin/homebridge -D -P ../homebridge-yeelighter"
+  }
+}
