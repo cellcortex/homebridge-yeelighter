@@ -24,6 +24,12 @@ declare module "yeelight-platform" {
     tracked_attrs: string[];
   }
 
+  export interface Command {
+    id: number;
+    method: string;
+    params: Array<number | string | boolean>;
+  }
+
   export class Device extends EventEmitter {
     readonly device: DeviceInfo;
     readonly connected: boolean;
@@ -39,7 +45,7 @@ declare module "yeelight-platform" {
     sendHeartBeat(): void;
 
     didReceiveResponse(data: any): void;
-    sendCommand(data: any): void;
+    sendCommand(command: Command): void;
     updateDevice(device: DeviceInfo): void;
   }
 }

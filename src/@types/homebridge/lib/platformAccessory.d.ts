@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Service } from "hap-nodejs";
-export class PlatformAccessory {
-  constructor(displayName: string, UUID: string, category: any);
+export declare class PlatformAccessory {
+  constructor(displayName: string, UUID: string, category?: any);
   addService(service: Service): Service;
   removeService(service: Service): void;
   /**
