@@ -134,7 +134,11 @@ class WhiteLightService extends LightService {
         this.sendCommand("set_ct_abx", [temporary, "sudden", 0]);
       }
     );
-    characteristic.setProps({ ...characteristic.props, maxValue: 370, minValue: 153 });
+    if (this.device.device.model.includes("bslamp")) {
+      characteristic.setProps({ ...characteristic.props, maxValue: 588, minValue: 153 });
+    } else {
+      characteristic.setProps({ ...characteristic.props, maxValue: 370, minValue: 153 });
+    }
   }
 }
 
