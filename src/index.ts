@@ -86,12 +86,13 @@ class LightService {
 
 class WhiteLightService extends LightService {
   private lastBrightness?: number;
+  private powerMode?: number;
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
     config: Configuration,
     device: Device,
     homebridge: any,
-    private propertyGetter: (name: string) => Promise<string>
+    private propertyGetter: (names: string) => Promise<string>
   ) {
     super(log, config, device, homebridge, "main");
     this.installHandlers();
@@ -103,15 +104,18 @@ class WhiteLightService extends LightService {
       async () => {
         return (await this.propertyGetter("power")) === "on";
       },
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 2])
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || 2])
     );
     this.handleCharacteristic(
       Characteristic.Brightness,
       async () => {
-        const br1 = Number(await this.propertyGetter["power"]);
-        const br2 = Number(await this.propertyGetter["nl_br"]);
-        const mode = await this.propertyGetter["active_mode"];
-        if (mode != "1") {
+        const power = await this.propertyGetter("bright");
+        const nlBr = await this.propertyGetter("nl_br");
+        const br1 = Number(power);
+        const br2 = Number(nlBr);
+        const mode = Number(await this.propertyGetter("active_mode"));
+        this.log("mode: ", mode, power, nlBr, br1, br2, br1 / 2 + 50, br2 / 2);
+        if (mode !== 1) {
           return br1 / 2 + 50;
         } else {
           return br2 / 2;
@@ -120,17 +124,20 @@ class WhiteLightService extends LightService {
       value => {
         if (value < 50) {
           if (!this.lastBrightness || this.lastBrightness >= 50) {
+            this.log("Moonlight on");
             this.sendCommand("set_power", ["on", "sudden", 0, 5]);
+            this.powerMode = 5;
           }
           this.sendSuddenCommand("set_bright", value * 2);
-          this.lastBrightness = value;
         } else {
           if (!this.lastBrightness || this.lastBrightness < 50) {
-            this.sendCommand("set_power", ["on", "sudden", 0, 2]);
+            this.log("Moonlight off");
+            this.sendCommand("set_power", ["on", "sudden", 0, 1]);
+            this.powerMode = 2;
           }
           this.sendSuddenCommand("set_bright", (value - 50) * 2);
-          this.lastBrightness = value;
         }
+        this.lastBrightness = value;
       }
     );
     const characteristic = await this.handleCharacteristic(
@@ -170,7 +177,7 @@ class BackgroundLightService extends LightService {
     );
     this.handleCharacteristic(
       Characteristic.Brightness,
-      async () => Number(await this.propertyGetter["bg_bright"]),
+      async () => Number(await this.propertyGetter("bg_bright")),
       value => this.sendSuddenCommand("bg_set_bright", value)
     );
     this.handleCharacteristic(
@@ -243,15 +250,13 @@ export class Light {
   }
 
   private propertyGetter = async (name: string): Promise<string> => {
-    if (this.updateTimestamp < Date.now() - 100 && !this.updateResolve) {
+    if (this.updateTimestamp < Date.now() - 400 && !this.updateResolve) {
       const updatePromise = new Promise<string[]>((resolve, reject) => {
         this.updateResolve = resolve;
         this.updateReject = reject;
         this.device.sendHeartBeat();
       });
-      this.log("Waiting for Promise...");
       this.lastProps = [...(await updatePromise)];
-      this.log("Promise resolved");
     }
     const index = trackedAttributes.indexOf(name);
     return this.lastProps[index];
@@ -262,7 +267,6 @@ export class Light {
       this.log(`Props updated ${JSON.stringify(result)}`);
       if (result) {
         if (this.updateResolve) {
-          this.log("Resolving");
           this.updateResolve(result);
           delete this.updateResolve;
           delete this.updateReject;
