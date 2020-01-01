@@ -21,6 +21,7 @@ declare module "yeelight-platform" {
     sat: string;
     host: string;
     port: string;
+    interval: number;
     tracked_attrs: string[];
   }
 

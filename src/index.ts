@@ -4,16 +4,13 @@ import { Service, Characteristic, CharacteristicEventTypes, Accessory, WithUUID 
 
 const trackedAttributes = [
   "power",
+  "color_mode",
   "bright",
-  "rgb",
-  "flowing",
-  "flow_params",
   "hue",
   "sat",
   "ct",
   "bg_power",
   "bg_bright",
-  "bg_rgb",
   "bg_hue",
   "bg_sat",
   "nl_br", // brightness of night mode
@@ -51,9 +48,10 @@ class LightService {
     protected log: (message?: any, ...optionalParams: any[]) => void,
     protected config: Configuration,
     protected device: Device,
-    protected homebridge: any
+    protected homebridge: any,
+    protected subtype?: string
   ) {
-    this.service = new this.homebridge.hap.Service.Lightbulb(this.device.device.model || "Default", "Main Light");
+    this.service = new this.homebridge.hap.Service.Lightbulb(modelMap[device.device.model] || "Main", subtype);
   }
 
   async handleCharacteristic<T extends WithUUID<typeof Characteristic>>(
@@ -76,9 +74,18 @@ class LightService {
   sendCommand(method: string, parameters: Array<string | number | boolean>) {
     this.device.sendCommand({ id: -1, method, params: parameters });
   }
+
+  sendSuddenCommand(method: string, parameter: string | number | boolean) {
+    this.device.sendCommand({ id: -1, method, params: [parameter, "sudden", 0] });
+  }
+
+  sendSmoothCommand(method: string, parameter: string | number | boolean) {
+    this.device.sendCommand({ id: -1, method, params: [parameter, "smooth", 500] });
+  }
 }
 
 class WhiteLightService extends LightService {
+  private lastBrightness?: number;
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
     config: Configuration,
@@ -86,7 +93,7 @@ class WhiteLightService extends LightService {
     homebridge: any,
     private propertyGetter: (name: string) => Promise<string>
   ) {
-    super(log, config, device, homebridge);
+    super(log, config, device, homebridge, "main");
     this.installHandlers();
   }
 
@@ -96,7 +103,7 @@ class WhiteLightService extends LightService {
       async () => {
         return (await this.propertyGetter("power")) === "on";
       },
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500])
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 2])
     );
     this.handleCharacteristic(
       Characteristic.Brightness,
@@ -104,7 +111,7 @@ class WhiteLightService extends LightService {
         const br1 = Number(await this.propertyGetter["power"]);
         const br2 = Number(await this.propertyGetter["nl_br"]);
         const mode = await this.propertyGetter["active_mode"];
-        if (mode === "0") {
+        if (mode != "1") {
           return br1 / 2 + 50;
         } else {
           return br2 / 2;
@@ -112,26 +119,25 @@ class WhiteLightService extends LightService {
       },
       value => {
         if (value < 50) {
-          this.sendCommand("set_power", ["on", "sudden", 30, 5]);
-          this.sendCommand("set_bright", [value * 2, "sudden", 30]);
+          if (!this.lastBrightness || this.lastBrightness >= 50) {
+            this.sendCommand("set_power", ["on", "sudden", 0, 5]);
+          }
+          this.sendSuddenCommand("set_bright", value * 2);
+          this.lastBrightness = value;
         } else {
-          this.sendCommand("set_power", ["on", "sudden", 30, 1]);
-          this.sendCommand("set_bright", [(value - 50) * 2, "sudden", 30]);
+          if (!this.lastBrightness || this.lastBrightness < 50) {
+            this.sendCommand("set_power", ["on", "sudden", 0, 2]);
+          }
+          this.sendSuddenCommand("set_bright", (value - 50) * 2);
+          this.lastBrightness = value;
         }
       }
     );
     const characteristic = await this.handleCharacteristic(
       Characteristic.ColorTemperature,
-      async () => {
-        const temporary = convertColorTemperature(Number(await this.propertyGetter("ct")));
-        this.log(`read temperature ${Number(await this.propertyGetter("ct"))} -> ${temporary}`);
-
-        return temporary;
-      },
+      async () => convertColorTemperature(Number(await this.propertyGetter("ct"))),
       value => {
-        const temporary = Number(convertColorTemperature(value).toFixed());
-        this.log(`write temperature ${value} -> ${temporary}`);
-        this.sendCommand("set_ct_abx", [temporary, "sudden", 0]);
+        this.sendSuddenCommand("set_ct_abx", Number(convertColorTemperature(value).toFixed()));
       }
     );
     if (this.device.device.model.includes("bslamp")) {
@@ -142,6 +148,67 @@ class WhiteLightService extends LightService {
   }
 }
 
+class BackgroundLightService extends LightService {
+  private lastHue?: number;
+  private lastSat?: number;
+  constructor(
+    log: (message?: any, ...optionalParams: any[]) => void,
+    config: Configuration,
+    device: Device,
+    homebridge: any,
+    private propertyGetter: (name: string) => Promise<string>
+  ) {
+    super(log, config, device, homebridge, "background");
+    this.installHandlers();
+  }
+
+  private async installHandlers() {
+    this.handleCharacteristic(
+      Characteristic.On,
+      async () => (await this.propertyGetter("bg_power")) === "on",
+      value => this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, 3])
+    );
+    this.handleCharacteristic(
+      Characteristic.Brightness,
+      async () => Number(await this.propertyGetter["bg_bright"]),
+      value => this.sendSuddenCommand("bg_set_bright", value)
+    );
+    this.handleCharacteristic(
+      Characteristic.Hue,
+      async () => Number(await this.propertyGetter("bg_hue")),
+      async value => {
+        this.lastHue = value;
+        if (this.lastHue && this.lastSat) {
+          const hsv = [this.lastHue, this.lastSat, "sudden", 0];
+          this.sendCommand("bg_set_hsv", hsv);
+          delete this.lastHue;
+          delete this.lastSat;
+        }
+        // this.sendCommand("bg_set_power", ["on", "smooth", 500, 3]);
+      }
+    );
+    this.handleCharacteristic(
+      Characteristic.Saturation,
+      async () => Number(await this.propertyGetter("bg_sat")),
+      async value => {
+        this.lastSat = value;
+        if (this.lastHue && this.lastSat) {
+          const hsv = [this.lastHue, this.lastSat, "sudden", 0];
+          this.sendCommand("bg_set_hsv", hsv);
+          delete this.lastHue;
+          delete this.lastSat;
+        }
+        /*
+        const hsv = [Number(await this.propertyGetter("bg_hue")), value, "sudden", 0];
+        this.log("set Sat", hsv);
+        this.sendCommand("bg_set_power", ["on", "smooth", 500, 3]);
+        this.sendCommand("bg_set_hsv", hsv);
+        */
+      }
+    );
+  }
+}
+
 export class Light {
   public name: string;
   public model: string;
@@ -149,6 +216,11 @@ export class Light {
   private connected = false;
   private lastProps: string[] = [];
   private main: LightService;
+  private background?: LightService;
+  private support: Array<string>;
+  private updateTimestamp: number;
+  private updateResolve?: (update: string[]) => void;
+  private updateReject?: () => void;
 
   constructor(
     private log: (message?: any, ...optionalParams: any[]) => void,
@@ -161,11 +233,26 @@ export class Light {
     this.log(`light ${device.device.id} ${device.device.model} created, support: ${device.device.support}`);
     this.model = modelMap[device.device.model] || device.device.model;
     this.name = device.device.id;
+    this.support = device.device.support.split(" ");
     this.connectDevice();
     this.main = new WhiteLightService(log, config, device, homebridge, this.propertyGetter);
+    if (this.support.includes("bg_set_power")) {
+      this.background = new BackgroundLightService(log, config, device, homebridge, this.propertyGetter);
+    }
+    this.updateTimestamp = 0;
   }
 
-  private propertyGetter = async (name: string) => {
+  private propertyGetter = async (name: string): Promise<string> => {
+    if (this.updateTimestamp < Date.now() - 100 && !this.updateResolve) {
+      const updatePromise = new Promise<string[]>((resolve, reject) => {
+        this.updateResolve = resolve;
+        this.updateReject = reject;
+        this.device.sendHeartBeat();
+      });
+      this.log("Waiting for Promise...");
+      this.lastProps = [...(await updatePromise)];
+      this.log("Promise resolved");
+    }
     const index = trackedAttributes.indexOf(name);
     return this.lastProps[index];
   };
@@ -173,7 +260,23 @@ export class Light {
   private onDeviceUpdate = ({ id, result }) => {
     if (id === 199) {
       this.log(`Props updated ${JSON.stringify(result)}`);
-      this.lastProps = [...result];
+      if (result) {
+        if (this.updateResolve) {
+          this.log("Resolving");
+          this.updateResolve(result);
+          delete this.updateResolve;
+          delete this.updateReject;
+        }
+        this.lastProps = [...result];
+        this.updateTimestamp = Date.now();
+      } /*else {
+        if (this.updateReject) {
+          this.log("Rejecting");
+          this.updateReject();
+          delete this.updateResolve;
+          delete this.updateReject;
+        } 
+    }*/
     }
   };
 
@@ -204,63 +307,10 @@ export class Light {
   getServices(): Array<Service> {
     this.log(`getServices for ${this.device.device.id}`);
     const services: Array<Service> = [this.getInfoService(), this.main.service];
-    /*
-    const lightBulbService: Service = new this.homebridge.hap.Service.Lightbulb(
-      this.device.device.model || "Default",
-      "Main Light"
-    );
-    this.handleCharacteristic(
-      lightBulbService,
-      Characteristic.On,
-      () => this.lastProps[0] === "on",
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500])
-    );
-    this.handleCharacteristic(
-      lightBulbService,
-      Characteristic.Brightness,
-      () => {
-        const br1 = Number(this.lastProps[1]);
-        const br2 = Number(this.lastProps[13]);
-        const mode = this.lastProps[14];
-        if (mode === "0") {
-          return br1 / 2 + 50;
-        } else {
-          return br2 / 2;
-        }
-      },
-      value => {
-        if (value < 50) {
-          this.sendCommand("set_power", ["on", "sudden", 0, 5]);
-          this.sendCommand("set_bright", [value * 2, "sudden", 0]);
-        } else {
-          this.sendCommand("set_power", ["on", "sudden", 0, 1]);
-          this.sendCommand("set_bright", [(value - 50) * 2, "sudden", 0]);
-        }
-      }
-    );
-    this.handleCharacteristic(
-      lightBulbService,
-      Characteristic.ColorTemperature,
-      () => Number(this.lastProps[7]),
-      value => this.sendCommand("set_ct_abx", [value, "sudden", 0])
-    );
-    services.push(lightBulbService);
-    */
+    if (this.background) {
+      services.push(this.background.service);
+    }
     return services;
-  }
-
-  async handleCharacteristic<T extends WithUUID<typeof Characteristic>>(
-    service: Service,
-    uuid: T,
-    getter: () => any,
-    setter: (value: any) => void
-  ) {
-    const characteristic = service.getCharacteristic(uuid);
-    characteristic?.on(CharacteristicEventTypes.GET, async callback => callback(null, await getter()));
-    characteristic?.on(CharacteristicEventTypes.SET, async (value, callback) => {
-      await setter(value);
-      callback();
-    });
   }
 
   getInfoService(): Service {
@@ -333,7 +383,8 @@ class YeelighterPlatform {
     }
     const newDevice: DeviceInfo = {
       ...device,
-      tracked_attrs: trackedAttributes
+      tracked_attrs: trackedAttributes,
+      interval: 10000
     };
     const createdDevice = new Device(newDevice);
     this.log(`Registering new Accessory ${newDevice.id} found ${newDevice.model} at ${newDevice.Location}`);
