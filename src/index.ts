@@ -1,7 +1,10 @@
-// require("@babel/polyfill");
+/* eslint-disable eslint-comments/disable-enable-pair */
+/* eslint-disable @typescript-eslint/camelcase */
+
 import { Discovery, DeviceInfo, Device } from "yeelight-platform";
 import { Service, Characteristic, CharacteristicEventTypes, Accessory, WithUUID } from "hap-nodejs";
 
+/*
 const trackedAttributes = [
   "power",
   "color_mode",
@@ -17,6 +20,41 @@ const trackedAttributes = [
   "active_mode", // 0: daylight mode / 1: moonlight mode (ceiling light only)
   "name"
 ];
+*/
+
+interface Attributes {
+  power: boolean;
+  color_mode: number;
+  bright: number;
+  hue: number;
+  sat: number;
+  ct: number;
+  bg_power: boolean;
+  bg_bright: number;
+  bg_hue: number;
+  bg_sat: number;
+  nl_br: number; // brightness of night mode
+  active_mode: number; // 0: daylight mode / 1: moonlight mode (ceiling light only)
+  name: string;
+}
+
+const EMPTY_ATTRIBUTES: Attributes = {
+  power: false,
+  color_mode: 0,
+  bright: 0,
+  hue: 0,
+  sat: 0,
+  ct: 0,
+  bg_power: false,
+  bg_bright: 0,
+  bg_hue: 0,
+  bg_sat: 0,
+  nl_br: 0,
+  active_mode: 0,
+  name: "unknown"
+};
+
+const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 
 function convertColorTemperature(value: number): number {
   return 1000000 / value;
@@ -114,7 +152,6 @@ class WhiteLightService extends LightService {
         const br1 = Number(power);
         const br2 = Number(nlBr);
         const mode = Number(await this.propertyGetter("active_mode"));
-        this.log("mode: ", mode, power, nlBr, br1, br2, br1 / 2 + 50, br2 / 2);
         if (mode !== 1) {
           return br1 / 2 + 50;
         } else {
@@ -228,6 +265,7 @@ export class Light {
   private updateTimestamp: number;
   private updateResolve?: (update: string[]) => void;
   private updateReject?: () => void;
+  private attributes: Attributes = EMPTY_ATTRIBUTES;
 
   constructor(
     private log: (message?: any, ...optionalParams: any[]) => void,
@@ -256,15 +294,14 @@ export class Light {
         this.updateReject = reject;
         this.device.sendHeartBeat();
       });
-      this.lastProps = [...(await updatePromise)];
+      await updatePromise;
     }
-    const index = trackedAttributes.indexOf(name);
+    const index = TRACKED_ATTRIBUTES.indexOf(name);
     return this.lastProps[index];
   };
 
   private onDeviceUpdate = ({ id, result }) => {
     if (id === 199) {
-      this.log(`Props updated ${JSON.stringify(result)}`);
       if (result) {
         if (this.updateResolve) {
           this.updateResolve(result);
@@ -272,6 +309,21 @@ export class Light {
           delete this.updateReject;
         }
         this.lastProps = [...result];
+        for (const key of Object.keys(this.attributes)) {
+          const index = TRACKED_ATTRIBUTES.indexOf(key);
+          switch (typeof EMPTY_ATTRIBUTES[key]) {
+            case "number":
+              this.attributes[key] = Number(this.lastProps[index]);
+              break;
+            case "boolean":
+              this.attributes[key] = this.lastProps[index] == "on";
+              break;
+            default:
+              this.attributes[key] = this.lastProps[index];
+              break;
+          }
+        }
+        this.log("Attributes", this.attributes);
         this.updateTimestamp = Date.now();
       } /*else {
         if (this.updateReject) {
@@ -373,13 +425,12 @@ class YeelighterPlatform {
   };
 
   private onDeviceDiscovery = (device: DeviceInfo) => {
-    /* eslint-disable @typescript-eslint/camelcase */
     this.log(`Accessory ${device.id} found ${device.model} at ${device.Location}`);
     const oldDevice = this.devices.get(device.id);
     if (oldDevice) {
       // Device already exists
       if (oldDevice.device.Location !== device.Location) {
-        device.tracked_attrs = trackedAttributes;
+        device.tracked_attrs = TRACKED_ATTRIBUTES;
         oldDevice.updateDevice(device);
         this.devices.set(device.id, oldDevice);
       }
@@ -387,7 +438,7 @@ class YeelighterPlatform {
     }
     const newDevice: DeviceInfo = {
       ...device,
-      tracked_attrs: trackedAttributes,
+      tracked_attrs: TRACKED_ATTRIBUTES,
       interval: 10000
     };
     const createdDevice = new Device(newDevice);
@@ -400,7 +451,6 @@ class YeelighterPlatform {
     // this.log(`Accessory created with UUID ${uuid}`);
     this.myAccessories.set(device.id, light);
   };
-  /* eslint-enable @typescript-eslint/camelcase */
 }
 
 export default function(homeBridgeApi: any) {
