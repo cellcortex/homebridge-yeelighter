@@ -3,25 +3,6 @@
 
 import { Discovery, DeviceInfo, Device } from "yeelight-platform";
 import { Service, Characteristic, CharacteristicEventTypes, Accessory, WithUUID } from "hap-nodejs";
-import { threadId } from "worker_threads";
-
-/*
-const trackedAttributes = [
-  "power",
-  "color_mode",
-  "bright",
-  "hue",
-  "sat",
-  "ct",
-  "bg_power",
-  "bg_bright",
-  "bg_hue",
-  "bg_sat",
-  "nl_br", // brightness of night mode
-  "active_mode", // 0: daylight mode / 1: moonlight mode (ceiling light only)
-  "name"
-];
-*/
 
 interface Attributes {
   power: boolean;
@@ -131,7 +112,6 @@ class WhiteLightService extends LightService {
     config: Configuration,
     device: Device,
     homebridge: any,
-    private propertyGetter: (names: string) => Promise<string>,
     private attributes: () => Promise<Attributes>
   ) {
     super(log, config, device, homebridge, "main");
@@ -200,7 +180,6 @@ class BackgroundLightService extends LightService {
     config: Configuration,
     device: Device,
     homebridge: any,
-    private propertyGetter: (name: string) => Promise<string>,
     private attributes: () => Promise<Attributes>
   ) {
     super(log, config, device, homebridge, "background");
@@ -229,7 +208,6 @@ class BackgroundLightService extends LightService {
           delete this.lastHue;
           delete this.lastSat;
         }
-        // this.sendCommand("bg_set_power", ["on", "smooth", 500, 3]);
       }
     );
     this.handleCharacteristic(
@@ -243,12 +221,6 @@ class BackgroundLightService extends LightService {
           delete this.lastHue;
           delete this.lastSat;
         }
-        /*
-        const hsv = [Number(await this.propertyGetter("bg_hue")), value, "sudden", 0];
-        this.log("set Sat", hsv);
-        this.sendCommand("bg_set_power", ["on", "smooth", 500, 3]);
-        this.sendCommand("bg_set_hsv", hsv);
-        */
       }
     );
   }
@@ -281,16 +253,9 @@ export class Light {
     this.name = device.device.id;
     this.support = device.device.support.split(" ");
     this.connectDevice();
-    this.main = new WhiteLightService(log, config, device, homebridge, this.propertyGetter, this.updateAttributes);
+    this.main = new WhiteLightService(log, config, device, homebridge, this.updateAttributes);
     if (this.support.includes("bg_set_power")) {
-      this.background = new BackgroundLightService(
-        log,
-        config,
-        device,
-        homebridge,
-        this.propertyGetter,
-        this.updateAttributes
-      );
+      this.background = new BackgroundLightService(log, config, device, homebridge, this.updateAttributes);
     }
     this.updateTimestamp = 0;
   }
