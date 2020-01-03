@@ -1,10 +1,6 @@
-//
-//  device.js
-//  Sahil Chaddha
-//
-//  Created by Sahil Chaddha on 30/10/2018.
-//  Copyright © 2018 sahilchaddha.com. All rights reserved.
-//
+/**
+ * Device Handling
+ */
 
 import EventEmitter from "events";
 import net from "net";
@@ -25,7 +21,7 @@ export interface DeviceInfo {
   port: number;
   interval: number;
   debug: boolean;
-  tracked_attrs: string[];
+  trackedAttributes: string[];
   fw_ver: number;
   name: string;
 }
@@ -48,7 +44,7 @@ export const EMPTY_DEVICEINFO: DeviceInfo = {
   interval: 0,
   debug: false,
   // eslint-disable-next-line @typescript-eslint/camelcase
-  tracked_attrs: [],
+  trackedAttributes: [],
   // eslint-disable-next-line @typescript-eslint/camelcase
   fw_ver: 0,
   name: "string"
@@ -65,8 +61,6 @@ export class Device extends EventEmitter {
   debug: boolean;
   connected: boolean;
   forceDisconnect: boolean;
-  timer?: NodeJS.Timeout;
-  trackedAttrs: Array<string>;
   polligInterval: number;
   retryTimer?: NodeJS.Timeout;
   socket?: net.Socket;
@@ -76,16 +70,6 @@ export class Device extends EventEmitter {
     this.debug = this.device.debug || false;
     this.connected = false;
     this.forceDisconnect = false;
-    this.trackedAttrs = this.device.tracked_attrs || [
-      "power",
-      "bright",
-      "rgb",
-      "flowing",
-      "flow_params",
-      "hue",
-      "sat",
-      "ct"
-    ];
     this.polligInterval = this.device.interval || 5000;
   }
 
@@ -107,10 +91,10 @@ export class Device extends EventEmitter {
     console.log("XXX manual disconnect");
     this.forceDisconnect = forceDisconnect;
     this.connected = false;
-    if (this.timer) {
+    /*if (this.timer) {
       clearInterval(this.timer);
       delete this.timer;
-    }
+    }*/
     this.socket?.destroy();
     delete this.socket;
     this.emit("disconnected");
@@ -156,18 +140,13 @@ export class Device extends EventEmitter {
 
   didConnect() {
     this.connected = true;
-    if (this.timer) {
-      clearInterval(this.timer);
-      delete this.timer;
-    }
-    this.timer = setInterval(this.sendHeartBeat.bind(this), this.polligInterval);
   }
 
-  sendHeartBeat() {
+  requestAttributes() {
     this.sendCommand({
       id: 199,
       method: "get_prop",
-      params: this.trackedAttrs
+      params: this.device.trackedAttributes
     });
   }
 

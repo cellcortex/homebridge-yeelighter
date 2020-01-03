@@ -1,11 +1,3 @@
-//
-//  discovery.js
-//  Sahil Chaddha
-//
-//  Created by Sahil Chaddha on 30/10/2018.
-//  Copyright © 2018 sahilchaddha.com. All rights reserved.
-//
-
 import EventEmitter from "events";
 import dgram from "dgram";
 import url from "url";

@@ -312,7 +312,7 @@ export class Light {
       const updatePromise = new Promise<string[]>((resolve, reject) => {
         this.updateResolve = resolve;
         this.updateReject = reject;
-        this.device.sendHeartBeat();
+        this.device.requestAttributes();
       });
       await updatePromise;
     }
@@ -351,7 +351,7 @@ export class Light {
   private onDeviceConnected = () => {
     this.log("Connected", this.name);
     this.connected = true;
-    this.device.sendHeartBeat();
+    this.device.requestAttributes();
   };
 
   private onDeviceDisconnected = () => {
@@ -442,7 +442,7 @@ class YeelighterPlatform {
     if (oldDevice) {
       // Device already exists
       if (oldDevice.device.Location !== device.location) {
-        device.tracked_attrs = TRACKED_ATTRIBUTES;
+        device.trackedAttributes = TRACKED_ATTRIBUTES;
         oldDevice.updateDevice(device);
         this.devices.set(device.id, oldDevice);
       }
@@ -450,7 +450,7 @@ class YeelighterPlatform {
     }
     const newDevice: DeviceInfo = {
       ...device,
-      tracked_attrs: TRACKED_ATTRIBUTES,
+      trackedAttributes: TRACKED_ATTRIBUTES,
       interval: 10000
     };
     const createdDevice = new Device(newDevice);
