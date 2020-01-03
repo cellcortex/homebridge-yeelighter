@@ -1,8 +1,9 @@
 /* eslint-disable eslint-comments/disable-enable-pair */
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { Discovery, DeviceInfo, Device } from "yeelight-platform";
 import { Service, Characteristic, CharacteristicEventTypes, Accessory, WithUUID } from "hap-nodejs";
+import { DeviceInfo, Device } from "./yeedevice";
+import { Discovery } from "./yeediscovery";
 
 interface Attributes {
   power: boolean;
@@ -318,12 +319,6 @@ export class Light {
     return this.attributes;
   };
 
-  private propertyGetter = async (name: string): Promise<string> => {
-    await this.updateAttributes();
-    const index = TRACKED_ATTRIBUTES.indexOf(name);
-    return this.lastProps[index];
-  };
-
   private onDeviceUpdate = ({ id, result }) => {
     if (id === 199) {
       if (result) {
@@ -442,11 +437,11 @@ class YeelighterPlatform {
   };
 
   private onDeviceDiscovery = (device: DeviceInfo) => {
-    this.log(`Accessory ${device.id} found ${device.model} at ${device.Location}`);
+    this.log(`Accessory ${device.id} found ${device.model} at ${device.location}`);
     const oldDevice = this.devices.get(device.id);
     if (oldDevice) {
       // Device already exists
-      if (oldDevice.device.Location !== device.Location) {
+      if (oldDevice.device.Location !== device.location) {
         device.tracked_attrs = TRACKED_ATTRIBUTES;
         oldDevice.updateDevice(device);
         this.devices.set(device.id, oldDevice);
@@ -459,7 +454,7 @@ class YeelighterPlatform {
       interval: 10000
     };
     const createdDevice = new Device(newDevice);
-    this.log(`Registering new Accessory ${newDevice.id} found ${newDevice.model} at ${newDevice.Location}`);
+    this.log(`Registering new Accessory ${newDevice.id} found ${newDevice.model} at ${newDevice.location}`);
     this.devices.set(device.id, createdDevice);
     const uuid = this.api.hap.uuid.generate(device.id);
     const accessory = new this.api.platformAccessory(device.id, uuid);
