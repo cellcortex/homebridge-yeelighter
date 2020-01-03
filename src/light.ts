@@ -36,7 +36,7 @@ export class Light {
   ) {
     this.specs = MODEL_SPECS[device.info.model];
     // super(device.device.id, global.hap.uuid.generate(device.device.id));
-    this.log(`light ${device.info.id} ${device.info.model} created, support: ${device.info.support}`);
+    this.log(`light ${device.info.id} ${device.info.model} created.`);
     this.name = device.info.id;
     this.support = device.info.support.split(" ");
     this.connectDevice();

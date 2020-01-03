@@ -24,11 +24,11 @@ class YeelighterPlatform {
     private api: any
   ) {
     this.initialization = new Promise(resolve => {
-      setTimeout(resolve, 10000);
+      setTimeout(resolve, 3000);
     });
     this.agent = new Discovery();
     this.agent.on("started", () => {
-      this.log("** Discovery Started **");
+      this.log("** Discovery Started - searching for 3 seconds **");
     });
     this.agent.on("didDiscoverDevice", this.onDeviceDiscovery);
     this.api.on("didFinishLaunching", this.onFinishLaunching);
@@ -69,7 +69,7 @@ class YeelighterPlatform {
     const uuid = this.api.hap.uuid.generate(info.id);
     const accessory = new this.api.platformAccessory(info.id, uuid);
     const light = new Light(this.log, this.config, createdDevice, this.api, accessory);
-    // this.api.registerPlatformAccessories(PLUGINNAME, PLATFORNAME, [accessory]);
+    // this.api.registerPlatformAccessories(PLUGINNAME, PLATFORMNAME, [accessory]);
     // this.log(`Accessory created with UUID ${uuid}`);
     this.myAccessories.set(info.id, light);
   };
