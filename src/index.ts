@@ -38,53 +38,68 @@ const EMPTY_ATTRIBUTES: Attributes = {
 };
 
 interface Specs {
-  color_temp: { min: number; max: number };
-  night_light: boolean;
-  background_light: boolean;
+  colorTemperature: { min: number; max: number };
+  nightLight: boolean;
+  backgroundLight: boolean;
   name: string;
 }
 
 // Model specs, thanks to https://gitlab.com/stavros/python-yeelight
 const MODEL_SPECS: { [index: string]: Specs } = {
   mono: {
-    color_temp: { min: 2700, max: 2700 },
-    night_light: false,
-    background_light: false,
+    colorTemperature: { min: 2700, max: 2700 },
+    nightLight: false,
+    backgroundLight: false,
     name: "Serene Eye-Friendly Desk Lamp"
   },
-  mono1: { color_temp: { min: 2700, max: 2700 }, night_light: false, background_light: false, name: "mono1" },
-  color: { color_temp: { min: 1700, max: 6500 }, night_light: false, background_light: false, name: "color" },
-  color1: { color_temp: { min: 1700, max: 6500 }, night_light: false, background_light: false, name: "color1" },
-  strip1: { color_temp: { min: 1700, max: 6500 }, night_light: false, background_light: false, name: "strip1" },
-  bslamp1: { color_temp: { min: 1700, max: 6500 }, night_light: false, background_light: false, name: "bslamp1" },
-  bslamp2: { color_temp: { min: 1700, max: 6500 }, night_light: true, background_light: false, name: "bslamp2" },
-  ceiling1: { color_temp: { min: 2700, max: 6500 }, night_light: true, background_light: false, name: "Ceiling Light" },
+  mono1: { colorTemperature: { min: 2700, max: 2700 }, nightLight: false, backgroundLight: false, name: "mono1" },
+  color: { colorTemperature: { min: 1700, max: 6500 }, nightLight: false, backgroundLight: false, name: "color" },
+  color1: { colorTemperature: { min: 1700, max: 6500 }, nightLight: false, backgroundLight: false, name: "color1" },
+  strip1: { colorTemperature: { min: 1700, max: 6500 }, nightLight: false, backgroundLight: false, name: "strip1" },
+  bslamp1: { colorTemperature: { min: 1700, max: 6500 }, nightLight: false, backgroundLight: false, name: "bslamp1" },
+  bslamp2: {
+    colorTemperature: { min: 1700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Bedside Lamp"
+  },
+  ceiling1: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Ceiling Light"
+  },
   ceiling2: {
-    color_temp: { min: 2700, max: 6500 },
-    night_light: true,
-    background_light: false,
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
     name: "Ceiling Light - Youth Version"
   },
   ceiling3: {
-    color_temp: { min: 2700, max: 6500 },
-    night_light: true,
-    background_light: false,
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
     name: "Ceiling Light (Jiaoyue 480)"
   },
   ceiling4: {
-    color_temp: { min: 2700, max: 6500 },
-    night_light: true,
-    background_light: true,
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: true,
     name: "Moon Pro (Jiaoyue 650)"
   },
   ceiling15: {
-    color_temp: { min: 2700, max: 6500 },
-    night_light: true,
-    background_light: false,
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
     name: "Ceiling Light (YLXD42YL)"
   },
-  ceiling20: { color_temp: { min: 2700, max: 6500 }, night_light: true, background_light: true, name: "GuangCan" },
-  color2: { color_temp: { min: 2700, max: 6500 }, night_light: false, background_light: false, name: "color2" }
+  ceiling20: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: true,
+    name: "GuangCan"
+  },
+  color2: { colorTemperature: { min: 2700, max: 6500 }, nightLight: false, backgroundLight: false, name: "color2" }
 };
 
 const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
@@ -170,7 +185,7 @@ class WhiteLightService extends LightService {
     this.handleCharacteristic(
       Characteristic.Brightness,
       async () => {
-        if (this.specs.night_light) {
+        if (this.specs.nightLight) {
           const { bright, nl_br, active_mode } = await this.attributes();
           const br1 = Number(bright);
           const br2 = Number(nl_br);
@@ -184,7 +199,7 @@ class WhiteLightService extends LightService {
         }
       },
       value => {
-        if (this.specs.night_light) {
+        if (this.specs.nightLight) {
           if (value < 50) {
             if (!this.lastBrightness || this.lastBrightness >= 50) {
               this.log("Moonlight on");
@@ -213,8 +228,8 @@ class WhiteLightService extends LightService {
     );
     characteristic.setProps({
       ...characteristic.props,
-      maxValue: convertColorTemperature(this.specs.color_temp.min),
-      minValue: convertColorTemperature(this.specs.color_temp.max)
+      maxValue: convertColorTemperature(this.specs.colorTemperature.min),
+      minValue: convertColorTemperature(this.specs.colorTemperature.max)
     });
   }
 }
