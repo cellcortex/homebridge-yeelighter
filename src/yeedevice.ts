@@ -1,5 +1,5 @@
 /**
- * Device Handling
+ * Yeelight Device Handling.
  */
 
 import EventEmitter from "events";
@@ -57,20 +57,20 @@ export interface Command {
 }
 
 export class Device extends EventEmitter {
-  device: DeviceInfo;
+  info: DeviceInfo;
   debug: boolean;
   connected: boolean;
   forceDisconnect: boolean;
   polligInterval: number;
   retryTimer?: NodeJS.Timeout;
   socket?: net.Socket;
-  constructor(device: DeviceInfo) {
+  constructor(info: DeviceInfo) {
     super();
-    this.device = device;
-    this.debug = this.device.debug || false;
+    this.info = info;
+    this.debug = this.info.debug || false;
     this.connected = false;
     this.forceDisconnect = false;
-    this.polligInterval = this.device.interval || 5000;
+    this.polligInterval = this.info.interval || 5000;
   }
 
   connect() {
@@ -78,7 +78,7 @@ export class Device extends EventEmitter {
       this.forceDisconnect = false;
       this.socket = new net.Socket({ allowHalfOpen: true });
       this.bindSocket();
-      this.socket.connect({ host: this.device.host, port: this.device.port }, () => {
+      this.socket.connect({ host: this.info.host, port: this.info.port }, () => {
         this.didConnect();
         this.emit("connected");
       });
@@ -88,13 +88,8 @@ export class Device extends EventEmitter {
   }
 
   disconnect(forceDisconnect = true) {
-    console.log("XXX manual disconnect");
     this.forceDisconnect = forceDisconnect;
     this.connected = false;
-    /*if (this.timer) {
-      clearInterval(this.timer);
-      delete this.timer;
-    }*/
     this.socket?.destroy();
     delete this.socket;
     this.emit("disconnected");
@@ -110,20 +105,17 @@ export class Device extends EventEmitter {
     });
 
     this.socket?.on("error", error => {
-      console.log("socket error", error);
       this.emit("socketError", error);
       this.socketClosed(error);
     });
 
     this.socket?.on("end", () => {
-      console.log("socket end");
       this.emit("socketEnd");
       this.socketClosed("no error");
     });
   }
 
   socketClosed(error) {
-    console.log("XXX socket closed", error);
     if (this.forceDisconnect) return;
 
     if (error && this.debug) {
@@ -146,7 +138,7 @@ export class Device extends EventEmitter {
     this.sendCommand({
       id: 199,
       method: "get_prop",
-      params: this.device.trackedAttributes
+      params: this.info.trackedAttributes
     });
   }
 
@@ -175,6 +167,6 @@ export class Device extends EventEmitter {
   }
 
   updateDevice(device) {
-    this.device = device;
+    this.info = device;
   }
 }
