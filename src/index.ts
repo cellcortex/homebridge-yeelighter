@@ -36,21 +36,61 @@ const EMPTY_ATTRIBUTES: Attributes = {
   name: "unknown"
 };
 
+interface Specs {
+  color_temp: { min: number; max: number };
+  night_light: boolean;
+  background_light: boolean;
+  name: string;
+}
+
+// Model specs, thanks to https://gitlab.com/stavros/python-yeelight
+const MODEL_SPECS: { [index: string]: Specs } = {
+  mono: {
+    color_temp: { min: 2700, max: 2700 },
+    night_light: false,
+    background_light: false,
+    name: "Serene Eye-Friendly Desk Lamp"
+  },
+  mono1: { color_temp: { min: 2700, max: 2700 }, night_light: false, background_light: false, name: "mono1" },
+  color: { color_temp: { min: 1700, max: 6500 }, night_light: false, background_light: false, name: "color" },
+  color1: { color_temp: { min: 1700, max: 6500 }, night_light: false, background_light: false, name: "color1" },
+  strip1: { color_temp: { min: 1700, max: 6500 }, night_light: false, background_light: false, name: "strip1" },
+  bslamp1: { color_temp: { min: 1700, max: 6500 }, night_light: false, background_light: false, name: "bslamp1" },
+  bslamp2: { color_temp: { min: 1700, max: 6500 }, night_light: true, background_light: false, name: "bslamp2" },
+  ceiling1: { color_temp: { min: 2700, max: 6500 }, night_light: true, background_light: false, name: "Ceiling Light" },
+  ceiling2: {
+    color_temp: { min: 2700, max: 6500 },
+    night_light: true,
+    background_light: false,
+    name: "Ceiling Light - Youth Version"
+  },
+  ceiling3: {
+    color_temp: { min: 2700, max: 6500 },
+    night_light: true,
+    background_light: false,
+    name: "Ceiling Light (Jiaoyue 480)"
+  },
+  ceiling4: {
+    color_temp: { min: 2700, max: 6500 },
+    night_light: true,
+    background_light: true,
+    name: "Moon Pro (Jiaoyue 650)"
+  },
+  ceiling15: {
+    color_temp: { min: 2700, max: 6500 },
+    night_light: true,
+    background_light: false,
+    name: "Ceiling Light (YLXD42YL)"
+  },
+  ceiling20: { color_temp: { min: 2700, max: 6500 }, night_light: true, background_light: true, name: "GuangCan" },
+  color2: { color_temp: { min: 2700, max: 6500 }, night_light: false, background_light: false, name: "color2" }
+};
+
 const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 
 function convertColorTemperature(value: number): number {
-  return 1000000 / value;
+  return Math.round(1000000 / value);
 }
-
-const modelMap = {
-  ceiling1: "Ceiling Light",
-  ceiling2: "Ceiling Light - Youth Version",
-  ceiling3: "Ceiling Light (Jiaoyue 480)",
-  ceiling4: "Moon Pro (Jiaoyue 650)",
-  ceiling15: "Ceiling Light (YLXD42YL)",
-  ceilong20: "GuangCan",
-  mono: "Serene Eye-Friendly Desk Lamp"
-};
 
 const PLUGINNAME = "homebridge-yeelighter";
 const PLATFORMNAME = "Yeelighter";
@@ -64,6 +104,7 @@ interface HomeBridgeAccessory {
 
 class LightService {
   public service: Service;
+  protected specs: Specs;
   constructor(
     protected log: (message?: any, ...optionalParams: any[]) => void,
     protected config: Configuration,
@@ -71,7 +112,8 @@ class LightService {
     protected homebridge: any,
     protected subtype?: string
   ) {
-    this.service = new this.homebridge.hap.Service.Lightbulb(modelMap[device.device.model] || "Main", subtype);
+    this.specs = MODEL_SPECS[device.device.model];
+    this.service = new this.homebridge.hap.Service.Lightbulb(this.specs.name || "Main", subtype);
   }
 
   async handleCharacteristic<T extends WithUUID<typeof Characteristic>>(
@@ -121,38 +163,44 @@ class WhiteLightService extends LightService {
   private async installHandlers() {
     this.handleCharacteristic(
       Characteristic.On,
-      async () => {
-        return (await this.attributes()).power;
-      },
+      async () => (await this.attributes()).power,
       value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || 2])
     );
     this.handleCharacteristic(
       Characteristic.Brightness,
       async () => {
-        const { bright, nl_br, active_mode } = await this.attributes();
-        const br1 = Number(bright);
-        const br2 = Number(nl_br);
-        if (active_mode !== 1) {
-          return br1 / 2 + 50;
+        if (this.specs.night_light) {
+          const { bright, nl_br, active_mode } = await this.attributes();
+          const br1 = Number(bright);
+          const br2 = Number(nl_br);
+          if (active_mode !== 1) {
+            return br1 / 2 + 50;
+          } else {
+            return br2 / 2;
+          }
         } else {
-          return br2 / 2;
+          return (await this.attributes()).bg_bright;
         }
       },
       value => {
-        if (value < 50) {
-          if (!this.lastBrightness || this.lastBrightness >= 50) {
-            this.log("Moonlight on");
-            this.sendCommand("set_power", ["on", "sudden", 0, 5]);
-            this.powerMode = 5;
+        if (this.specs.night_light) {
+          if (value < 50) {
+            if (!this.lastBrightness || this.lastBrightness >= 50) {
+              this.log("Moonlight on");
+              this.sendCommand("set_power", ["on", "sudden", 0, 5]);
+              this.powerMode = 5;
+            }
+            this.sendSuddenCommand("set_bright", value * 2);
+          } else {
+            if (!this.lastBrightness || this.lastBrightness < 50) {
+              this.log("Moonlight off");
+              this.sendCommand("set_power", ["on", "sudden", 0, 1]);
+              this.powerMode = 2;
+            }
+            this.sendSuddenCommand("set_bright", (value - 50) * 2);
           }
-          this.sendSuddenCommand("set_bright", value * 2);
         } else {
-          if (!this.lastBrightness || this.lastBrightness < 50) {
-            this.log("Moonlight off");
-            this.sendCommand("set_power", ["on", "sudden", 0, 1]);
-            this.powerMode = 2;
-          }
-          this.sendSuddenCommand("set_bright", (value - 50) * 2);
+          this.sendSuddenCommand("set_bright", value);
         }
         this.lastBrightness = value;
       }
@@ -160,15 +208,13 @@ class WhiteLightService extends LightService {
     const characteristic = await this.handleCharacteristic(
       Characteristic.ColorTemperature,
       async () => convertColorTemperature((await this.attributes()).ct),
-      value => {
-        this.sendSuddenCommand("set_ct_abx", Number(convertColorTemperature(value).toFixed()));
-      }
+      value => this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value))
     );
-    if (this.device.device.model.includes("bslamp")) {
-      characteristic.setProps({ ...characteristic.props, maxValue: 588, minValue: 153 });
-    } else {
-      characteristic.setProps({ ...characteristic.props, maxValue: 370, minValue: 153 });
-    }
+    characteristic.setProps({
+      ...characteristic.props,
+      maxValue: convertColorTemperature(this.specs.color_temp.min),
+      minValue: convertColorTemperature(this.specs.color_temp.max)
+    });
   }
 }
 
@@ -228,7 +274,6 @@ class BackgroundLightService extends LightService {
 
 export class Light {
   public name: string;
-  public model: string;
   private infoService?: Service;
   private connected = false;
   private lastProps: string[] = [];
@@ -239,6 +284,7 @@ export class Light {
   private updateResolve?: (update: string[]) => void;
   private updateReject?: () => void;
   private attributes: Attributes = EMPTY_ATTRIBUTES;
+  protected specs: Specs;
 
   constructor(
     private log: (message?: any, ...optionalParams: any[]) => void,
@@ -247,9 +293,9 @@ export class Light {
     private homebridge: any,
     private accessory: Accessory
   ) {
+    this.specs = MODEL_SPECS[device.device.model];
     // super(device.device.id, global.hap.uuid.generate(device.device.id));
     this.log(`light ${device.device.id} ${device.device.model} created, support: ${device.device.support}`);
-    this.model = modelMap[device.device.model] || device.device.model;
     this.name = device.device.id;
     this.support = device.device.support.split(" ");
     this.connectDevice();
@@ -301,16 +347,9 @@ export class Light {
               break;
           }
         }
-        this.log("Attributes", this.attributes);
+        this.log(`Attributes: ${JSON.stringify(this.attributes)}`);
         this.updateTimestamp = Date.now();
-      } /*else {
-        if (this.updateReject) {
-          this.log("Rejecting");
-          this.updateReject();
-          delete this.updateResolve;
-          delete this.updateReject;
-        } 
-    }*/
+      }
     }
   };
 
@@ -353,7 +392,7 @@ export class Light {
       const infoService = new this.homebridge.hap.Service.AccessoryInformation();
       infoService
         .updateCharacteristic(Characteristic.Manufacturer, "Yeelighter")
-        .updateCharacteristic(Characteristic.Model, this.model)
+        .updateCharacteristic(Characteristic.Model, this.specs.name)
         .updateCharacteristic(Characteristic.SerialNumber, this.device.device.id);
       // XXX this is not exposed from the library currently
       // .updateCharacteristic(Characteristic.FirmwareRevision, this.device.device.fw_ver);
