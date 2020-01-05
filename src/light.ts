@@ -15,8 +15,6 @@ export const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 
 export class Light {
   public name: string;
-  private infoService?: Service;
-  private connected = false;
   private lastProps: string[] = [];
   private main: LightService;
   private background?: LightService;
@@ -40,11 +38,12 @@ export class Light {
     this.name = device.info.id;
     this.support = device.info.support.split(" ");
     this.connectDevice();
-    this.main = new WhiteLightService(log, config, device, homebridge, this.updateAttributes);
+    this.main = new WhiteLightService(log, config, device, homebridge, this.updateAttributes, accessory);
     if (this.support.includes("bg_set_power")) {
-      this.background = new BackgroundLightService(log, config, device, homebridge, this.updateAttributes);
+      this.background = new BackgroundLightService(log, config, device, homebridge, this.updateAttributes, accessory);
     }
     this.updateTimestamp = 0;
+    this.setInfoService();
   }
 
   private updateAttributes = async (): Promise<Attributes> => {
@@ -90,13 +89,13 @@ export class Light {
 
   private onDeviceConnected = () => {
     this.log("Connected", this.name);
-    this.connected = true;
+    this.accessory.reachable = true;
     this.device.requestAttributes();
   };
 
   private onDeviceDisconnected = () => {
     this.log("Disconnected", this.name);
-    this.connected = false;
+    this.accessory.reachable = false;
   };
 
   connectDevice() {
@@ -112,17 +111,9 @@ export class Light {
     callback();
   }
 
-  getServices(): Array<Service> {
-    this.log(`getServices for ${this.device.info.id}`);
-    const services: Array<Service> = [this.getInfoService(), this.main.service];
-    if (this.background) {
-      services.push(this.background.service);
-    }
-    return services;
-  }
-
-  getInfoService(): Service {
-    if (!this.infoService) {
+  setInfoService(): Service {
+    const infoService: any = this.accessory.getService(Service.AccessoryInformation);
+    if (!infoService) {
       this.log("infoService created");
       const infoService = new this.homebridge.hap.Service.AccessoryInformation();
       infoService
@@ -130,11 +121,17 @@ export class Light {
         .updateCharacteristic(Characteristic.Model, this.specs.name)
         .updateCharacteristic(Characteristic.SerialNumber, this.device.info.id)
         .updateCharacteristic(Characteristic.FirmwareRevision, this.device.info.fw_ver);
-
-      this.infoService = infoService;
+      this.accessory.addService(infoService);
       return infoService;
+    } else {
+      this.log("infoService re-used");
+      infoService
+        .updateCharacteristic(Characteristic.Manufacturer, "Yeelighter")
+        .updateCharacteristic(Characteristic.Model, this.specs.name)
+        .updateCharacteristic(Characteristic.SerialNumber, this.device.info.id)
+        .updateCharacteristic(Characteristic.FirmwareRevision, this.device.info.fw_ver);
     }
-    return this.infoService;
+    return infoService;
   }
 
   sendCommand(method: string, parameters: Array<string | number | boolean>) {

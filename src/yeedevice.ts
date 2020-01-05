@@ -22,7 +22,7 @@ export interface DeviceInfo {
   interval: number;
   debug: boolean;
   trackedAttributes: string[];
-  fw_ver: number;
+  fw_ver: string;
   name: string;
 }
 
@@ -46,7 +46,7 @@ export const EMPTY_DEVICEINFO: DeviceInfo = {
   // eslint-disable-next-line @typescript-eslint/camelcase
   trackedAttributes: [],
   // eslint-disable-next-line @typescript-eslint/camelcase
-  fw_ver: 0,
+  fw_ver: "0,0.0",
   name: "string"
 };
 

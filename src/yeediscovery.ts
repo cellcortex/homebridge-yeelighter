@@ -18,7 +18,7 @@ export class Discovery extends EventEmitter {
   socket: dgram.Socket;
   constructor() {
     super();
-    this.socket = dgram.createSocket("udp4");
+    this.socket = dgram.createSocket({ type: "udp4", reuseAddr: true });
   }
 
   discover() {
@@ -28,7 +28,6 @@ export class Discovery extends EventEmitter {
 
   listen() {
     this.socket.on("listening", () => {
-      this.socket.addMembership(options.multicastAddr);
       this.discover();
       this.emit("started");
     });
@@ -38,6 +37,8 @@ export class Discovery extends EventEmitter {
     try {
       this.socket.bind(options.port, () => {
         this.socket.setBroadcast(true);
+        this.socket.setMulticastTTL(128);
+        this.socket.addMembership(options.multicastAddr);
       });
     } catch (error) {
       throw error;

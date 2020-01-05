@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { Service, Characteristic, CharacteristicEventTypes, WithUUID } from "hap-nodejs";
+import { Service, Characteristic, CharacteristicEventTypes, WithUUID, Accessory } from "hap-nodejs";
 import { Device } from "./yeedevice";
 
 export interface Attributes {
@@ -115,10 +115,21 @@ export class LightService {
     protected config: Configuration,
     protected device: Device,
     protected homebridge: any,
+    private accessory: any,
     protected subtype?: string
   ) {
     this.specs = MODEL_SPECS[device.info.model];
-    this.service = new this.homebridge.hap.Service.Lightbulb(this.specs.name || "Main", subtype);
+    this.log(`checking if ${subtype} already exists on accessory`);
+    const service = accessory.getServiceByUUIDAndSubType(Service.Lightbulb, subtype);
+    if (!service) {
+      this.log(`Creating new service of subtype '${subtype}' and adding it`);
+      const newService = new this.homebridge.hap.Service.Lightbulb(this.specs.name || "Main", subtype);
+      accessory.addService(newService);
+      this.service = newService;
+    } else {
+      this.log(`Re-using service of subtype '${subtype}'.`);
+      this.service = service;
+    }
   }
 
   async handleCharacteristic<T extends WithUUID<typeof Characteristic>>(
@@ -159,9 +170,11 @@ export class WhiteLightService extends LightService {
     config: Configuration,
     device: Device,
     homebridge: any,
-    private attributes: () => Promise<Attributes>
+    private attributes: () => Promise<Attributes>,
+    accessory: Accessory
   ) {
-    super(log, config, device, homebridge, "main");
+    super(log, config, device, homebridge, accessory, "main");
+    this.service.displayName = "White Light";
     this.installHandlers();
   }
 
@@ -231,9 +244,11 @@ export class BackgroundLightService extends LightService {
     config: Configuration,
     device: Device,
     homebridge: any,
-    private attributes: () => Promise<Attributes>
+    private attributes: () => Promise<Attributes>,
+    accessory: Accessory
   ) {
-    super(log, config, device, homebridge, "background");
+    super(log, config, device, homebridge, accessory, "background");
+    this.service.displayName = "Background Light";
     this.installHandlers();
   }
 
