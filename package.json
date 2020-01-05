@@ -1,6 +1,6 @@
 {
   "name": "homebridge-yeelighter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Yeelight support for Homebridge: https://github.com/nfarina/homebridge",
   "license": "MIT",
   "keywords": [
