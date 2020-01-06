@@ -14,7 +14,6 @@ class YeelighterPlatform {
   private agent: Discovery;
   private devices = new Map<string, Device>();
   private cachedAccessories: Map<string, Accessory> = new Map();
-  // public accessories: Array<any> = [];
 
   constructor(
     private log: (message?: any, ...optionalParams: any[]) => void,
@@ -28,13 +27,7 @@ class YeelighterPlatform {
     this.agent.on("didDiscoverDevice", this.onDeviceDiscovery);
     this.api.on("didFinishLaunching", this.onFinishLaunching);
   }
-  /*
-  async accessories(callback: (accessories: any) => void) {
-    const lights = [...this.myAccessories.values()];
-    this.log(`returning ${lights.length} accessories`);
-    callback(lights);
-  }
-*/
+
   private onFinishLaunching = () => {
     this.agent.listen();
     return null;
@@ -42,6 +35,9 @@ class YeelighterPlatform {
 
   private onDeviceDiscovery = (detectedInfo: DeviceInfo) => {
     const oldDevice = this.devices.get(detectedInfo.id);
+    // const supportedAttributes = detectedInfo.support.split(",");
+    const trackedAttributes = TRACKED_ATTRIBUTES; // .filter(attribute => supportedAttributes.includes(attribute));
+    // this.log(`${detectedInfo.id} tracking [${trackedAttributes}] of [${supportedAttributes}]`);
     if (oldDevice) {
       // Device already exists
       if (oldDevice.info.location !== detectedInfo.location) {
@@ -53,8 +49,7 @@ class YeelighterPlatform {
     }
     const newDeviceInfo: DeviceInfo = {
       ...detectedInfo,
-      trackedAttributes: TRACKED_ATTRIBUTES,
-      interval: 10000
+      trackedAttributes
     };
     const createdDevice = new Device(newDeviceInfo);
     this.devices.set(newDeviceInfo.id, createdDevice);
@@ -84,7 +79,7 @@ class YeelighterPlatform {
   };
 
   configureAccessory(accessory: Accessory) {
-    this.log("Configure Accessory", accessory);
+    this.log(`Configure Accessory ${accessory.UUID}`);
     this.cachedAccessories.set(accessory.UUID, accessory);
   }
 

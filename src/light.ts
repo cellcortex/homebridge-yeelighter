@@ -15,15 +15,15 @@ export const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 
 export class Light {
   public name: string;
-  private lastProps: string[] = [];
-  private main: LightService;
-  private background?: LightService;
+  private services = new Array<LightService>();
   private support: Array<string>;
   private updateTimestamp: number;
   private updateResolve?: (update: string[]) => void;
   private updateReject?: () => void;
+  private updatePromise?: Promise<string[]>;
   private attributes: Attributes = EMPTY_ATTRIBUTES;
-  protected specs: Specs;
+  private lastCommandId = 1;
+  public readonly specs: Specs;
 
   constructor(
     private log: (message?: any, ...optionalParams: any[]) => void,
@@ -33,56 +33,69 @@ export class Light {
     private accessory: Accessory
   ) {
     this.specs = MODEL_SPECS[device.info.model];
-    // super(device.device.id, global.hap.uuid.generate(device.device.id));
-    this.log(`light ${device.info.id} ${device.info.model} created.`);
+    this.log(`light ${device.info.id} ${device.info.model} created. It supports: ${device.info.support}`);
     this.name = device.info.id;
     this.support = device.info.support.split(" ");
     this.connectDevice();
-    this.main = new WhiteLightService(log, config, device, homebridge, this.updateAttributes, accessory);
+    this.services.push(new WhiteLightService(log, config, this, homebridge, this.updateAttributes, accessory));
     if (this.support.includes("bg_set_power")) {
-      this.background = new BackgroundLightService(log, config, device, homebridge, this.updateAttributes, accessory);
+      this.services.push(new BackgroundLightService(log, config, this, homebridge, this.updateAttributes, accessory));
     }
     this.updateTimestamp = 0;
     this.setInfoService();
   }
 
+  get info() {
+    return this.device.info;
+  }
+
   private updateAttributes = async (): Promise<Attributes> => {
-    if (this.updateTimestamp < Date.now() - 400 && !this.updateResolve) {
-      const updatePromise = new Promise<string[]>((resolve, reject) => {
+    // make sure we don't query in parallel and not more often than every second
+    if (this.updateTimestamp < Date.now() - 1000 && !this.updatePromise) {
+      this.updatePromise = new Promise<string[]>((resolve, reject) => {
         this.updateResolve = resolve;
         this.updateReject = reject;
-        this.device.requestAttributes();
+        this.requestAttributes();
       });
-      await updatePromise;
+    }
+    // this promise will be awaited for by everybody entering here while a request is still in the air
+    if (this.updatePromise) {
+      await this.updatePromise;
     }
     return this.attributes;
   };
 
-  private onDeviceUpdate = ({ id, result }) => {
-    if (id === 199) {
-      if (result) {
-        if (this.updateResolve) {
-          this.updateResolve(result);
-          delete this.updateResolve;
-          delete this.updateReject;
+  private onDeviceUpdate = ({ id, result, error }) => {
+    if (result && result.length == 1 && result[0] == "ok") {
+      // simple ok
+    } else if (result && result.length > 1) {
+      if (this.updateResolve) {
+        // resolve the promise and delete the resolvers
+        this.updateResolve(result);
+        delete this.updateResolve;
+        delete this.updateReject;
+      }
+      for (const key of Object.keys(this.attributes)) {
+        const index = TRACKED_ATTRIBUTES.indexOf(key);
+        switch (typeof EMPTY_ATTRIBUTES[key]) {
+          case "number":
+            this.attributes[key] = Number(result[index]);
+            break;
+          case "boolean":
+            this.attributes[key] = result[index] == "on";
+            break;
+          default:
+            this.attributes[key] = result[index];
+            break;
         }
-        this.lastProps = [...result];
-        for (const key of Object.keys(this.attributes)) {
-          const index = TRACKED_ATTRIBUTES.indexOf(key);
-          switch (typeof EMPTY_ATTRIBUTES[key]) {
-            case "number":
-              this.attributes[key] = Number(this.lastProps[index]);
-              break;
-            case "boolean":
-              this.attributes[key] = this.lastProps[index] == "on";
-              break;
-            default:
-              this.attributes[key] = this.lastProps[index];
-              break;
-          }
-        }
-        // this.log(`Attributes: ${JSON.stringify(this.attributes)}`);
-        this.updateTimestamp = Date.now();
+      }
+      this.updateTimestamp = Date.now();
+      this.services.forEach(service => service.onAttributesUpdated(this.attributes));
+    } else if (error) {
+      this.log(`Device ${this.device.info.id}: Error returned for ${id}: ${error}`);
+      // reject any pending waits
+      if (this.updateReject) {
+        this.updateReject();
       }
     }
   };
@@ -90,7 +103,7 @@ export class Light {
   private onDeviceConnected = () => {
     this.log("Connected", this.name);
     this.accessory.reachable = true;
-    this.device.requestAttributes();
+    this.requestAttributes();
   };
 
   private onDeviceDisconnected = () => {
@@ -98,11 +111,16 @@ export class Light {
     this.accessory.reachable = false;
   };
 
+  private onDeviceError = error => {
+    this.log("Device Error", error);
+  };
+
   connectDevice() {
     this.device.connect();
     this.device.on("deviceUpdate", this.onDeviceUpdate);
     this.device.on("connected", this.onDeviceConnected);
     this.device.on("disconnected", this.onDeviceDisconnected);
+    this.device.on("deviceError", this.onDeviceError);
   }
 
   // Respond to identify request
@@ -114,7 +132,6 @@ export class Light {
   setInfoService(): Service {
     const infoService: any = this.accessory.getService(Service.AccessoryInformation);
     if (!infoService) {
-      this.log("infoService created");
       const infoService = new this.homebridge.hap.Service.AccessoryInformation();
       infoService
         .updateCharacteristic(Characteristic.Manufacturer, "Yeelighter")
@@ -124,7 +141,7 @@ export class Light {
       this.accessory.addService(infoService);
       return infoService;
     } else {
-      this.log("infoService re-used");
+      // re-use service from cache
       infoService
         .updateCharacteristic(Characteristic.Manufacturer, "Yeelighter")
         .updateCharacteristic(Characteristic.Model, this.specs.name)
@@ -135,6 +152,14 @@ export class Light {
   }
 
   sendCommand(method: string, parameters: Array<string | number | boolean>) {
-    this.device.sendCommand({ id: -1, method, params: parameters });
+    const supportedCommands = this.device.info.support.split(",");
+    if (!supportedCommands.includes) {
+      this.log(`WARN: sending ${method} to ${this.device.info.id} although unsupported.`);
+    }
+    this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
+  }
+
+  requestAttributes() {
+    this.sendCommand("get_prop", this.device.info.trackedAttributes);
   }
 }

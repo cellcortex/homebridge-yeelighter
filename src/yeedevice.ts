@@ -19,7 +19,6 @@ export interface DeviceInfo {
   sat: number;
   host: string;
   port: number;
-  interval: number;
   debug: boolean;
   trackedAttributes: string[];
   fw_ver: string;
@@ -41,7 +40,6 @@ export const EMPTY_DEVICEINFO: DeviceInfo = {
   sat: 0,
   host: "string",
   port: 0,
-  interval: 0,
   debug: false,
   // eslint-disable-next-line @typescript-eslint/camelcase
   trackedAttributes: [],
@@ -61,7 +59,6 @@ export class Device extends EventEmitter {
   debug: boolean;
   connected: boolean;
   forceDisconnect: boolean;
-  polligInterval: number;
   retryTimer?: NodeJS.Timeout;
   socket?: net.Socket;
   constructor(info: DeviceInfo) {
@@ -70,7 +67,6 @@ export class Device extends EventEmitter {
     this.debug = this.info.debug || false;
     this.connected = false;
     this.forceDisconnect = false;
-    this.polligInterval = this.info.interval || 5000;
   }
 
   connect() {
@@ -132,14 +128,6 @@ export class Device extends EventEmitter {
 
   didConnect() {
     this.connected = true;
-  }
-
-  requestAttributes() {
-    this.sendCommand({
-      id: 199,
-      method: "get_prop",
-      params: this.info.trackedAttributes
-    });
   }
 
   didReceiveResponse(data) {

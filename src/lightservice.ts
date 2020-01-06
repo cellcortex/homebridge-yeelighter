@@ -1,6 +1,19 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { Service, Characteristic, CharacteristicEventTypes, WithUUID, Accessory } from "hap-nodejs";
-import { Device } from "./yeedevice";
+import { Light } from "./light";
+
+// PowerMode:
+// 0: Normal turn on operation(default value)
+// 1: Turn on and switch to CT mode.   (used for white lights)
+// 2: Turn on and switch to RGB mode.  (never used here)
+// 3: Turn on and switch to HSV mode.  (used for color lights)
+// 4: Turn on and switch to color flow mode.
+// 5: Turn on and switch to Night light mode. (Ceiling light only).
+
+// ColorMode:
+// 1 means color mode, (never used here)
+// 2 means color temperature mode, (CT used for white light)
+// 3 means HSV mode (used for color lights)
 
 export interface Attributes {
   power: boolean;
@@ -33,6 +46,23 @@ export const EMPTY_ATTRIBUTES: Attributes = {
   active_mode: 0,
   name: "unknown"
 };
+
+function powerModeFromColorModeAndActiveMode(color_mode: number, active_mode: number) {
+  if (active_mode === 1) {
+    return 5;
+  }
+  switch (color_mode) {
+    case 1:
+      return 2;
+    case 2:
+      return 1;
+    case 3:
+      return 3;
+    default:
+      // this should never happen!
+      return 0;
+  }
+}
 
 // Model specs, thanks to https://gitlab.com/stavros/python-yeelight
 export const MODEL_SPECS: { [index: string]: Specs } = {
@@ -109,16 +139,32 @@ export interface Specs {
 
 export class LightService {
   public service: Service;
-  protected specs: Specs;
+  protected powerMode: number;
+
   constructor(
     protected log: (message?: any, ...optionalParams: any[]) => void,
     protected config: Configuration,
-    protected device: Device,
+    protected light: Light,
     protected homebridge: any,
-    private accessory: any,
+    accessory: any,
     protected subtype?: string
   ) {
-    this.specs = MODEL_SPECS[device.info.model];
+    // we use powerMode to store the currently set mode
+    switch (light.info.color_mode) {
+      case 1:
+        this.powerMode = 2;
+        break;
+      case 2:
+        this.powerMode = 1;
+        break;
+      case 3:
+        this.powerMode = 3;
+        break;
+      default:
+        // this should never happen!
+        this.powerMode = 0;
+        break;
+    }
     this.log(`checking if ${subtype} already exists on accessory`);
     const service = accessory.getServiceByUUIDAndSubType(Service.Lightbulb, subtype);
     if (!service) {
@@ -130,6 +176,10 @@ export class LightService {
       this.log(`Re-using service of subtype '${subtype}'.`);
       this.service = service;
     }
+  }
+
+  get specs(): Specs {
+    return this.light.specs;
   }
 
   async handleCharacteristic<T extends WithUUID<typeof Characteristic>>(
@@ -149,40 +199,46 @@ export class LightService {
     return characteristic;
   }
 
+  onAttributesUpdated = (newAttributes: Attributes) => {
+    this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
+  };
+
   sendCommand(method: string, parameters: Array<string | number | boolean>) {
-    this.device.sendCommand({ id: -1, method, params: parameters });
+    this.light.sendCommand(method, parameters);
   }
 
   sendSuddenCommand(method: string, parameter: string | number | boolean) {
-    this.device.sendCommand({ id: -1, method, params: [parameter, "sudden", 0] });
+    this.light.sendCommand(method, [parameter, "sudden", 0]);
   }
 
   sendSmoothCommand(method: string, parameter: string | number | boolean) {
-    this.device.sendCommand({ id: -1, method, params: [parameter, "smooth", 500] });
+    this.light.sendCommand(method, [parameter, "smooth", 500]);
   }
 }
 
 export class WhiteLightService extends LightService {
-  private lastBrightness?: number;
-  private powerMode?: number;
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
     config: Configuration,
-    device: Device,
+    light: Light,
     homebridge: any,
     private attributes: () => Promise<Attributes>,
     accessory: Accessory
   ) {
-    super(log, config, device, homebridge, accessory, "main");
+    super(log, config, light, homebridge, accessory, "main");
     this.service.displayName = "White Light";
+
     this.installHandlers();
   }
 
   private async installHandlers() {
     this.handleCharacteristic(
       Characteristic.On,
-      async () => (await this.attributes()).power,
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || 2])
+      async () => {
+        const attributes = await this.attributes();
+        return attributes.power;
+      },
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || 1])
     );
     this.handleCharacteristic(
       Characteristic.Brightness,
@@ -203,24 +259,26 @@ export class WhiteLightService extends LightService {
       value => {
         if (this.specs.nightLight) {
           if (value < 50) {
-            if (!this.lastBrightness || this.lastBrightness >= 50) {
-              this.log("Moonlight on");
+            if (this.powerMode !== 5) {
               this.sendCommand("set_power", ["on", "sudden", 0, 5]);
               this.powerMode = 5;
+              this.log("Moonlight on");
             }
             this.sendSuddenCommand("set_bright", value * 2);
           } else {
-            if (!this.lastBrightness || this.lastBrightness < 50) {
-              this.log("Moonlight off");
+            if (this.powerMode !== 1) {
               this.sendCommand("set_power", ["on", "sudden", 0, 1]);
-              this.powerMode = 2;
+              this.powerMode = 1;
+              this.log("Moonlight off");
             }
             this.sendSuddenCommand("set_bright", (value - 50) * 2);
           }
         } else {
+          if (this.powerMode !== 1) {
+            this.sendCommand("set_power", ["on", "sudden", 0, 1]);
+          }
           this.sendSuddenCommand("set_bright", value);
         }
-        this.lastBrightness = value;
       }
     );
     const characteristic = await this.handleCharacteristic(
@@ -242,12 +300,12 @@ export class BackgroundLightService extends LightService {
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
     config: Configuration,
-    device: Device,
+    light: Light,
     homebridge: any,
     private attributes: () => Promise<Attributes>,
     accessory: Accessory
   ) {
-    super(log, config, device, homebridge, accessory, "background");
+    super(log, config, light, homebridge, accessory, "background");
     this.service.displayName = "Background Light";
     this.installHandlers();
   }
