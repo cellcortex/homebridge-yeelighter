@@ -29,13 +29,14 @@ If a light supports a background light, it will show up as a secondary service i
 
 ## Installation
 
-You might want to update npm through:
-`$ sudo npm -g i npm@latest`
-Install homebridge through:
-`$ sudo npm -g i homebridge`
+You might want to update npm through: `$ sudo npm -g i npm@latest`
+
+Install homebridge through: `$ sudo npm -g i homebridge`
+
 Follow the instructions on GitHub to create a config.json in ~/.homebridge, as described;
-Install the homebridge-hue plugin through:
-`$ sudo npm -g i homebridge-yeelighter`
+
+Install the homebridge-hue plugin through: `$ sudo npm -g i homebridge-yeelighter`
+
 Edit `~/.homebridge/config.json` and add the yeelighter platform provided by homebridge-yeelighter, see Configuration;
 
 ## Configuration
