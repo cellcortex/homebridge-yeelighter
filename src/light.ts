@@ -51,6 +51,17 @@ export class Light {
       specs.nightLight = false;
       this.specs = specs;
     }
+    const overrideConfig = this.config?.override?.find(item => item.id === device.info.id);
+    if (overrideConfig?.backgroundLight) {
+      this.specs.backgroundLight = overrideConfig.backgroundLight;
+    }
+    if (overrideConfig?.color) {
+      this.specs.color = overrideConfig.color;
+    }
+    if (overrideConfig?.nightLight) {
+      this.specs.nightLight = overrideConfig.nightLight;
+    }
+
     // this.log(`light ${device.info.id} ${device.info.model} created. It supports: ${device.info.support}`);
     this.name = device.info.id;
     this.support = device.info.support.split(" ");

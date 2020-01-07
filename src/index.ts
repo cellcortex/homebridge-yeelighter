@@ -35,6 +35,11 @@ class YeelighterPlatform {
   };
 
   private onDeviceDiscovery = (detectedInfo: DeviceInfo) => {
+    const overrideConfig = this.config?.override?.find(item => item.id === detectedInfo.id);
+    if (overrideConfig) {
+      this.log(`Ignoring light ${detectedInfo.id} as configured`);
+      return;
+    }
     const oldDevice = this.devices.get(detectedInfo.id);
     // const supportedAttributes = detectedInfo.support.split(",");
     const trackedAttributes = TRACKED_ATTRIBUTES; // .filter(attribute => supportedAttributes.includes(attribute));
