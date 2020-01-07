@@ -70,62 +70,128 @@ function powerModeFromColorModeAndActiveMode(color_mode: number, active_mode: nu
   }
 }
 
+export const EMPTY_SPECS: Specs = {
+  colorTemperature: { min: 2700, max: 2700 },
+  nightLight: false,
+  backgroundLight: false,
+  name: "unknown",
+  color: false
+};
+
 // Model specs, thanks to https://gitlab.com/stavros/python-yeelight
 export const MODEL_SPECS: { [index: string]: Specs } = {
   mono: {
     colorTemperature: { min: 2700, max: 2700 },
     nightLight: false,
     backgroundLight: false,
-    name: "Serene Eye-Friendly Desk Lamp"
+    name: "Serene Eye-Friendly Desk Lamp",
+    color: false
   },
-  mono1: { colorTemperature: { min: 2700, max: 2700 }, nightLight: false, backgroundLight: false, name: "mono1" },
-  color: { colorTemperature: { min: 1700, max: 6500 }, nightLight: false, backgroundLight: false, name: "color" },
-  color1: { colorTemperature: { min: 1700, max: 6500 }, nightLight: false, backgroundLight: false, name: "color1" },
-  strip1: { colorTemperature: { min: 1700, max: 6500 }, nightLight: false, backgroundLight: false, name: "strip1" },
-  bslamp1: { colorTemperature: { min: 1700, max: 6500 }, nightLight: false, backgroundLight: false, name: "bslamp1" },
+  stripe: {
+    colorTemperature: { min: 1700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "Lightstrip Plus",
+    color: true
+  },
+  mono1: {
+    colorTemperature: { min: 2700, max: 2700 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "mono1",
+    color: false
+  },
+  color: {
+    colorTemperature: { min: 1700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "color",
+    color: true
+  },
+  color1: {
+    colorTemperature: { min: 1700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "color1",
+    color: true
+  },
+  strip1: {
+    colorTemperature: { min: 1700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "strip1",
+    color: true
+  },
+  bslamp1: {
+    colorTemperature: { min: 1700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "bslamp1",
+    color: true
+  },
   bslamp2: {
     colorTemperature: { min: 1700, max: 6500 },
     nightLight: true,
     backgroundLight: false,
-    name: "Bedside Lamp"
+    name: "Bedside Lamp",
+    color: true
   },
   ceiling1: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
     backgroundLight: false,
-    name: "Ceiling Light"
+    name: "Ceiling Light",
+    color: false
   },
   ceiling2: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
     backgroundLight: false,
-    name: "Ceiling Light - Youth Version"
+    name: "Ceiling Light - Youth Version",
+    color: false
   },
   ceiling3: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
     backgroundLight: false,
-    name: "Ceiling Light (Jiaoyue 480)"
+    name: "Ceiling Light (Jiaoyue 480)",
+    color: false
   },
   ceiling4: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
     backgroundLight: true,
-    name: "Moon Pro (Jiaoyue 650)"
+    name: "Moon Pro (Jiaoyue 650)",
+    color: false
+  },
+  ceiling11: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Ceiling Light (YLXD41YL)",
+    color: false
   },
   ceiling15: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
     backgroundLight: false,
-    name: "Ceiling Light (YLXD42YL)"
+    name: "Ceiling Light (YLXD42YL)",
+    color: false
   },
   ceiling20: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
     backgroundLight: true,
-    name: "GuangCan"
+    name: "GuangCan",
+    color: false
   },
-  color2: { colorTemperature: { min: 2700, max: 6500 }, nightLight: false, backgroundLight: false, name: "color2" }
+  color2: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "color2",
+    color: true
+  }
 };
 
 export interface Configuration {
@@ -141,6 +207,7 @@ export interface Specs {
   nightLight: boolean;
   backgroundLight: boolean;
   name: string;
+  color: boolean;
 }
 
 export class LightService {
@@ -350,6 +417,61 @@ export class BackgroundLightService extends LightService {
         if (this.lastHue && this.lastSat) {
           const hsv = [this.lastHue, this.lastSat, "sudden", 0];
           this.sendCommand("bg_set_hsv", hsv);
+          delete this.lastHue;
+          delete this.lastSat;
+        }
+      }
+    );
+  }
+}
+
+export class ColorLightService extends LightService {
+  private lastHue?: number;
+  private lastSat?: number;
+  constructor(
+    log: (message?: any, ...optionalParams: any[]) => void,
+    config: Configuration,
+    light: Light,
+    homebridge: any,
+    accessory: Accessory
+  ) {
+    super(log, config, light, homebridge, accessory, "main");
+    this.service.displayName = "Color Light";
+    this.installHandlers();
+  }
+
+  private async installHandlers() {
+    this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.On,
+      async () => (await this.attributes()).power,
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 3])
+    );
+    this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.Brightness,
+      async () => (await this.attributes()).bright,
+      value => this.sendSuddenCommand("set_bright", value)
+    );
+    this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.Hue,
+      async () => (await this.attributes()).hue,
+      async value => {
+        this.lastHue = value;
+        if (this.lastHue && this.lastSat) {
+          const hsv = [this.lastHue, this.lastSat, "sudden", 0];
+          this.sendCommand("set_hsv", hsv);
+          delete this.lastHue;
+          delete this.lastSat;
+        }
+      }
+    );
+    this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.Saturation,
+      async () => (await this.attributes()).sat,
+      async value => {
+        this.lastSat = value;
+        if (this.lastHue && this.lastSat) {
+          const hsv = [this.lastHue, this.lastSat, "sudden", 0];
+          this.sendCommand("set_hsv", hsv);
           delete this.lastHue;
           delete this.lastSat;
         }

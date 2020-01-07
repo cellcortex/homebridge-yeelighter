@@ -4,9 +4,11 @@ import {
   LightService,
   BackgroundLightService,
   WhiteLightService,
+  ColorLightService,
   Specs,
   EMPTY_ATTRIBUTES,
   MODEL_SPECS,
+  EMPTY_SPECS,
   Configuration
 } from "./lightservice";
 import { Device } from "./yeedevice";
@@ -19,14 +21,14 @@ export const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 export class Light {
   public name: string;
   private services = new Array<LightService>();
-  private support: Array<string>;
+  private support: string[];
   private updateTimestamp: number;
   private updateResolve?: (update: string[]) => void;
   private updateReject?: () => void;
   private updatePromise?: Promise<string[]>;
   private attributes: Attributes = { ...EMPTY_ATTRIBUTES };
   private lastCommandId = 1;
-  public readonly specs: Specs;
+  public specs: Specs;
 
   constructor(
     private log: (message?: any, ...optionalParams: any[]) => void,
@@ -35,12 +37,29 @@ export class Light {
     private homebridge: any,
     private accessory: Accessory
   ) {
+    this.support = device.info.support.split(" ");
     this.specs = MODEL_SPECS[device.info.model];
-    this.log(`light ${device.info.id} ${device.info.model} created. It supports: ${device.info.support}`);
+
+    if (!this.specs) {
+      const specs = { ...EMPTY_SPECS };
+      this.log(
+        `no specs for light ${device.info.id} ${device.info.model}. It supports: ${device.info.support}. Using fallback. This will not give you moonlight support.`
+      );
+      specs.name = device.info.model;
+      specs.color = this.support.includes("set_hsv");
+      specs.backgroundLight = this.support.includes("bg_set_hsv");
+      specs.nightLight = false;
+      this.specs = specs;
+    }
+    // this.log(`light ${device.info.id} ${device.info.model} created. It supports: ${device.info.support}`);
     this.name = device.info.id;
     this.support = device.info.support.split(" ");
     this.connectDevice();
-    this.services.push(new WhiteLightService(log, config, this, homebridge, accessory));
+    if (this.specs.color) {
+      this.services.push(new ColorLightService(log, config, this, homebridge, accessory));
+    } else {
+      this.services.push(new WhiteLightService(log, config, this, homebridge, accessory));
+    }
     if (this.support.includes("bg_set_power")) {
       this.services.push(new BackgroundLightService(log, config, this, homebridge, accessory));
     }
