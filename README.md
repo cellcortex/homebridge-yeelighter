@@ -41,12 +41,37 @@ Edit `~/.homebridge/config.json` and add the yeelighter platform provided by hom
 
 ## Configuration
 
-In homebridge's config.json you need to specify homebridge-yeelighter as a platform plugin. Furthermore, you need to specify what you want to expose to HomeKit, see the example below.
+In homebridge's config.json you need to specify homebridge-yeelighter as a platform plugin. Furthermore, you need to specify what you want to expose to HomeKit. The simplest form is show below. This will enable the plugin and add all lights with their detected configuration to homekit.
 
 ```
 "platforms": [
   {
     "platform": "yeelighter"
+    "name": "Yeelighter"
+  }
+]
+```
+
+The plugin supports setting the configuration through [homebridge-config-ui-x](https://github.com/oznu/homebridge-config-ui-x).
+
+You can use the override array to override the automatic configuration of the lights. An example for disabling the light with id `0x00000000deadbeef` and enabling moonlight and disabling background for `0x0000000012345678`:
+
+```
+"platforms": [
+  {
+    "platform": "yeelighter"
+    "name": "Yeelighter"
+    "override": [
+      {
+        "id": "0x00000000deadbeef",
+        "ignored": true
+      },
+      {
+        "id": "0x0000000012345678",
+        "background": false,
+        "moonlight": true
+      }
+    ]
   }
 ]
 ```
