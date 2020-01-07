@@ -1,11 +1,26 @@
 {
   "name": "homebridge-yeelighter",
-  "version": "1.0.6",
-  "description": "Yeelight support for Homebridge: https://github.com/nfarina/homebridge",
+  "version": "1.0.8",
+  "description": "Yeelight support for Homebridge with particular support of ceiling lights",
   "license": "MIT",
   "keywords": [
-    "homebridge-plugin"
+    "homebridge-plugin",
+    "ceiling",
+    "yeelight",
+    "xiaomi",
+    "homekit",
+    "night_mode",
+    "Bedside Lamp",
+    "Ceiling Light",
+    "Moonlight",
+    "Jiaoyue",
+    "YLXD42YL",
+    "YLXD50YL",
+    "YLXD01YL",
+    "GuangCan",
+    "Galaxy"
   ],
+  "author": "Thomas Kroeber",
   "repository": {
     "type": "git",
     "url": "git://github.com/cellcortex/homebridge-yeelighter.git"
