@@ -1,6 +1,6 @@
 {
   "name": "homebridge-yeelighter",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Yeelight support for Homebridge with particular support of ceiling lights",
   "license": "MIT",
   "keywords": [
@@ -86,6 +86,8 @@
     "prepublishOnly": "npm run build",
     "lint": "tsc --noEmit && eslint 'src/*.ts'",
     "webpack": "webpack",
-    "debug": "DEBUG=* /usr/local/bin/homebridge -D -P ../homebridge-yeelighter"
+    "debug": "DEBUG=* /usr/local/bin/homebridge -D -P ../homebridge-yeelighter",
+    "preversion": "yarn test",
+    "postversion": "git push --tags && yarn publish . --tag $npm_package_version && git push && echo \"Successfully released version $npm_package_version!\""
   }
 }
