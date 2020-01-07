@@ -48,6 +48,10 @@ In homebridge's config.json you need to specify homebridge-yeelighter as a platf
 ]
 ```
 
+## Setting up the lights
+
+Make sure to enable "LAN control" for the lights you want to control. This is done in the Yeelight app either when setting up the light or in the lights settings which hide behind the ⏏ - button.
+
 ## Author
 
 👤 **Thomas Kroeber**
