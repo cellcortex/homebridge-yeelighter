@@ -1,0 +1,65 @@
+{
+  "pluginAlias": "Yeelighter",
+  "pluginType": "platform",
+  "singular": true,
+  "headerDisplay": "You must enable LAN control for the lights.",
+  "footerDisplay": "For help look at https://github.com/cellcortex/homebridge-yeelighter",
+  "schema": {
+    "override": {
+      "type": "array",
+      "items": {
+        "title": "Override Light Configuration",
+        "type": "object",
+        "properties": {
+        "id": {
+          "title": "Identifier of the light",
+          "type": "string",
+          "required": true
+        },
+        "color": {
+          "title": "Treat this as an HSV color light",
+          "type": "boolean",
+          "required": false,
+          "default":  false
+        },
+        "backgroundLight": {
+          "title": "Add an extra control for background light",
+          "type": "boolean",
+          "required": false,
+          "default":  false
+        },
+        "nightLight": {
+          "title": "Add an extra range for moonlight mode",
+          "type": "boolean",
+          "required": false,
+          "default":  false
+        },
+        "ignored": {
+          "title": "Ignore this light",
+          "type": "boolean",
+          "required": false,
+          "default":  false
+        },
+        "colorTemperature": {
+          "title": "Override Light Configuration",
+          "type": "object",
+          "required": false,
+          "properties": {
+            "min": {
+              "title": "Minimal color temperature (in Kelvin)", 
+              "type": "number",
+              "required": true, 
+              "default": 2700
+            },
+            "max": {
+              "title": "Maximal color temperature (in Kelvin)", 
+              "type": "number",
+              "required": true, 
+              "default": 6500
+            }
+          }
+        }
+      }
+    }
+  }
+}
