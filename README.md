@@ -13,10 +13,12 @@
   </a>
 </p>
 
-> Yeelight support for Homebridge: https://github.com/nfarina/homebridge with particular focus on supporting the special features of ceiling lights.
+Yeelight support for Homebridge: https://github.com/nfarina/homebridge with particular focus on supporting the special features of ceiling lights.
 
-> There are many plugins for Yeelight already. This one is unique (so far) in supporting the
-> background light that some yeelights have and also has a diffent approach to the moonlight mode (exposed as just another range for brightness).
+There are many plugins for Yeelight already. This one is unique (so far) in supporting the
+background light that some yeelights have and also has a diffent approach to the moonlight mode (exposed as just another range for brightness).
+
+If a light supports a background light, it will show up as a secondary service in the light accessory. If a light supports moonlight mode, the brightness will be adjusted so that the lower 50% are reserved for moonlight brightness and the upper 50% are using the "normal" mode. While this makes it simple to control the moonlight mode, it has the small drawback that setting the color-temperature will only work when in the normal light mode. I could not find an API to set the color temperature of the moonlight.
 
 ### 🏠 [Homepage](https://github.com/cellcortex/homebridge-yeelighter)
 
@@ -43,7 +45,7 @@ In homebridge's config.json you need to specify homebridge-yeelighter as a platf
 ```
 "platforms": [
   {
-    "platform": "yeelighter",
+    "platform": "yeelighter"
   }
 ]
 ```
