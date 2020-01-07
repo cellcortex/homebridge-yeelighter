@@ -5,57 +5,63 @@
   "headerDisplay": "You must enable LAN control for the lights.",
   "footerDisplay": "For help look at https://github.com/cellcortex/homebridge-yeelighter",
   "schema": {
+    "name": {
+      "title": "Name",
+      "type": "string",
+      "default": "Yeelighter",
+      "required": true
+    },
     "override": {
       "type": "array",
       "items": {
         "title": "Override Light Configuration",
         "type": "object",
         "properties": {
-        "id": {
-          "title": "Identifier of the light",
-          "type": "string",
-          "required": true
-        },
-        "color": {
-          "title": "Treat this as an HSV color light",
-          "type": "boolean",
-          "required": false,
-          "default":  false
-        },
-        "backgroundLight": {
-          "title": "Add an extra control for background light",
-          "type": "boolean",
-          "required": false,
-          "default":  false
-        },
-        "nightLight": {
-          "title": "Add an extra range for moonlight mode",
-          "type": "boolean",
-          "required": false,
-          "default":  false
-        },
-        "ignored": {
-          "title": "Ignore this light",
-          "type": "boolean",
-          "required": false,
-          "default":  false
-        },
-        "colorTemperature": {
-          "title": "Override Light Configuration",
-          "type": "object",
-          "required": false,
-          "properties": {
-            "min": {
-              "title": "Minimal color temperature (in Kelvin)", 
-              "type": "number",
-              "required": true, 
-              "default": 2700
-            },
-            "max": {
-              "title": "Maximal color temperature (in Kelvin)", 
-              "type": "number",
-              "required": true, 
-              "default": 6500
+          "id": {
+            "title": "Identifier of the light",
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{16}",
+            "required": true
+          },
+          "color": {
+            "title": "Treat this as an HSV color light",
+            "type": "boolean",
+            "required": false
+          },
+          "backgroundLight": {
+            "title": "Add an extra control for background light",
+            "type": "boolean",
+            "required": false
+          },
+          "nightLight": {
+            "title": "Add an extra range for moonlight mode",
+            "type": "boolean",
+            "required": false
+          },
+          "ignored": {
+            "title": "Ignore this light",
+            "type": "boolean",
+            "required": false
+          },
+          "colorTemperature": {
+            "title": "Override Light Configuration",
+            "type": "object",
+            "required": false,
+            "properties": {
+              "min": {
+                "title": "Minimal color temperature (in Kelvin)",
+                "type": "number",
+                "required": true,
+                "minimum": 0,
+                "maximum": 10000
+              },
+              "max": {
+                "title": "Maximum color temperature (in Kelvin)",
+                "type": "number",
+                "required": true,
+                "minimum": 0,
+                "maximum": 10000
+              }
             }
           }
         }
