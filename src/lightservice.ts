@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { Service, Characteristic, CharacteristicEventTypes, WithUUID, Accessory } from "hap-nodejs";
+// import { Service, Characteristic, CharacteristicEventTypes, WithUUID, Accessory } from "hap-nodejs";
+
 import { Light } from "./light";
+
+// HACK: since importing these types will somehow create a dependency to hap-nodejs
+type Accessory = any;
+type Service = any;
+type Characteristic = any;
 
 // PowerMode:
 // 0: Normal turn on operation(default value)
@@ -165,8 +171,7 @@ export class LightService {
         this.powerMode = 0;
         break;
     }
-    this.log(`checking if ${subtype} already exists on accessory`);
-    const service = accessory.getServiceByUUIDAndSubType(Service.Lightbulb, subtype);
+    const service = accessory.getServiceByUUIDAndSubType(this.homebridge.hap.Service.Lightbulb, subtype);
     if (!service) {
       this.log(`Creating new service of subtype '${subtype}' and adding it`);
       const newService = new this.homebridge.hap.Service.Lightbulb(this.specs.name || "Main", subtype);
@@ -182,8 +187,12 @@ export class LightService {
     return this.light.specs;
   }
 
-  async handleCharacteristic<T extends WithUUID<typeof Characteristic>>(
-    uuid: T,
+  public async attributes() {
+    return this.light.getAttributes();
+  }
+
+  async handleCharacteristic(
+    uuid: any,
     getter: () => Promise<any>,
     setter: (value: any) => void
   ): Promise<Characteristic> {
@@ -191,8 +200,8 @@ export class LightService {
     if (!characteristic) {
       return Promise.reject();
     }
-    characteristic.on(CharacteristicEventTypes.GET, async callback => callback(null, await getter()));
-    characteristic.on(CharacteristicEventTypes.SET, async (value, callback) => {
+    characteristic.on("get", async callback => callback(null, await getter()));
+    characteristic.on("set", async (value, callback) => {
       await setter(value);
       callback();
     });
@@ -222,7 +231,6 @@ export class WhiteLightService extends LightService {
     config: Configuration,
     light: Light,
     homebridge: any,
-    private attributes: () => Promise<Attributes>,
     accessory: Accessory
   ) {
     super(log, config, light, homebridge, accessory, "main");
@@ -233,7 +241,7 @@ export class WhiteLightService extends LightService {
 
   private async installHandlers() {
     this.handleCharacteristic(
-      Characteristic.On,
+      this.homebridge.hap.Characteristic.On,
       async () => {
         const attributes = await this.attributes();
         return attributes.power;
@@ -241,10 +249,11 @@ export class WhiteLightService extends LightService {
       value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || 1])
     );
     this.handleCharacteristic(
-      Characteristic.Brightness,
+      this.homebridge.hap.Characteristic.Brightness,
       async () => {
+        const attributes = await this.attributes();
         if (this.specs.nightLight) {
-          const { bright, nl_br, active_mode } = await this.attributes();
+          const { bright, nl_br, active_mode } = attributes;
           const br1 = Number(bright);
           const br2 = Number(nl_br);
           if (active_mode !== 1) {
@@ -253,7 +262,7 @@ export class WhiteLightService extends LightService {
             return br2 / 2;
           }
         } else {
-          return (await this.attributes()).bg_bright;
+          return attributes.bright;
         }
       },
       value => {
@@ -282,7 +291,7 @@ export class WhiteLightService extends LightService {
       }
     );
     const characteristic = await this.handleCharacteristic(
-      Characteristic.ColorTemperature,
+      this.homebridge.hap.Characteristic.ColorTemperature,
       async () => convertColorTemperature((await this.attributes()).ct),
       value => this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value))
     );
@@ -302,7 +311,6 @@ export class BackgroundLightService extends LightService {
     config: Configuration,
     light: Light,
     homebridge: any,
-    private attributes: () => Promise<Attributes>,
     accessory: Accessory
   ) {
     super(log, config, light, homebridge, accessory, "background");
@@ -312,17 +320,17 @@ export class BackgroundLightService extends LightService {
 
   private async installHandlers() {
     this.handleCharacteristic(
-      Characteristic.On,
+      this.homebridge.hap.Characteristic.On,
       async () => (await this.attributes()).bg_power,
       value => this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, 3])
     );
     this.handleCharacteristic(
-      Characteristic.Brightness,
+      this.homebridge.hap.Characteristic.Brightness,
       async () => (await this.attributes()).bg_bright,
       value => this.sendSuddenCommand("bg_set_bright", value)
     );
     this.handleCharacteristic(
-      Characteristic.Hue,
+      this.homebridge.hap.Characteristic.Hue,
       async () => (await this.attributes()).bg_hue,
       async value => {
         this.lastHue = value;
@@ -335,7 +343,7 @@ export class BackgroundLightService extends LightService {
       }
     );
     this.handleCharacteristic(
-      Characteristic.Saturation,
+      this.homebridge.hap.Characteristic.Saturation,
       async () => (await this.attributes()).bg_sat,
       async value => {
         this.lastSat = value;

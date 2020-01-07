@@ -1,4 +1,4 @@
-import { Service, Characteristic, Accessory } from "hap-nodejs";
+// import { Service, Characteristic, Accessory } from "hap-nodejs";
 import {
   Attributes,
   LightService,
@@ -11,6 +11,9 @@ import {
 } from "./lightservice";
 import { Device } from "./yeedevice";
 
+// HACK: since importing these types will somehow create a dependency to hap-nodejs
+type Accessory = any;
+
 export const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 
 export class Light {
@@ -21,7 +24,7 @@ export class Light {
   private updateResolve?: (update: string[]) => void;
   private updateReject?: () => void;
   private updatePromise?: Promise<string[]>;
-  private attributes: Attributes = EMPTY_ATTRIBUTES;
+  private attributes: Attributes = { ...EMPTY_ATTRIBUTES };
   private lastCommandId = 1;
   public readonly specs: Specs;
 
@@ -37,9 +40,9 @@ export class Light {
     this.name = device.info.id;
     this.support = device.info.support.split(" ");
     this.connectDevice();
-    this.services.push(new WhiteLightService(log, config, this, homebridge, this.updateAttributes, accessory));
+    this.services.push(new WhiteLightService(log, config, this, homebridge, accessory));
     if (this.support.includes("bg_set_power")) {
-      this.services.push(new BackgroundLightService(log, config, this, homebridge, this.updateAttributes, accessory));
+      this.services.push(new BackgroundLightService(log, config, this, homebridge, accessory));
     }
     this.updateTimestamp = 0;
     this.setInfoService();
@@ -49,7 +52,7 @@ export class Light {
     return this.device.info;
   }
 
-  private updateAttributes = async (): Promise<Attributes> => {
+  public getAttributes = async (): Promise<Attributes> => {
     // make sure we don't query in parallel and not more often than every second
     if (this.updateTimestamp < Date.now() - 1000 && !this.updatePromise) {
       this.updatePromise = new Promise<string[]>((resolve, reject) => {
@@ -68,7 +71,7 @@ export class Light {
   private onDeviceUpdate = ({ id, result, error }) => {
     if (result && result.length == 1 && result[0] == "ok") {
       // simple ok
-    } else if (result && result.length > 1) {
+    } else if (result && result.length > 3) {
       if (this.updateResolve) {
         // resolve the promise and delete the resolvers
         this.updateResolve(result);
@@ -90,6 +93,7 @@ export class Light {
         }
       }
       this.updateTimestamp = Date.now();
+      this.log(`Attributes for ${this.info.id} updated ${JSON.stringify(this.attributes)}`);
       this.services.forEach(service => service.onAttributesUpdated(this.attributes));
     } else if (error) {
       this.log(`Device ${this.device.info.id}: Error returned for ${id}: ${error}`);
@@ -129,10 +133,13 @@ export class Light {
     callback();
   }
 
-  setInfoService(): Service {
-    const infoService: any = this.accessory.getService(Service.AccessoryInformation);
+  setInfoService() {
+    // type helpers
+    const Characteristic = this.homebridge.hap.Characteristic;
+    const Service = this.homebridge.hap.Service;
+    const infoService = this.accessory.getService(Service.AccessoryInformation);
     if (!infoService) {
-      const infoService = new this.homebridge.hap.Service.AccessoryInformation();
+      const infoService = new Service.AccessoryInformation();
       infoService
         .updateCharacteristic(Characteristic.Manufacturer, "Yeelighter")
         .updateCharacteristic(Characteristic.Model, this.specs.name)

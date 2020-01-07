@@ -4,10 +4,11 @@ import { DeviceInfo, Device } from "./yeedevice";
 import { Discovery } from "./yeediscovery";
 import { Configuration } from "./lightservice";
 import { Light, TRACKED_ATTRIBUTES } from "./light";
-import { Accessory } from "hap-nodejs";
 
 const PLUGINNAME = "homebridge-yeelighter";
 const PLATFORMNAME = "Yeelighter";
+
+type Accessory = any;
 
 class YeelighterPlatform {
   private myAccessories = new Map<string, any>();
@@ -73,8 +74,6 @@ class YeelighterPlatform {
         this.api.registerPlatformAccessories(PLUGINNAME, PLATFORMNAME, [accessory]);
       }
       this.myAccessories.set(newDeviceInfo.id, light);
-      this.log(`Pushing ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
-      // this.accessories.push(accessory);
     }
   };
 

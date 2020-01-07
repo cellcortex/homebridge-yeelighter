@@ -72,7 +72,7 @@ export class Device extends EventEmitter {
   connect() {
     try {
       this.forceDisconnect = false;
-      this.socket = new net.Socket({ allowHalfOpen: true });
+      this.socket = new net.Socket({ allowHalfOpen: false });
       this.bindSocket();
       this.socket.connect({ host: this.info.host, port: this.info.port }, () => {
         this.didConnect();
