@@ -98,28 +98,28 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     colorTemperature: { min: 0, max: 0 },
     nightLight: false,
     backgroundLight: false,
-    name: "mono1",
+    name: "Mono Light",
     color: false
   },
   color: {
     colorTemperature: { min: 1700, max: 6500 },
     nightLight: false,
     backgroundLight: false,
-    name: "color",
+    name: "Color Light",
     color: true
   },
   color1: {
     colorTemperature: { min: 1700, max: 6500 },
     nightLight: false,
     backgroundLight: false,
-    name: "color1",
+    name: "Color Light",
     color: true
   },
   strip1: {
     colorTemperature: { min: 1700, max: 6500 },
     nightLight: false,
     backgroundLight: false,
-    name: "strip1",
+    name: "Light Strip",
     color: true
   },
   RGBW: {
@@ -189,7 +189,7 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
     backgroundLight: true,
-    name: "GuangCan",
+    name: "GuangCan Ceiling Light",
     color: false
   },
   color2: {
@@ -534,6 +534,16 @@ export class ColorLightService extends LightService {
         }
       }
     );
+    const characteristic = await this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.ColorTemperature,
+      async () => convertColorTemperature((await this.attributes()).ct),
+      value => this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value))
+    );
+    characteristic.setProps({
+      ...characteristic.props,
+      maxValue: convertColorTemperature(this.specs.colorTemperature.min),
+      minValue: convertColorTemperature(this.specs.colorTemperature.max)
+    });
   }
 }
 
