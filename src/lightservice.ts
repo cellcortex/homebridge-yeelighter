@@ -8,6 +8,11 @@ type Accessory = any;
 type Service = any;
 type Characteristic = any;
 
+const POWERMODE_DEFAULT = 0;
+const POWERMODE_CT = 1;
+const POWERMODE_HSV = 3;
+const POWERMODE_MOON = 5;
+
 // PowerMode:
 // 0: Normal turn on operation(default value)
 // 1: Turn on and switch to CT mode.   (used for white lights)
@@ -17,7 +22,7 @@ type Characteristic = any;
 // 5: Turn on and switch to Night light mode. (Ceiling light only).
 
 // ColorMode:
-// 1 means color mode, (never used here)
+// 1 means color mode, (rgb -- never used here)
 // 2 means color temperature mode, (CT used for white light)
 // 3 means HSV mode (used for color lights)
 
@@ -54,19 +59,32 @@ export const EMPTY_ATTRIBUTES: Attributes = {
 };
 
 function powerModeFromColorModeAndActiveMode(color_mode: number, active_mode: number) {
+  // PowerMode:
+  // 0: Normal turn on operation(default value)
+  // 1: Turn on and switch to CT mode.   (used for white lights)
+  // 2: Turn on and switch to RGB mode.  (never used here)
+  // 3: Turn on and switch to HSV mode.  (used for color lights)
+  // 4: Turn on and switch to color flow mode.
+  // 5: Turn on and switch to Night light mode. (Ceiling light only).
+
+  // ColorMode:
+  // 1 means color mode, (rgb -- never used here)
+  // 2 means color temperature mode, (CT used for white light)
+  // 3 means HSV mode (used for color lights)
   if (active_mode === 1) {
-    return 5;
+    return POWERMODE_MOON;
   }
   switch (color_mode) {
     case 1:
-      return 2;
+      // this is never used
+      return POWERMODE_DEFAULT;
     case 2:
-      return 1;
+      return POWERMODE_CT;
     case 3:
-      return 3;
+      return POWERMODE_HSV;
     default:
       // this should never happen!
-      return 0;
+      return POWERMODE_DEFAULT;
   }
 }
 
@@ -242,10 +260,10 @@ export class LightService {
         this.powerMode = 2;
         break;
       case 2:
-        this.powerMode = 1;
+        this.powerMode = POWERMODE_CT;
         break;
       case 3:
-        this.powerMode = 3;
+        this.powerMode = POWERMODE_HSV;
         break;
       default:
         // this should never happen!
@@ -304,6 +322,13 @@ export class LightService {
   sendSmoothCommand(method: string, parameter: string | number | boolean) {
     this.light.sendCommand(method, [parameter, "smooth", 500]);
   }
+
+  ensurePowerMode(mode: number) {
+    if (this.powerMode !== mode) {
+      this.light.sendCommand("set_power", ["on", "sudden", 0, mode]);
+      this.powerMode = mode;
+    }
+  }
 }
 
 export class TemperatureLightService extends LightService {
@@ -315,7 +340,7 @@ export class TemperatureLightService extends LightService {
     accessory: Accessory
   ) {
     super(log, config, light, homebridge, accessory, "main");
-    this.service.displayName = "White Light";
+    this.service.displayName = "Temperature Light";
 
     this.installHandlers();
   }
@@ -327,7 +352,7 @@ export class TemperatureLightService extends LightService {
         const attributes = await this.attributes();
         return attributes.power;
       },
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || 1])
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || POWERMODE_CT])
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
@@ -350,23 +375,18 @@ export class TemperatureLightService extends LightService {
         if (this.specs.nightLight) {
           if (value < 50) {
             if (this.powerMode !== 5) {
-              this.sendCommand("set_power", ["on", "sudden", 0, 5]);
-              this.powerMode = 5;
+              this.ensurePowerMode(POWERMODE_MOON);
               this.log("Moonlight on");
             }
             this.sendSuddenCommand("set_bright", value * 2);
           } else {
             if (this.powerMode !== 1) {
-              this.sendCommand("set_power", ["on", "sudden", 0, 1]);
-              this.powerMode = 1;
+              this.ensurePowerMode(POWERMODE_CT);
               this.log("Moonlight off");
             }
             this.sendSuddenCommand("set_bright", (value - 50) * 2);
           }
         } else {
-          if (this.powerMode !== 1) {
-            this.sendCommand("set_power", ["on", "sudden", 0, 1]);
-          }
           this.sendSuddenCommand("set_bright", value);
         }
       }
@@ -374,7 +394,10 @@ export class TemperatureLightService extends LightService {
     const characteristic = await this.handleCharacteristic(
       this.homebridge.hap.Characteristic.ColorTemperature,
       async () => convertColorTemperature((await this.attributes()).ct),
-      value => this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value))
+      value => {
+        this.ensurePowerMode(POWERMODE_CT);
+        this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+      }
     );
     characteristic.setProps({
       ...characteristic.props,
@@ -405,7 +428,7 @@ export class WhiteLightService extends LightService {
         const attributes = await this.attributes();
         return attributes.power;
       },
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || 1])
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 0])
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
@@ -415,12 +438,10 @@ export class WhiteLightService extends LightService {
       },
       value => {
         if (value > 0) {
-          if (this.powerMode !== 1) {
-            this.sendCommand("set_power", ["on", "sudden", 0, 1]);
-          }
+          this.ensurePowerMode(0);
           this.sendSuddenCommand("set_bright", value);
         } else {
-          this.sendCommand("set_power", ["off", "sudden", 0, 1]);
+          this.sendSmoothCommand("set_power", "off");
         }
       }
     );
@@ -446,7 +467,7 @@ export class BackgroundLightService extends LightService {
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.On,
       async () => (await this.attributes()).bg_power,
-      value => this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, 3])
+      value => this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, POWERMODE_HSV])
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
@@ -501,7 +522,7 @@ export class ColorLightService extends LightService {
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.On,
       async () => (await this.attributes()).power,
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 3])
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, POWERMODE_HSV])
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
@@ -514,6 +535,7 @@ export class ColorLightService extends LightService {
       async value => {
         this.lastHue = value;
         if (this.lastHue && this.lastSat) {
+          this.ensurePowerMode(POWERMODE_HSV);
           const hsv = [this.lastHue, this.lastSat, "sudden", 0];
           this.sendCommand("set_hsv", hsv);
           delete this.lastHue;
@@ -527,6 +549,7 @@ export class ColorLightService extends LightService {
       async value => {
         this.lastSat = value;
         if (this.lastHue && this.lastSat) {
+          this.ensurePowerMode(POWERMODE_HSV);
           const hsv = [this.lastHue, this.lastSat, "sudden", 0];
           this.sendCommand("set_hsv", hsv);
           delete this.lastHue;
@@ -537,7 +560,10 @@ export class ColorLightService extends LightService {
     const characteristic = await this.handleCharacteristic(
       this.homebridge.hap.Characteristic.ColorTemperature,
       async () => convertColorTemperature((await this.attributes()).ct),
-      value => this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value))
+      value => {
+        this.ensurePowerMode(POWERMODE_CT);
+        this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+      }
     );
     characteristic.setProps({
       ...characteristic.props,
