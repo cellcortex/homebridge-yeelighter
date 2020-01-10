@@ -3,13 +3,14 @@ import {
   Attributes,
   LightService,
   BackgroundLightService,
-  WhiteLightService,
+  TemperatureLightService,
   ColorLightService,
   Specs,
   EMPTY_ATTRIBUTES,
   MODEL_SPECS,
   EMPTY_SPECS,
-  Configuration
+  Configuration,
+  WhiteLightService
 } from "./lightservice";
 import { Device } from "./yeedevice";
 
@@ -49,6 +50,10 @@ export class Light {
       specs.color = this.support.includes("set_hsv");
       specs.backgroundLight = this.support.includes("bg_set_hsv");
       specs.nightLight = false;
+      if (!this.support.includes("set_ct_abx")) {
+        specs.colorTemperature.min = 0;
+        specs.colorTemperature.max = 0;
+      }
       this.specs = specs;
     }
     const overrideConfig = this.config?.override?.find(item => item.id === device.info.id);
@@ -69,7 +74,11 @@ export class Light {
     if (this.specs.color) {
       this.services.push(new ColorLightService(log, config, this, homebridge, accessory));
     } else {
-      this.services.push(new WhiteLightService(log, config, this, homebridge, accessory));
+      if (this.specs.colorTemperature.min === 0 && this.specs.colorTemperature.max === 0) {
+        this.services.push(new WhiteLightService(log, config, this, homebridge, accessory));
+      } else {
+        this.services.push(new TemperatureLightService(log, config, this, homebridge, accessory));
+      }
     }
     if (this.support.includes("bg_set_power")) {
       this.services.push(new BackgroundLightService(log, config, this, homebridge, accessory));

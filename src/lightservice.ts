@@ -81,7 +81,7 @@ export const EMPTY_SPECS: Specs = {
 // Model specs, thanks to https://gitlab.com/stavros/python-yeelight
 export const MODEL_SPECS: { [index: string]: Specs } = {
   mono: {
-    colorTemperature: { min: 2700, max: 2700 },
+    colorTemperature: { min: 0, max: 0 },
     nightLight: false,
     backgroundLight: false,
     name: "Serene Eye-Friendly Desk Lamp",
@@ -95,7 +95,7 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     color: true
   },
   mono1: {
-    colorTemperature: { min: 2700, max: 2700 },
+    colorTemperature: { min: 0, max: 0 },
     nightLight: false,
     backgroundLight: false,
     name: "mono1",
@@ -122,18 +122,25 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     name: "strip1",
     color: true
   },
+  RGBW: {
+    colorTemperature: { min: 1700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "RGBW",
+    color: true
+  },
   bslamp1: {
     colorTemperature: { min: 1700, max: 6500 },
     nightLight: false,
     backgroundLight: false,
-    name: "bslamp1",
+    name: "Bedside Lamp",
     color: true
   },
   bslamp2: {
     colorTemperature: { min: 1700, max: 6500 },
-    nightLight: true,
+    nightLight: false,
     backgroundLight: false,
-    name: "Bedside Lamp",
+    name: "Bedside Lamp 2",
     color: true
   },
   ceiling1: {
@@ -191,6 +198,13 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     backgroundLight: false,
     name: "color2",
     color: true
+  },
+  lamp1: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "Color Temperature bulb",
+    color: false
   }
 };
 
@@ -292,7 +306,7 @@ export class LightService {
   }
 }
 
-export class WhiteLightService extends LightService {
+export class TemperatureLightService extends LightService {
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
     config: Configuration,
@@ -367,6 +381,49 @@ export class WhiteLightService extends LightService {
       maxValue: convertColorTemperature(this.specs.colorTemperature.min),
       minValue: convertColorTemperature(this.specs.colorTemperature.max)
     });
+  }
+}
+
+export class WhiteLightService extends LightService {
+  constructor(
+    log: (message?: any, ...optionalParams: any[]) => void,
+    config: Configuration,
+    light: Light,
+    homebridge: any,
+    accessory: Accessory
+  ) {
+    super(log, config, light, homebridge, accessory, "main");
+    this.service.displayName = "White Light";
+
+    this.installHandlers();
+  }
+
+  private async installHandlers() {
+    this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.On,
+      async () => {
+        const attributes = await this.attributes();
+        return attributes.power;
+      },
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || 1])
+    );
+    this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.Brightness,
+      async () => {
+        const attributes = await this.attributes();
+        return attributes.bright;
+      },
+      value => {
+        if (value > 0) {
+          if (this.powerMode !== 1) {
+            this.sendCommand("set_power", ["on", "sudden", 0, 1]);
+          }
+          this.sendSuddenCommand("set_bright", value);
+        } else {
+          this.sendCommand("set_power", ["off", "sudden", 0, 1]);
+        }
+      }
+    );
   }
 }
 
