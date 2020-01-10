@@ -2,17 +2,17 @@
 import {
   Attributes,
   LightService,
-  BackgroundLightService,
-  TemperatureLightService,
-  ColorLightService,
   Specs,
   EMPTY_ATTRIBUTES,
   MODEL_SPECS,
   EMPTY_SPECS,
-  Configuration,
-  WhiteLightService
+  Configuration
 } from "./lightservice";
 import { Device } from "./yeedevice";
+import { ColorLightService } from "./colorlightservice";
+import { WhiteLightService } from "./whitelightservice";
+import { TemperatureLightService } from "./temperaturelightservice";
+import { BackgroundLightService } from "./backgroundlightservice";
 
 // HACK: since importing these types will somehow create a dependency to hap-nodejs
 type Accessory = any;

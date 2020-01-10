@@ -4,14 +4,14 @@
 import { Light } from "./light";
 
 // HACK: since importing these types will somehow create a dependency to hap-nodejs
-type Accessory = any;
-type Service = any;
-type Characteristic = any;
+export type Accessory = any;
+export type Service = any;
+export type Characteristic = any;
 
-const POWERMODE_DEFAULT = 0;
-const POWERMODE_CT = 1;
-const POWERMODE_HSV = 3;
-const POWERMODE_MOON = 5;
+export const POWERMODE_DEFAULT = 0;
+export const POWERMODE_CT = 1;
+export const POWERMODE_HSV = 3;
+export const POWERMODE_MOON = 5;
 
 // PowerMode:
 // 0: Normal turn on operation(default value)
@@ -58,7 +58,7 @@ export const EMPTY_ATTRIBUTES: Attributes = {
   name: "unknown"
 };
 
-function powerModeFromColorModeAndActiveMode(color_mode: number, active_mode: number) {
+export function powerModeFromColorModeAndActiveMode(color_mode: number, active_mode: number) {
   // PowerMode:
   // 0: Normal turn on operation(default value)
   // 1: Turn on and switch to CT mode.   (used for white lights)
@@ -230,7 +230,7 @@ export interface Configuration {
   [key: string]: any;
 }
 
-function convertColorTemperature(value: number): number {
+export function convertColorTemperature(value: number): number {
   return Math.round(1000000 / value);
 }
 
@@ -245,6 +245,8 @@ export interface Specs {
 export class LightService {
   public service: Service;
   protected powerMode: number;
+  protected lastHue?: number;
+  protected lastSat?: number;
 
   constructor(
     protected log: (message?: any, ...optionalParams: any[]) => void,
@@ -290,7 +292,7 @@ export class LightService {
     return this.light.getAttributes();
   }
 
-  async handleCharacteristic(
+  protected async handleCharacteristic(
     uuid: any,
     getter: () => Promise<any>,
     setter: (value: any) => void
@@ -307,269 +309,37 @@ export class LightService {
     return characteristic;
   }
 
-  onAttributesUpdated = (newAttributes: Attributes) => {
+  public onAttributesUpdated = (newAttributes: Attributes) => {
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
   };
 
-  sendCommand(method: string, parameters: Array<string | number | boolean>) {
+  protected sendCommand(method: string, parameters: Array<string | number | boolean>) {
     this.light.sendCommand(method, parameters);
   }
 
-  sendSuddenCommand(method: string, parameter: string | number | boolean) {
+  protected sendSuddenCommand(method: string, parameter: string | number | boolean) {
     this.light.sendCommand(method, [parameter, "sudden", 0]);
   }
 
-  sendSmoothCommand(method: string, parameter: string | number | boolean) {
+  protected sendSmoothCommand(method: string, parameter: string | number | boolean) {
     this.light.sendCommand(method, [parameter, "smooth", 500]);
   }
 
-  ensurePowerMode(mode: number) {
+  protected ensurePowerMode(mode: number, prefix = "") {
     if (this.powerMode !== mode) {
-      this.light.sendCommand("set_power", ["on", "sudden", 0, mode]);
+      this.light.sendCommand(`${prefix}set_power`, ["on", "sudden", 0, mode]);
       this.powerMode = mode;
     }
   }
-}
 
-export class TemperatureLightService extends LightService {
-  constructor(
-    log: (message?: any, ...optionalParams: any[]) => void,
-    config: Configuration,
-    light: Light,
-    homebridge: any,
-    accessory: Accessory
-  ) {
-    super(log, config, light, homebridge, accessory, "main");
-    this.service.displayName = "Temperature Light";
-
-    this.installHandlers();
-  }
-
-  private async installHandlers() {
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.On,
-      async () => {
-        const attributes = await this.attributes();
-        return attributes.power;
-      },
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || POWERMODE_CT])
-    );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Brightness,
-      async () => {
-        const attributes = await this.attributes();
-        if (this.specs.nightLight) {
-          const { bright, nl_br, active_mode } = attributes;
-          const br1 = Number(bright);
-          const br2 = Number(nl_br);
-          if (active_mode !== 1) {
-            return br1 / 2 + 50;
-          } else {
-            return br2 / 2;
-          }
-        } else {
-          return attributes.bright;
-        }
-      },
-      value => {
-        if (this.specs.nightLight) {
-          if (value < 50) {
-            if (this.powerMode !== 5) {
-              this.ensurePowerMode(POWERMODE_MOON);
-              this.log("Moonlight on");
-            }
-            this.sendSuddenCommand("set_bright", value * 2);
-          } else {
-            if (this.powerMode !== 1) {
-              this.ensurePowerMode(POWERMODE_CT);
-              this.log("Moonlight off");
-            }
-            this.sendSuddenCommand("set_bright", (value - 50) * 2);
-          }
-        } else {
-          this.sendSuddenCommand("set_bright", value);
-        }
-      }
-    );
-    const characteristic = await this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.ColorTemperature,
-      async () => convertColorTemperature((await this.attributes()).ct),
-      value => {
-        this.ensurePowerMode(POWERMODE_CT);
-        this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
-      }
-    );
-    characteristic.setProps({
-      ...characteristic.props,
-      maxValue: convertColorTemperature(this.specs.colorTemperature.min),
-      minValue: convertColorTemperature(this.specs.colorTemperature.max)
-    });
-  }
-}
-
-export class WhiteLightService extends LightService {
-  constructor(
-    log: (message?: any, ...optionalParams: any[]) => void,
-    config: Configuration,
-    light: Light,
-    homebridge: any,
-    accessory: Accessory
-  ) {
-    super(log, config, light, homebridge, accessory, "main");
-    this.service.displayName = "White Light";
-
-    this.installHandlers();
-  }
-
-  private async installHandlers() {
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.On,
-      async () => {
-        const attributes = await this.attributes();
-        return attributes.power;
-      },
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 0])
-    );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Brightness,
-      async () => {
-        const attributes = await this.attributes();
-        return attributes.bright;
-      },
-      value => {
-        if (value > 0) {
-          this.ensurePowerMode(0);
-          this.sendSuddenCommand("set_bright", value);
-        } else {
-          this.sendSmoothCommand("set_power", "off");
-        }
-      }
-    );
-  }
-}
-
-export class BackgroundLightService extends LightService {
-  private lastHue?: number;
-  private lastSat?: number;
-  constructor(
-    log: (message?: any, ...optionalParams: any[]) => void,
-    config: Configuration,
-    light: Light,
-    homebridge: any,
-    accessory: Accessory
-  ) {
-    super(log, config, light, homebridge, accessory, "background");
-    this.service.displayName = "Background Light";
-    this.installHandlers();
-  }
-
-  private async installHandlers() {
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.On,
-      async () => (await this.attributes()).bg_power,
-      value => this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, POWERMODE_HSV])
-    );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Brightness,
-      async () => (await this.attributes()).bg_bright,
-      value => this.sendSuddenCommand("bg_set_bright", value)
-    );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Hue,
-      async () => (await this.attributes()).bg_hue,
-      async value => {
-        this.lastHue = value;
-        if (this.lastHue && this.lastSat) {
-          const hsv = [this.lastHue, this.lastSat, "sudden", 0];
-          this.sendCommand("bg_set_hsv", hsv);
-          delete this.lastHue;
-          delete this.lastSat;
-        }
-      }
-    );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Saturation,
-      async () => (await this.attributes()).bg_sat,
-      async value => {
-        this.lastSat = value;
-        if (this.lastHue && this.lastSat) {
-          const hsv = [this.lastHue, this.lastSat, "sudden", 0];
-          this.sendCommand("bg_set_hsv", hsv);
-          delete this.lastHue;
-          delete this.lastSat;
-        }
-      }
-    );
-  }
-}
-
-export class ColorLightService extends LightService {
-  private lastHue?: number;
-  private lastSat?: number;
-  constructor(
-    log: (message?: any, ...optionalParams: any[]) => void,
-    config: Configuration,
-    light: Light,
-    homebridge: any,
-    accessory: Accessory
-  ) {
-    super(log, config, light, homebridge, accessory, "main");
-    this.service.displayName = "Color Light";
-    this.installHandlers();
-  }
-
-  private async installHandlers() {
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.On,
-      async () => (await this.attributes()).power,
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, POWERMODE_HSV])
-    );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Brightness,
-      async () => (await this.attributes()).bright,
-      value => this.sendSuddenCommand("set_bright", value)
-    );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Hue,
-      async () => (await this.attributes()).hue,
-      async value => {
-        this.lastHue = value;
-        if (this.lastHue && this.lastSat) {
-          this.ensurePowerMode(POWERMODE_HSV);
-          const hsv = [this.lastHue, this.lastSat, "sudden", 0];
-          this.sendCommand("set_hsv", hsv);
-          delete this.lastHue;
-          delete this.lastSat;
-        }
-      }
-    );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Saturation,
-      async () => (await this.attributes()).sat,
-      async value => {
-        this.lastSat = value;
-        if (this.lastHue && this.lastSat) {
-          this.ensurePowerMode(POWERMODE_HSV);
-          const hsv = [this.lastHue, this.lastSat, "sudden", 0];
-          this.sendCommand("set_hsv", hsv);
-          delete this.lastHue;
-          delete this.lastSat;
-        }
-      }
-    );
-    const characteristic = await this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.ColorTemperature,
-      async () => convertColorTemperature((await this.attributes()).ct),
-      value => {
-        this.ensurePowerMode(POWERMODE_CT);
-        this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
-      }
-    );
-    characteristic.setProps({
-      ...characteristic.props,
-      maxValue: convertColorTemperature(this.specs.colorTemperature.min),
-      minValue: convertColorTemperature(this.specs.colorTemperature.max)
-    });
+  protected setHSV(prefix = "") {
+    if (this.lastHue && this.lastSat) {
+      this.ensurePowerMode(POWERMODE_HSV, prefix);
+      const hsv = [this.lastHue, this.lastSat, "sudden", 0];
+      this.sendCommand(`${prefix}set_hsv`, hsv);
+      delete this.lastHue;
+      delete this.lastSat;
+    }
   }
 }
 
