@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.0...v1.3.0) (2020-01-10)
+
+
+### Features
+
+* White light support ([42d768b](https://github.com/cellcortex/homebridge-yeelighter/commit/42d768bb92aee9175531a346a94e8f7d3d1b301b))
+
 ## [1.2.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.0.8...v1.2.0) (2020-01-10)
 
 
