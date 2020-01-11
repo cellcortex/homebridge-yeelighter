@@ -1,4 +1,12 @@
-import { Accessory, LightService, POWERMODE_HSV } from "./lightservice";
+import {
+  Accessory,
+  LightService,
+  POWERMODE_HSV,
+  POWERMODE_CT,
+  convertColorTemperature,
+  powerModeFromColorModeAndActiveMode,
+  Attributes
+} from "./lightservice";
 import { Configuration } from "homebridge";
 import { Light } from "./light";
 
@@ -46,5 +54,25 @@ export class BackgroundLightService extends LightService {
         this.setHSV("bg_");
       }
     );
+    const characteristic = await this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.ColorTemperature,
+      async () => {
+        this.ensurePowerMode(POWERMODE_CT, "bg_");
+        return convertColorTemperature((await this.attributes()).bg_ct);
+      },
+      value => {
+        this.ensurePowerMode(POWERMODE_CT, "bg_");
+        this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+      }
+    );
+    characteristic.setProps({
+      ...characteristic.props,
+      maxValue: convertColorTemperature(this.specs.colorTemperature.min),
+      minValue: convertColorTemperature(this.specs.colorTemperature.max)
+    });
   }
+
+  public onAttributesUpdated = (newAttributes: Attributes) => {
+    this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.bg_lmode, 0);
+  };
 }

@@ -38,7 +38,6 @@ export class TemperatureLightService extends LightService {
         if (this.specs.nightLight) {
           // eslint-disable-next-line @typescript-eslint/camelcase
           const { bright, nl_br, active_mode } = attributes;
-          this.log(`${this.light.info.id} getting brightness`, attributes);
           const br1 = Number(bright);
           const br2 = Number(nl_br);
           // eslint-disable-next-line @typescript-eslint/camelcase
@@ -56,13 +55,13 @@ export class TemperatureLightService extends LightService {
           if (value < 50) {
             if (this.powerMode !== 5) {
               this.ensurePowerMode(POWERMODE_MOON);
-              this.log("Moonlight on");
+              this.log(`${this.light.info.id}: Moonlight on`);
             }
             this.sendSuddenCommand("set_bright", value * 2);
           } else {
             if (this.powerMode !== 1) {
               this.ensurePowerMode(POWERMODE_CT);
-              this.log("Moonlight off");
+              this.log(`${this.light.info.id}: Moonlight off`);
             }
             this.sendSuddenCommand("set_bright", (value - 50) * 2);
           }

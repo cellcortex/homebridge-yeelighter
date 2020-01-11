@@ -37,7 +37,8 @@ export interface Attributes {
   bg_bright: number;
   bg_hue: number;
   bg_sat: number;
-  bg_ct: number;
+  bg_ct: number; // ct of background light
+  bg_lmode: number; // colormode of background light
   nl_br: number; // brightness of night mode
   active_mode: number; // 0: daylight mode / 1: moonlight mode (ceiling light only)
   name: string;
@@ -55,6 +56,7 @@ export const EMPTY_ATTRIBUTES: Attributes = {
   bg_hue: 0,
   bg_sat: 0,
   bg_ct: 0,
+  bg_lmode: 0,
   nl_br: 0,
   active_mode: 0,
   name: "unknown"
