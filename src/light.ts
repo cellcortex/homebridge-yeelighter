@@ -93,7 +93,7 @@ export class Light {
 
   public getAttributes = async (): Promise<Attributes> => {
     // make sure we don't query in parallel and not more often than every second
-    if (this.updateTimestamp < Date.now() - 1000 && !this.updatePromise) {
+    if (/*this.updateTimestamp < Date.now() - 1000 && */ !this.updatePromise) {
       this.updatePromise = new Promise<string[]>((resolve, reject) => {
         this.updateResolve = resolve;
         this.updateReject = reject;

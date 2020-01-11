@@ -28,7 +28,10 @@ export class ColorLightService extends LightService {
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Hue,
-      async () => (await this.attributes()).hue,
+      async () => {
+        this.ensurePowerMode(POWERMODE_HSV);
+        return (await this.attributes()).hue;
+      },
       async value => {
         this.lastHue = value;
         this.setHSV();
@@ -36,7 +39,10 @@ export class ColorLightService extends LightService {
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Saturation,
-      async () => (await this.attributes()).sat,
+      async () => {
+        this.ensurePowerMode(POWERMODE_HSV);
+        return (await this.attributes()).sat;
+      },
       async value => {
         this.lastSat = value;
         this.setHSV();
@@ -44,7 +50,10 @@ export class ColorLightService extends LightService {
     );
     const characteristic = await this.handleCharacteristic(
       this.homebridge.hap.Characteristic.ColorTemperature,
-      async () => convertColorTemperature((await this.attributes()).ct),
+      async () => {
+        this.ensurePowerMode(POWERMODE_CT);
+        return convertColorTemperature((await this.attributes()).ct);
+      },
       value => {
         this.ensurePowerMode(POWERMODE_CT);
         this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));

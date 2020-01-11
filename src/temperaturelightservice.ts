@@ -38,10 +38,11 @@ export class TemperatureLightService extends LightService {
         if (this.specs.nightLight) {
           // eslint-disable-next-line @typescript-eslint/camelcase
           const { bright, nl_br, active_mode } = attributes;
+          this.log(`${this.light.info.id} getting brightness`, attributes);
           const br1 = Number(bright);
           const br2 = Number(nl_br);
           // eslint-disable-next-line @typescript-eslint/camelcase
-          if (active_mode !== 1) {
+          if (active_mode === 0) {
             return br1 / 2 + 50;
           } else {
             return br2 / 2;

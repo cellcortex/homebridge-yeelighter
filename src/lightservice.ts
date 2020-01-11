@@ -189,6 +189,13 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     name: "Moon Pro (Jiaoyue 650)",
     color: false
   },
+  ceiling10: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: false,
+    backgroundLight: true,
+    name: "Meteorite",
+    color: false
+  },
   ceiling11: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
@@ -258,9 +265,6 @@ export class LightService {
   ) {
     // we use powerMode to store the currently set mode
     switch (light.info.color_mode) {
-      case 1:
-        this.powerMode = 2;
-        break;
       case 2:
         this.powerMode = POWERMODE_CT;
         break;
@@ -269,7 +273,7 @@ export class LightService {
         break;
       default:
         // this should never happen!
-        this.powerMode = 0;
+        this.powerMode = POWERMODE_DEFAULT;
         break;
     }
     const service = accessory.getServiceByUUIDAndSubType(this.homebridge.hap.Service.Lightbulb, subtype);
