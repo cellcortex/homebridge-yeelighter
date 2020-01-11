@@ -24,7 +24,10 @@ export class ColorLightService extends LightService {
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
       async () => (await this.attributes()).bright,
-      value => this.sendSuddenCommand("set_bright", value)
+      value => {
+        this.sendSuddenCommand("set_bright", value);
+        this.saveDefaultIfNeeded();
+      }
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Hue,
@@ -57,13 +60,16 @@ export class ColorLightService extends LightService {
       async () => {
         this.ensurePowerMode(POWERMODE_CT);
         const attributes = await this.attributes();
-        this.log(`${this.light.info.id} getCT: ${JSON.stringify(attributes)}`);
+        this.log(
+          `${this.light.info.id} getCT: ${JSON.stringify(attributes)} -> ${convertColorTemperature(attributes.ct)}`
+        );
         return convertColorTemperature(attributes.ct);
       },
       value => {
         this.ensurePowerMode(POWERMODE_CT);
-        this.log(`${this.light.info.id} setCT: value`);
+        this.log(`${this.light.info.id} setCT: ${convertColorTemperature(value)}`);
         this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+        this.saveDefaultIfNeeded();
       }
     );
     characteristic.setProps({

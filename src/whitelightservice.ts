@@ -35,6 +35,7 @@ export class WhiteLightService extends LightService {
         if (value > 0) {
           this.ensurePowerMode(0);
           this.sendSuddenCommand("set_bright", value);
+          this.saveDefaultIfNeeded();
         } else {
           this.sendSmoothCommand("set_power", "off");
         }

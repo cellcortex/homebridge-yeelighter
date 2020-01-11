@@ -68,6 +68,7 @@ export class TemperatureLightService extends LightService {
         } else {
           this.sendSuddenCommand("set_bright", value);
         }
+        this.saveDefaultIfNeeded();
       }
     );
     const characteristic = await this.handleCharacteristic(
@@ -76,6 +77,7 @@ export class TemperatureLightService extends LightService {
       value => {
         this.ensurePowerMode(POWERMODE_CT);
         this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+        this.saveDefaultIfNeeded();
       }
     );
     characteristic.setProps({

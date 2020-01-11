@@ -36,7 +36,10 @@ export class BackgroundLightService extends LightService {
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
       async () => (await this.attributes()).bg_bright,
-      value => this.sendSuddenCommand("bg_set_bright", value)
+      value => {
+        this.sendSuddenCommand("bg_set_bright", value);
+        this.saveDefaultIfNeeded();
+      }
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Hue,

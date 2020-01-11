@@ -334,6 +334,12 @@ export class LightService {
     this.light.sendCommand(method, [parameter, "smooth", 500]);
   }
 
+  protected saveDefaultIfNeeded() {
+    if (this.config?.saveDefault) {
+      this.sendCommand("set_default", []);
+    }
+  }
+
   protected ensurePowerMode(mode: number, prefix = "") {
     if (this.powerMode !== mode) {
       this.light.sendCommand(`${prefix}set_power`, ["on", "sudden", 0, mode]);
@@ -348,6 +354,7 @@ export class LightService {
       this.sendCommand(`${prefix}set_hsv`, hsv);
       delete this.lastHue;
       delete this.lastSat;
+      this.saveDefaultIfNeeded();
     }
   }
 }
