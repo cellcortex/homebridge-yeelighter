@@ -62,7 +62,7 @@ export class BackgroundLightService extends LightService {
       },
       value => {
         this.ensurePowerMode(POWERMODE_CT, "bg_");
-        this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+        this.sendSuddenCommand("bg_set_ct_abx", convertColorTemperature(value));
       }
     );
     characteristic.setProps({
