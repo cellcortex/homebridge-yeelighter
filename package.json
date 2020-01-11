@@ -90,6 +90,7 @@
     "debug": "DEBUG=* /usr/local/bin/homebridge -D -P ../homebridge-yeelighter",
     "postversion": "git push --tags && yarn publish . --tag $npm_package_version && git push && echo \"Successfully released version $npm_package_version!\"",
     "release-commit": "standard-version -a",
-    "release": "standard-version"
+    "release": "standard-version -r minor",
+    "release-patch": "standard-version -r patch"
   }
 }

@@ -108,6 +108,7 @@ export class Light {
   };
 
   private onDeviceUpdate = ({ id, result, error }) => {
+    this.log(`${this.info.id} update (${id}): ${result}`);
     if (result && result.length == 1 && result[0] == "ok") {
       // simple ok
     } else if (result && result.length > 3) {
