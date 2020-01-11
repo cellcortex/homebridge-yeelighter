@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.6](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.5...v1.2.6) (2020-01-11)
+
+
+### Features
+
+* support for CT in background light ([48325d9](https://github.com/cellcortex/homebridge-yeelighter/commit/48325d9b4a0341216cf13d268396bad1aca557c1))
+
 ### [1.2.5](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.4...v1.2.5) (2020-01-11)
 
 
