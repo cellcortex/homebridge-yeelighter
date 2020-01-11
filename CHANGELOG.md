@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.10](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.9...v1.2.10) (2020-01-11)
+
+
+### Features
+
+* config setting to save default values (so on power cycle the status is restored) ([b372b13](https://github.com/cellcortex/homebridge-yeelighter/commit/b372b13934e2f79688b63dccdf4cbb967fcaa522))
+
 ### [1.2.9](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.8...v1.2.9) (2020-01-11)
 
 
