@@ -155,8 +155,10 @@ export class Light {
   };
 
   private onDeviceDisconnected = () => {
-    this.log("Disconnected", this.name);
-    this.accessory.reachable = false;
+    if (this.accessory.reachable) {
+      this.log("Disconnected", this.name);
+      this.accessory.reachable = false;
+    }
   };
 
   private onDeviceError = error => {
