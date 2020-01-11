@@ -54,6 +54,7 @@ export class BackgroundLightService extends LightService {
         this.setHSV("bg_");
       }
     );
+    /*
     const characteristic = await this.handleCharacteristic(
       this.homebridge.hap.Characteristic.ColorTemperature,
       async () => {
@@ -70,9 +71,11 @@ export class BackgroundLightService extends LightService {
       maxValue: convertColorTemperature(this.specs.colorTemperature.min),
       minValue: convertColorTemperature(this.specs.colorTemperature.max)
     });
+    */
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
+    this.log(`${this.light.info.id} backlight updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.bg_lmode, 0);
   };
 }

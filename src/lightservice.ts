@@ -318,6 +318,7 @@ export class LightService {
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
+    this.log(`${this.light.info.id} updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
   };
 

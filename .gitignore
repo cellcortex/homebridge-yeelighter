@@ -2,6 +2,7 @@ node_modules/
 dist/
 package-lock.json
 .DS_Store
+.vscode
 /build/compiled
 /homebridge-yeelighter.d.ts
 /homebridge-yeelighter.min.js
