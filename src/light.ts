@@ -27,6 +27,7 @@ export class Light {
   private updateResolve?: (update: string[]) => void;
   private updateReject?: () => void;
   private updatePromise?: Promise<string[]>;
+  private updatePromisePending: boolean;
   private attributes: Attributes = { ...EMPTY_ATTRIBUTES };
   private lastCommandId = 1;
   public specs: Specs;
@@ -84,6 +85,7 @@ export class Light {
       this.services.push(new BackgroundLightService(log, config, this, homebridge, accessory));
     }
     this.updateTimestamp = 0;
+    this.updatePromisePending = false;
     this.setInfoService();
   }
 
@@ -93,8 +95,9 @@ export class Light {
 
   public getAttributes = async (): Promise<Attributes> => {
     // make sure we don't query in parallel and not more often than every second
-    if (/*this.updateTimestamp < Date.now() - 1000 && */ !this.updatePromise) {
+    if (this.updateTimestamp < Date.now() - 500 && (!this.updatePromise || !this.updatePromisePending)) {
       this.updatePromise = new Promise<string[]>((resolve, reject) => {
+        this.updatePromisePending = true;
         this.updateResolve = resolve;
         this.updateReject = reject;
         this.requestAttributes();
@@ -108,13 +111,13 @@ export class Light {
   };
 
   private onDeviceUpdate = ({ id, result, error }) => {
-    this.log(`${this.info.id} update (${id}): ${result}`);
     if (result && result.length == 1 && result[0] == "ok") {
       // simple ok
     } else if (result && result.length > 3) {
       if (this.updateResolve) {
         // resolve the promise and delete the resolvers
         this.updateResolve(result);
+        this.updatePromisePending = false;
         delete this.updateResolve;
         delete this.updateReject;
       }
@@ -140,6 +143,7 @@ export class Light {
       // reject any pending waits
       if (this.updateReject) {
         this.updateReject();
+        this.updatePromisePending = false;
       }
     }
   };
