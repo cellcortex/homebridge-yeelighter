@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.8](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.7...v1.2.8) (2020-01-11)
+
+
+### Bug Fixes
+
+* background light was setting the front light ct instead ([c2a6caa](https://github.com/cellcortex/homebridge-yeelighter/commit/c2a6caaa4adf8b550444ac0967194e4546d9a6ea))
+
 ### [1.2.7](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.6...v1.2.7) (2020-01-11)
 
 
