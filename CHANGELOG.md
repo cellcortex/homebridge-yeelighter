@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.7](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.6...v1.2.7) (2020-01-11)
+
+
+### Bug Fixes
+
+* do not spam 'Disconnected' if device remains inactive ([1de04c2](https://github.com/cellcortex/homebridge-yeelighter/commit/1de04c24c6eba9c0d182c084cd0d3c576addddc1))
+
 ### [1.2.6](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.5...v1.2.6) (2020-01-11)
 
 
