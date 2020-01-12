@@ -1,4 +1,12 @@
-import { Accessory, LightService, POWERMODE_HSV, convertColorTemperature, POWERMODE_CT } from "./lightservice";
+import {
+  Accessory,
+  LightService,
+  POWERMODE_HSV,
+  convertColorTemperature,
+  POWERMODE_CT,
+  powerModeFromColorModeAndActiveMode,
+  Attributes
+} from "./lightservice";
 import { Configuration } from "homebridge";
 import { Light } from "./light";
 
@@ -78,4 +86,19 @@ export class ColorLightService extends LightService {
       minValue: convertColorTemperature(this.specs.colorTemperature.max)
     });
   }
+
+  public onAttributesUpdated = (newAttributes: Attributes) => {
+    this.log(`${this.light.info.id} color light updated ${JSON.stringify(newAttributes)}`);
+    this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
+    if (this.updateCharateristics) {
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.sat);
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.hue);
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bright);
+      this.updateCharacteristic(
+        this.homebridge.hap.Characteristic.ColorTemperature,
+        convertColorTemperature(newAttributes.ct)
+      );
+    }
+  };
 }

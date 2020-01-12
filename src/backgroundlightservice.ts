@@ -80,5 +80,15 @@ export class BackgroundLightService extends LightService {
   public onAttributesUpdated = (newAttributes: Attributes) => {
     this.log(`${this.light.info.id} backlight updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.bg_lmode, 0);
+    if (this.updateCharateristics) {
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.bg_sat);
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.bg_hue);
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.bg_power);
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bg_bright);
+      this.updateCharacteristic(
+        this.homebridge.hap.Characteristic.ColorTemperature,
+        convertColorTemperature(newAttributes.bg_ct)
+      );
+    }
   };
 }

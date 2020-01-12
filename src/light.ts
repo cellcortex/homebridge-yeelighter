@@ -139,7 +139,7 @@ export class Light {
       this.log(`Attributes for ${this.info.id} updated ${JSON.stringify(this.attributes)}`);
       this.services.forEach(service => service.onAttributesUpdated(this.attributes));
     } else if (error) {
-      this.log(`Device ${this.device.info.id}: Error returned for ${id}: ${error}`);
+      this.log(`Device ${this.device.info.id}: Error returned for request [${id}]: ${JSON.stringify(error)}`);
       // reject any pending waits
       if (this.updateReject) {
         this.updateReject();

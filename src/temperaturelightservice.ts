@@ -4,7 +4,9 @@ import {
   Configuration,
   POWERMODE_CT,
   POWERMODE_MOON,
-  convertColorTemperature
+  convertColorTemperature,
+  Attributes,
+  powerModeFromColorModeAndActiveMode
 } from "./lightservice";
 import { Light } from "./light";
 
@@ -22,6 +24,23 @@ export class TemperatureLightService extends LightService {
     this.installHandlers();
   }
 
+  private getBrightness(attributes): number {
+    if (this.specs.nightLight) {
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      const { bright, nl_br, active_mode } = attributes;
+      const br1 = Number(bright);
+      const br2 = Number(nl_br);
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      if (active_mode === 0) {
+        return br1 / 2 + 50;
+      } else {
+        return br2 / 2;
+      }
+    } else {
+      return attributes.bright;
+    }
+  }
+
   private async installHandlers() {
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.On,
@@ -34,21 +53,7 @@ export class TemperatureLightService extends LightService {
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
       async () => {
-        const attributes = await this.attributes();
-        if (this.specs.nightLight) {
-          // eslint-disable-next-line @typescript-eslint/camelcase
-          const { bright, nl_br, active_mode } = attributes;
-          const br1 = Number(bright);
-          const br2 = Number(nl_br);
-          // eslint-disable-next-line @typescript-eslint/camelcase
-          if (active_mode === 0) {
-            return br1 / 2 + 50;
-          } else {
-            return br2 / 2;
-          }
-        } else {
-          return attributes.bright;
-        }
+        return this.getBrightness(await this.attributes());
       },
       value => {
         if (this.specs.nightLight) {
@@ -86,4 +91,17 @@ export class TemperatureLightService extends LightService {
       minValue: convertColorTemperature(this.specs.colorTemperature.max)
     });
   }
+
+  public onAttributesUpdated = (newAttributes: Attributes) => {
+    this.log(`${this.light.info.id} backlight updated ${JSON.stringify(newAttributes)}`);
+    this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
+    if (this.updateCharateristics) {
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, this.getBrightness(newAttributes));
+      this.updateCharacteristic(
+        this.homebridge.hap.Characteristic.ColorTemperature,
+        convertColorTemperature(newAttributes.ct)
+      );
+    }
+  };
 }

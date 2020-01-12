@@ -258,6 +258,7 @@ export class LightService {
   protected powerMode: number;
   protected lastHue?: number;
   protected lastSat?: number;
+  protected updateCharateristics = true;
 
   constructor(
     protected log: (message?: any, ...optionalParams: any[]) => void,
@@ -315,6 +316,14 @@ export class LightService {
       callback();
     });
     return characteristic;
+  }
+
+  protected async updateCharacteristic(uuid: any, value: boolean | number | string) {
+    const characteristic = this.service.getCharacteristic(uuid);
+    if (!characteristic) {
+      return Promise.reject();
+    }
+    characteristic.setValue(value);
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
