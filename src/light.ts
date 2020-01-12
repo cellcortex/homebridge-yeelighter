@@ -99,18 +99,24 @@ export class Light {
 
     this.support = device.info.support.split(" ");
     this.connectDevice();
+    let typeString = "UNKNOWN";
     if (this.specs.color) {
-      this.services.push(new ColorLightService(log, config, this, homebridge, accessory));
+      this.services.push(new ColorLightService(this.log, config, this, homebridge, accessory));
+      typeString = "Color light";
     } else {
       if (this.specs.colorTemperature.min === 0 && this.specs.colorTemperature.max === 0) {
-        this.services.push(new WhiteLightService(log, config, this, homebridge, accessory));
+        this.services.push(new WhiteLightService(this.log, config, this, homebridge, accessory));
+        typeString = "White light";
       } else {
-        this.services.push(new TemperatureLightService(log, config, this, homebridge, accessory));
+        this.services.push(new TemperatureLightService(this.log, config, this, homebridge, accessory));
+        typeString = "Color temperature light";
       }
     }
     if (this.support.includes("bg_set_power")) {
-      this.services.push(new BackgroundLightService(log, config, this, homebridge, accessory));
+      this.services.push(new BackgroundLightService(this.log, config, this, homebridge, accessory));
+      typeString = `${typeString} with mood light`;
     }
+    this.log(`installed as ${typeString}`);
     this.updateTimestamp = 0;
     this.updatePromisePending = false;
     this.setInfoService();
