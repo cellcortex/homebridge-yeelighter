@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.20](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.19...v1.2.20) (2020-01-12)
+
+
+### Bug Fixes
+
+* better function for calculating hue and saturation from colortemp ([85acce2](https://github.com/cellcortex/homebridge-yeelighter/commit/85acce2c74a4657b95ff96f5538181deafba2e25))
+
 ### [1.2.19](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.18...v1.2.19) (2020-01-12)
 
 
