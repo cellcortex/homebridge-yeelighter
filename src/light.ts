@@ -136,7 +136,7 @@ export class Light {
         }
       }
       this.updateTimestamp = Date.now();
-      this.log(`Attributes for ${this.info.id} updated ${JSON.stringify(this.attributes)}`);
+      // this.log(`Attributes for ${this.info.id} updated ${JSON.stringify(this.attributes)}`);
       this.services.forEach(service => service.onAttributesUpdated(this.attributes));
     } else if (error) {
       this.log(`Device ${this.device.info.id}: Error returned for request [${id}]: ${JSON.stringify(error)}`);
@@ -157,6 +157,11 @@ export class Light {
   private onDeviceDisconnected = () => {
     if (this.accessory.reachable) {
       this.log("Disconnected", this.name);
+      if (this.updateReject) {
+        this.updateReject();
+        this.updatePromisePending = false;
+      }
+
       this.accessory.reachable = false;
     }
   };

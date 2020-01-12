@@ -258,7 +258,7 @@ export class LightService {
   protected powerMode: number;
   protected lastHue?: number;
   protected lastSat?: number;
-  protected updateCharateristics = true;
+  protected updateCharateristics = false;
 
   constructor(
     protected log: (message?: any, ...optionalParams: any[]) => void,
@@ -323,7 +323,7 @@ export class LightService {
     if (!characteristic) {
       return Promise.reject();
     }
-    characteristic.setValue(value);
+    characteristic.updateValue(value);
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {

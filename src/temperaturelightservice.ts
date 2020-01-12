@@ -93,7 +93,7 @@ export class TemperatureLightService extends LightService {
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.log(`${this.light.info.id} backlight updated ${JSON.stringify(newAttributes)}`);
+    this.log(`${this.light.info.id} temperature light updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
     if (this.updateCharateristics) {
       this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
