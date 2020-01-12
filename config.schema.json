@@ -59,6 +59,11 @@
             "type": "boolean",
             "required": false
           },
+          "offOnDisconnect": {
+            "title": "Switch light off in homekit when disconnected",
+            "type": "boolean",
+            "required": false
+          },
           "colorTemperature": {
             "title": "Override Light Configuration",
             "type": "object",

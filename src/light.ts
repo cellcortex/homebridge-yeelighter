@@ -28,6 +28,7 @@ export interface OverrideLightConfiguration {
   ignored?: boolean;
   colorTemperature?: ColorTemperatureConfiguration;
   log?: boolean;
+  offOnDisconnect?: boolean;
   [k: string]: any;
 }
 
@@ -204,6 +205,9 @@ export class Light {
   private onDeviceDisconnected = () => {
     if (this.accessory.reachable) {
       this.log("Disconnected");
+      if (this.overrideConfig?.offOnDisconnect) {
+        this.services.forEach(service => service.onPowerOff());
+      }
       if (this.updateReject) {
         this.updateReject();
         this.updatePromisePending = false;

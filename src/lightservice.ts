@@ -328,6 +328,10 @@ export class LightService {
     characteristic.updateValue(value);
   }
 
+  public onPowerOff = () => {
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.On, false);
+  };
+
   public onAttributesUpdated = (newAttributes: Attributes) => {
     this.log(`updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
