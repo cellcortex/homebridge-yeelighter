@@ -2,6 +2,7 @@
 // import { Service, Characteristic, CharacteristicEventTypes, WithUUID, Accessory } from "hap-nodejs";
 
 import { Light } from "./light";
+import { ctToHSV } from "./colortools";
 
 // HACK: since importing these types will somehow create a dependency to hap-nodejs
 export type Accessory = any;
@@ -366,6 +367,12 @@ export class LightService {
       delete this.lastSat;
       this.saveDefaultIfNeeded();
     }
+  }
+
+  protected updateColorFromCT(value: number) {
+    const hsv = ctToHSV(value);
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, hsv.hue);
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, hsv.saturation);
   }
 }
 

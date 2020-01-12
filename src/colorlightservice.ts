@@ -78,6 +78,7 @@ export class ColorLightService extends LightService {
           this.log(`setCT: ${convertColorTemperature(value)}`);
         }
         this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+        this.updateColorFromCT(value);
         this.saveDefaultIfNeeded();
       }
     );
