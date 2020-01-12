@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.19](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.18...v1.2.19) (2020-01-12)
+
+
+### Bug Fixes
+
+* setting color temperature on color lamps ([cc5fa21](https://github.com/cellcortex/homebridge-yeelighter/commit/cc5fa2178358fd1dede20e0aadcc4fef4e9d3212))
+
 ### [1.2.18](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.17...v1.2.18) (2020-01-12)
 
 
