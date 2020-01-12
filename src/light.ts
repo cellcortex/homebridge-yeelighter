@@ -257,10 +257,10 @@ export class Light {
     if (!supportedCommands.includes) {
       this.log(`WARN: sending ${method} although unsupported.`);
     }
-    this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
     if (this.detailedLogging) {
       this.log(`sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
     }
+    this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
   }
 
   requestAttributes() {

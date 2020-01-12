@@ -61,7 +61,6 @@ export class BackgroundLightService extends LightService {
     const characteristic = await this.handleCharacteristic(
       this.homebridge.hap.Characteristic.ColorTemperature,
       async () => {
-        this.ensurePowerMode(POWERMODE_CT, "bg_");
         return convertColorTemperature((await this.attributes()).bg_ct);
       },
       value => {
