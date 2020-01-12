@@ -41,22 +41,6 @@ export class BackgroundLightService extends LightService {
         this.saveDefaultIfNeeded();
       }
     );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Hue,
-      async () => (await this.attributes()).bg_hue,
-      async value => {
-        this.lastHue = value;
-        this.setHSV("bg_");
-      }
-    );
-    this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Saturation,
-      async () => (await this.attributes()).bg_sat,
-      async value => {
-        this.lastSat = value;
-        this.setHSV("bg_");
-      }
-    );
 
     const characteristic = await this.handleCharacteristic(
       this.homebridge.hap.Characteristic.ColorTemperature,
@@ -78,6 +62,22 @@ export class BackgroundLightService extends LightService {
       maxValue: convertColorTemperature(this.specs.colorTemperature.min),
       minValue: convertColorTemperature(this.specs.colorTemperature.max)
     });
+    this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.Hue,
+      async () => (await this.attributes()).bg_hue,
+      async value => {
+        this.lastHue = value;
+        this.setHSV("bg_");
+      }
+    );
+    this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.Saturation,
+      async () => (await this.attributes()).bg_sat,
+      async value => {
+        this.lastSat = value;
+        this.setHSV("bg_");
+      }
+    );
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {

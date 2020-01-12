@@ -37,6 +37,31 @@ export class ColorLightService extends LightService {
         this.saveDefaultIfNeeded();
       }
     );
+    const characteristic = await this.handleCharacteristic(
+      this.homebridge.hap.Characteristic.ColorTemperature,
+      async () => {
+        const attributes = await this.attributes();
+        if (this.light.detailedLogging) {
+          this.log(`getCT: ${JSON.stringify(attributes)} -> ${convertColorTemperature(attributes.ct)}`);
+        }
+        return convertColorTemperature(attributes.ct);
+      },
+      value => {
+        const kelvin = convertColorTemperature(value);
+        this.ensurePowerMode(POWERMODE_CT);
+        if (this.light.detailedLogging) {
+          this.log(`setCT: ${convertColorTemperature(value)}`);
+        }
+        this.sendSuddenCommand("set_ct_abx", kelvin);
+        this.updateColorFromCT(value);
+        this.saveDefaultIfNeeded();
+      }
+    );
+    characteristic.setProps({
+      ...characteristic.props,
+      maxValue: convertColorTemperature(this.specs.colorTemperature.min),
+      minValue: convertColorTemperature(this.specs.colorTemperature.max)
+    });
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Hue,
       async () => {
@@ -63,31 +88,6 @@ export class ColorLightService extends LightService {
         this.setHSV();
       }
     );
-    const characteristic = await this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.ColorTemperature,
-      async () => {
-        const attributes = await this.attributes();
-        if (this.light.detailedLogging) {
-          this.log(`getCT: ${JSON.stringify(attributes)} -> ${convertColorTemperature(attributes.ct)}`);
-        }
-        return convertColorTemperature(attributes.ct);
-      },
-      value => {
-        const kelvin = convertColorTemperature(value);
-        this.ensurePowerMode(POWERMODE_CT);
-        if (this.light.detailedLogging) {
-          this.log(`setCT: ${convertColorTemperature(value)}`);
-        }
-        this.sendSuddenCommand("set_ct_abx", kelvin);
-        this.updateColorFromCT(value);
-        this.saveDefaultIfNeeded();
-      }
-    );
-    characteristic.setProps({
-      ...characteristic.props,
-      maxValue: convertColorTemperature(this.specs.colorTemperature.min),
-      minValue: convertColorTemperature(this.specs.colorTemperature.max)
-    });
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
