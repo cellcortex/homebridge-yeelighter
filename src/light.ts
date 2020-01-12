@@ -126,9 +126,9 @@ export class Light {
     return this.device.info;
   }
 
-  public log(message?: any, ...optionalParameters: any[]) {
+  public log = (message?: any, ...optionalParameters: any[]): void => {
     this.pluginLog(`[${this.name}] ${message}`, optionalParameters);
-  }
+  };
 
   public getAttributes = async (): Promise<Attributes> => {
     // make sure we don't query in parallel and not more often than every second
