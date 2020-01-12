@@ -142,7 +142,11 @@ export class Light {
     }
     // this promise will be awaited for by everybody entering here while a request is still in the air
     if (this.updatePromise) {
-      await this.updatePromise;
+      try {
+        await this.updatePromise;
+      } catch (error) {
+        this.log("retrieving attributes failed. Using last attributes.", error);
+      }
     }
     return this.attributes;
   };
