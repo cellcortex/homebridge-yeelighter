@@ -76,9 +76,24 @@ You can use the override array to override the automatic configuration of the li
 ]
 ```
 
+### Optional per light configuration:
+
+- `id: string` (mandatory) - the id of the light (as reported in the device config of homebridge)
+- `name?: string` (optional) - the name to be used in log messages
+- `color?: boolean` (optional) - this light is full RGB color
+- `backgroundLight?: boolean` (optional) - this light has a secondary color mood light
+- `nightLight?: boolean` (optional) - this light supports moonlight mode
+- `log?: boolean` (optional) - enalbe detailed logging for this light
+- `offOnDisconnect?: boolean` (optional) - switch the light off in homekit when it disconnects (this is for people with old-school wall switches)
+- `colorTemperature?: { min: number, max: number }` (optional) - colorTemperature limits in kelvin
+
 ## Setting up the lights
 
 Make sure to enable "LAN control" for the lights you want to control. This is done in the Yeelight app either when setting up the light or in the lights settings which hide behind the ⏏ - button.
+
+There are existing configurations for a number of lights. If your light is not supported, it will
+hopefully fall back to a decent fallback configuration. You can use the settings to fine-tune it. In those cases, it would be great if you could open a ticket in the [issues page](http://github.com/cellcortex/homebridge-yeelighter/issues) including the homebridge logs for the light being setup so
+the configuration can be added for future users.
 
 ## Author
 
@@ -89,7 +104,7 @@ Make sure to enable "LAN control" for the lights you want to control. This is do
 
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](http://github.com/cellcortex/homebridge-yeelighter/issues). You can also take a look at the [contributing guide](git://github.com/cellcortex/homebridge-yeelighter/blob/master/CONTRIBUTING.md).
+Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](http://github.com/cellcortex/homebridge-yeelighter/issues).
 
 ## Show your support
 
