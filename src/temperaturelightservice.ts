@@ -60,13 +60,17 @@ export class TemperatureLightService extends LightService {
           if (value < 50) {
             if (this.powerMode !== 5) {
               this.ensurePowerMode(POWERMODE_MOON);
-              this.log(`Moonlight on`);
+              if (this.light.detailedLogging) {
+                this.log(`Moonlight on`);
+              }
             }
             this.sendSuddenCommand("set_bright", value * 2);
           } else {
             if (this.powerMode !== 1) {
               this.ensurePowerMode(POWERMODE_CT);
-              this.log(`Moonlight off`);
+              if (this.light.detailedLogging) {
+                this.log(`Moonlight off`);
+              }
             }
             this.sendSuddenCommand("set_bright", (value - 50) * 2);
           }
@@ -93,7 +97,9 @@ export class TemperatureLightService extends LightService {
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.log(`temperature light updated ${JSON.stringify(newAttributes)}`);
+    if (this.light.detailedLogging) {
+      this.log(`temperature light updated ${JSON.stringify(newAttributes)}`);
+    }
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
     if (this.updateCharateristics) {
       this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);

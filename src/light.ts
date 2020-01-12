@@ -27,6 +27,7 @@ export interface OverrideLightConfiguration {
   nightLight?: boolean;
   ignored?: boolean;
   colorTemperature?: ColorTemperatureConfiguration;
+  log?: boolean;
   [k: string]: any;
 }
 
@@ -49,6 +50,7 @@ export class Light {
   public specs: Specs;
   public overrideConfig?: OverrideLightConfiguration;
   private pluginLog: (message?: any, ...optionalParams: any[]) => void;
+  public detailedLogging = false;
 
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
@@ -93,6 +95,7 @@ export class Light {
       this.specs.nightLight = overrideConfig.nightLight;
     }
     this.overrideConfig = overrideConfig;
+    this.detailedLogging = !!overrideConfig?.log;
 
     this.support = device.info.support.split(" ");
     this.connectDevice();
@@ -140,8 +143,14 @@ export class Light {
 
   private onDeviceUpdate = ({ id, result, error }) => {
     if (result && result.length == 1 && result[0] == "ok") {
+      if (this.detailedLogging) {
+        this.log(`received ${id}: OK`);
+      }
       // simple ok
     } else if (result && result.length > 3) {
+      if (this.detailedLogging) {
+        this.log(`received update ${id}: ${JSON.stringify(result)}`);
+      }
       if (this.updateResolve) {
         // resolve the promise and delete the resolvers
         this.updateResolve(result);
@@ -243,6 +252,9 @@ export class Light {
       this.log(`WARN: sending ${method} although unsupported.`);
     }
     this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
+    if (this.detailedLogging) {
+      this.log(`sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
+    }
   }
 
   requestAttributes() {

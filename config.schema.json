@@ -34,6 +34,11 @@
             "type": "string",
             "required": false
           },
+          "log": {
+            "title": "Detailed logging of this light",
+            "type": "boolean",
+            "required": false
+          },
           "color": {
             "title": "Treat this as an HSV color light",
             "type": "boolean",

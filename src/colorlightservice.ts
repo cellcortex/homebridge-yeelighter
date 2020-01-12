@@ -86,7 +86,9 @@ export class ColorLightService extends LightService {
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.log(`color light updated ${JSON.stringify(newAttributes)}`);
+    if (this.light.detailedLogging) {
+      this.log(`color light updated ${JSON.stringify(newAttributes)}`);
+    }
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
     if (this.updateCharateristics) {
       this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.sat);
