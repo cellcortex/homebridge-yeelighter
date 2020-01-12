@@ -73,11 +73,12 @@ export class ColorLightService extends LightService {
         return convertColorTemperature(attributes.ct);
       },
       value => {
+        const kelvin = convertColorTemperature(value);
         this.ensurePowerMode(POWERMODE_CT);
         if (this.light.detailedLogging) {
           this.log(`setCT: ${convertColorTemperature(value)}`);
         }
-        this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+        this.sendSuddenCommand("set_ct_abx", kelvin);
         this.updateColorFromCT(value);
         this.saveDefaultIfNeeded();
       }

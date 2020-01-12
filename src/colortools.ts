@@ -1,76 +1,46 @@
-/*    export updateColorByColorTemperature: function(colorTemperature) {
-        if (!this.hue && !this.saturation)
-            return;
+/* Based on works of:
+ * Tanner Helland (http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/)
+ * Neil Bartlett (http://www.zombieprototypes.com/?p=210)
+ * AMoo-Miki https://github.com/AMoo-Miki/homebridge-tuya-lan/blob/master/lib/BaseAccessory.js#L136
+ */
 
-        const rgbObject = temperatureToRGB(colorTemperature);
-        const hsvObject = RGBtoHSV(rgbObject.red, rgbObject.green, rgbObject.blue);
-
-        if (this.hue)
-            this.homebridgeService.getCharacteristic(Characteristic.Hue).updateValue(hsvObject.hue);
-        if (this.saturation)
-            this.homebridgeService.getCharacteristic(Characteristic.Saturation).updateValue(hsvObject.saturation);
-    },
-*/
-
-export interface HSV {
-  hue: number;
-  saturation: number;
-  value: number;
-}
-
-export function ctToHSV(miredTemperature: number): HSV {
-  // temperature gets passed in in Mired
-  const temperature = 1000000 / miredTemperature / 100; // algorithm needs temperature in Kelvin
-
-  // temperature to RGB
-  let red = 255;
-  let green = 0;
-  let blue = 255;
-
-  if (temperature > 66) {
-    red = temperature - 60;
-    red = 329.698727446 * (red ^ -0.1332047592);
-    red = Math.min(Math.max(red, 0), 255);
-  }
-
-  if (temperature <= 66) {
-    green = 99.4708025861 * Math.log(temperature) - 161.1195681661;
-    green = Math.min(Math.max(green, 0), 255);
-  } else {
-    green = 288.1221695283 * ((temperature - 60) ^ -0.0755148492);
-    green = Math.min(Math.max(green, 0), 255);
-  }
-
-  if (temperature > 66) {
-    if (temperature <= 19) {
-      blue = 0;
-    } else {
-      blue = temperature - 10;
-      blue = 138.5177312231 * Math.log(blue) - 305.0447927307;
-      blue = Math.min(Math.max(blue, 0), 255);
-    }
-  }
-  red /= 255;
-  green /= 255;
-  blue /= 255;
-
-  const max = Math.max(red, Math.max(green, blue));
-  const min = Math.min(red, Math.min(green, blue));
-  const delta = max - min;
-
+export function convertHomeKitColorTemperatureToHomeKitColor(value) {
+  const dKelvin = 10000 / value;
+  const rgb = [
+    dKelvin > 66
+      ? 351.97690566805693 + 0.114206453784165 * (dKelvin - 55) - 40.25366309332127 * Math.log(dKelvin - 55)
+      : 255,
+    dKelvin > 66
+      ? 325.4494125711974 + 0.07943456536662342 * (dKelvin - 50) - 28.0852963507957 * Math.log(dKelvin - 55)
+      : 104.49216199393888 * Math.log(dKelvin - 2) - 0.44596950469579133 * (dKelvin - 2) - 155.25485562709179,
+    dKelvin > 66
+      ? 255
+      : 115.67994401066147 * Math.log(dKelvin - 10) + 0.8274096064007395 * (dKelvin - 10) - 254.76935184120902
+  ].map(v => Math.max(0, Math.min(255, v)) / 255);
+  const max = Math.max(...rgb);
+  const min = Math.min(...rgb);
+  const d = max - min;
   let h = 0;
-  const s = max === 0 ? 0 : delta / max;
+  const s = max ? (100 * d) / max : 0;
+  const b = 100 * max;
 
-  if (max === min) {
-    h = 0;
-  } else if (max === red) {
-    // noinspection PointlessArithmeticExpressionJS
-    h = 60 * (0 + (green - blue) / delta);
-  } else if (max === green) {
-    h = 60 * (2 + (blue - red) / delta);
-  } else if (max === blue) {
-    h = 60 * (4 + (red - green) / delta);
+  if (d) {
+    switch (max) {
+      case rgb[0]:
+        h = (rgb[1] - rgb[2]) / d + (rgb[1] < rgb[2] ? 6 : 0);
+        break;
+      case rgb[1]:
+        h = (rgb[2] - rgb[0]) / d + 2;
+        break;
+      default:
+        h = (rgb[0] - rgb[1]) / d + 4;
+        break;
+    }
+    h *= 60;
   }
-
-  return { hue: Math.round(h), saturation: Math.round(s * 100), value: Math.round(max * 100) };
+  return {
+    h: Math.round(h),
+    s: Math.round(s),
+    b: Math.round(b)
+  };
 }
