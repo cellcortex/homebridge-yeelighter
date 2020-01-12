@@ -3,7 +3,7 @@
 import { DeviceInfo, Device } from "./yeedevice";
 import { Discovery } from "./yeediscovery";
 import { Configuration } from "./lightservice";
-import { Light, TRACKED_ATTRIBUTES } from "./light";
+import { Light, TRACKED_ATTRIBUTES, OverrideLightConfiguration } from "./light";
 
 const PLUGINNAME = "homebridge-yeelighter";
 const PLATFORMNAME = "Yeelighter";
@@ -35,10 +35,15 @@ class YeelighterPlatform {
   };
 
   private onDeviceDiscovery = (detectedInfo: DeviceInfo) => {
-    const overrideConfig = this.config?.override?.find(item => item.id === detectedInfo.id);
+    const overrideConfig: OverrideLightConfiguration | undefined = this.config?.override?.find(
+      item => item.id === detectedInfo.id
+    );
     if (overrideConfig) {
-      this.log(`Ignoring light ${detectedInfo.id} as configured`);
-      return;
+      this.log(`Override config for ${detectedInfo.id}: ${JSON.stringify(overrideConfig)}`);
+      if (overrideConfig.ignored) {
+        this.log(`Ignoring ${detectedInfo.id} as configured.`);
+        return;
+      }
     }
     const oldDevice = this.devices.get(detectedInfo.id);
     // const supportedAttributes = detectedInfo.support.split(",");
