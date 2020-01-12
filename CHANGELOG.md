@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.15](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.14...v1.2.15) (2020-01-12)
+
+
+### Bug Fixes
+
+* overrideconfig would always ignore light ([98bba1f](https://github.com/cellcortex/homebridge-yeelighter/commit/98bba1fccf2a6a74dfb42d0aa8d1150f76c1842c))
+
 ### [1.2.14](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.13...v1.2.14) (2020-01-12)
 
 
