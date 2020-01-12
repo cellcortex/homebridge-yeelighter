@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.21](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.20...v1.2.21) (2020-01-12)
+
+
+### Bug Fixes
+
+* added CT first so the presets are used from color hopefully ([afb5156](https://github.com/cellcortex/homebridge-yeelighter/commit/afb515627c1a7f237374fda3bc70b47780d60aeb))
+
 ### [1.2.20](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.19...v1.2.20) (2020-01-12)
 
 
