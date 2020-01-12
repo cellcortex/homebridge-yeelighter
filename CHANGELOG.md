@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.23](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.22...v1.2.23) (2020-01-12)
+
+
+### Features
+
+* configuration to make a light go 'off' in homekit when it disconnects ([b619e9a](https://github.com/cellcortex/homebridge-yeelighter/commit/b619e9a0999973791006340699f76c011ebc6e4d))
+
 ### [1.2.22](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.21...v1.2.22) (2020-01-12)
 
 
