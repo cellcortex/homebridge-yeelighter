@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.18](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.17...v1.2.18) (2020-01-12)
+
+
+### Bug Fixes
+
+* color light was switched on whenever a property was read. ([2eb35d5](https://github.com/cellcortex/homebridge-yeelighter/commit/2eb35d5c9795d070fda389b0cb9a0ce6664055f4))
+
 ### [1.2.17](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.16...v1.2.17) (2020-01-12)
 
 
