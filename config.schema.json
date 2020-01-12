@@ -29,6 +29,11 @@
             "pattern": "^0x[0-9a-fA-F]{16}",
             "required": true
           },
+          "name": {
+            "title": "Name of the light",
+            "type": "string",
+            "required": false
+          },
           "color": {
             "title": "Treat this as an HSV color light",
             "type": "boolean",

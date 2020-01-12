@@ -258,7 +258,7 @@ export class LightService {
   protected powerMode: number;
   protected lastHue?: number;
   protected lastSat?: number;
-  protected updateCharateristics = false;
+  protected updateCharateristics: boolean;
 
   constructor(
     protected log: (message?: any, ...optionalParams: any[]) => void,
@@ -281,6 +281,7 @@ export class LightService {
         this.powerMode = POWERMODE_DEFAULT;
         break;
     }
+    this.updateCharateristics = config.saveDefault;
     const service = accessory.getServiceByUUIDAndSubType(this.homebridge.hap.Service.Lightbulb, subtype);
     if (!service) {
       this.log(`Creating new service of subtype '${subtype}' and adding it`);
@@ -327,7 +328,7 @@ export class LightService {
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.log(`${this.light.info.id} updated ${JSON.stringify(newAttributes)}`);
+    this.log(`updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
   };
 

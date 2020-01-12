@@ -42,7 +42,7 @@ export class ColorLightService extends LightService {
       async () => {
         this.ensurePowerMode(POWERMODE_HSV);
         const attributes = await this.attributes();
-        this.log(`${this.light.info.id} getHue: ${JSON.stringify(attributes)}`);
+        this.log(`getHue: ${JSON.stringify(attributes)}`);
         return attributes.hue;
       },
       async value => {
@@ -55,7 +55,7 @@ export class ColorLightService extends LightService {
       async () => {
         this.ensurePowerMode(POWERMODE_HSV);
         const attributes = await this.attributes();
-        this.log(`${this.light.info.id} getSat: ${JSON.stringify(attributes)}`);
+        this.log(`getSat: ${JSON.stringify(attributes)}`);
         return attributes.sat;
       },
       async value => {
@@ -68,14 +68,12 @@ export class ColorLightService extends LightService {
       async () => {
         this.ensurePowerMode(POWERMODE_CT);
         const attributes = await this.attributes();
-        this.log(
-          `${this.light.info.id} getCT: ${JSON.stringify(attributes)} -> ${convertColorTemperature(attributes.ct)}`
-        );
+        this.log(`getCT: ${JSON.stringify(attributes)} -> ${convertColorTemperature(attributes.ct)}`);
         return convertColorTemperature(attributes.ct);
       },
       value => {
         this.ensurePowerMode(POWERMODE_CT);
-        this.log(`${this.light.info.id} setCT: ${convertColorTemperature(value)}`);
+        this.log(`setCT: ${convertColorTemperature(value)}`);
         this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
         this.saveDefaultIfNeeded();
       }
@@ -88,17 +86,17 @@ export class ColorLightService extends LightService {
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.log(`${this.light.info.id} color light updated ${JSON.stringify(newAttributes)}`);
+    this.log(`color light updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
     if (this.updateCharateristics) {
       this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.sat);
       this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.hue);
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
       this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bright);
       this.updateCharacteristic(
         this.homebridge.hap.Characteristic.ColorTemperature,
         convertColorTemperature(newAttributes.ct)
       );
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
     }
   };
 }

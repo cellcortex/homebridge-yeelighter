@@ -78,7 +78,7 @@ export class BackgroundLightService extends LightService {
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.log(`${this.light.info.id} backlight updated ${JSON.stringify(newAttributes)}`);
+    this.log(`backlight updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.bg_lmode, 0);
     if (this.updateCharateristics) {
       this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.bg_sat);

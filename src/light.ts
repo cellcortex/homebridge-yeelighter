@@ -19,6 +19,22 @@ type Accessory = any;
 
 export const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 
+export interface OverrideLightConfiguration {
+  id: string;
+  name?: string;
+  color?: boolean;
+  backgroundLight?: boolean;
+  nightLight?: boolean;
+  ignored?: boolean;
+  colorTemperature?: ColorTemperatureConfiguration;
+  [k: string]: any;
+}
+
+export interface ColorTemperatureConfiguration {
+  min: number;
+  max: number;
+}
+
 export class Light {
   public name: string;
   private services = new Array<LightService>();
@@ -31,9 +47,11 @@ export class Light {
   private attributes: Attributes = { ...EMPTY_ATTRIBUTES };
   private lastCommandId = 1;
   public specs: Specs;
+  public overrideConfig?: OverrideLightConfiguration;
+  private pluginLog: (message?: any, ...optionalParams: any[]) => void;
 
   constructor(
-    private log: (message?: any, ...optionalParams: any[]) => void,
+    log: (message?: any, ...optionalParams: any[]) => void,
     private config: Configuration,
     private device: Device,
     private homebridge: any,
@@ -41,6 +59,8 @@ export class Light {
   ) {
     this.support = device.info.support.split(" ");
     this.specs = MODEL_SPECS[device.info.model];
+    this.name = device.info.id;
+    this.pluginLog = log;
 
     if (!this.specs) {
       const specs = { ...EMPTY_SPECS };
@@ -57,19 +77,23 @@ export class Light {
       }
       this.specs = specs;
     }
-    const overrideConfig = this.config?.override?.find(item => item.id === device.info.id);
+    const overrideConfig: OverrideLightConfiguration | undefined = this.config?.override?.find(
+      item => item.id === device.info.id
+    );
     if (overrideConfig?.backgroundLight) {
       this.specs.backgroundLight = overrideConfig.backgroundLight;
     }
     if (overrideConfig?.color) {
       this.specs.color = overrideConfig.color;
     }
+    if (overrideConfig?.name) {
+      this.name = overrideConfig.name;
+    }
     if (overrideConfig?.nightLight) {
       this.specs.nightLight = overrideConfig.nightLight;
     }
+    this.overrideConfig = overrideConfig;
 
-    // this.log(`light ${device.info.id} ${device.info.model} created. It supports: ${device.info.support}`);
-    this.name = device.info.id;
     this.support = device.info.support.split(" ");
     this.connectDevice();
     if (this.specs.color) {
@@ -91,6 +115,10 @@ export class Light {
 
   get info() {
     return this.device.info;
+  }
+
+  public log(message?: any, ...optionalParameters: any[]) {
+    this.pluginLog(`[${this.name}] ${message}`, optionalParameters);
   }
 
   public getAttributes = async (): Promise<Attributes> => {
@@ -139,7 +167,7 @@ export class Light {
       // this.log(`Attributes for ${this.info.id} updated ${JSON.stringify(this.attributes)}`);
       this.services.forEach(service => service.onAttributesUpdated(this.attributes));
     } else if (error) {
-      this.log(`Device ${this.device.info.id}: Error returned for request [${id}]: ${JSON.stringify(error)}`);
+      this.log(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
       // reject any pending waits
       if (this.updateReject) {
         this.updateReject();
@@ -149,14 +177,14 @@ export class Light {
   };
 
   private onDeviceConnected = () => {
-    this.log("Connected", this.name);
+    this.log("Connected");
     this.accessory.reachable = true;
     this.requestAttributes();
   };
 
   private onDeviceDisconnected = () => {
     if (this.accessory.reachable) {
-      this.log("Disconnected", this.name);
+      this.log("Disconnected");
       if (this.updateReject) {
         this.updateReject();
         this.updatePromisePending = false;
@@ -212,7 +240,7 @@ export class Light {
   sendCommand(method: string, parameters: Array<string | number | boolean>) {
     const supportedCommands = this.device.info.support.split(",");
     if (!supportedCommands.includes) {
-      this.log(`WARN: sending ${method} to ${this.device.info.id} although unsupported.`);
+      this.log(`WARN: sending ${method} although unsupported.`);
     }
     this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
   }
