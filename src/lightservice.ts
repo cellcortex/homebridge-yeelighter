@@ -102,12 +102,16 @@ export function convertColorTemperature(value: number): number {
   return Math.round(1000000 / value);
 }
 
+export interface ConcreteLightService {
+  service: Service;
+  onAttributesUpdated: (newAttributes: Attributes) => void;
+}
+
 export class LightService {
   public service: Service;
   protected powerMode: number;
   protected lastHue?: number;
   protected lastSat?: number;
-  protected updateCharateristics: boolean;
 
   constructor(
     protected log: (message?: any, ...optionalParams: any[]) => void,
@@ -130,7 +134,6 @@ export class LightService {
         this.powerMode = POWERMODE_DEFAULT;
         break;
     }
-    this.updateCharateristics = config.saveDefault;
     const service = accessory.getServiceByUUIDAndSubType(this.homebridge.hap.Service.Lightbulb, subtype);
     if (!service) {
       this.log(`Creating new service of subtype '${subtype}' and adding it`);

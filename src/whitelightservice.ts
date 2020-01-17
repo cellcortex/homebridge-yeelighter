@@ -1,8 +1,8 @@
-import { LightService, Accessory } from "./lightservice";
+import { LightService, Accessory, ConcreteLightService, Attributes } from "./lightservice";
 import { Configuration } from "homebridge";
 import { Light } from "./light";
 
-export class WhiteLightService extends LightService {
+export class WhiteLightService extends LightService implements ConcreteLightService {
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
     config: Configuration,
@@ -42,4 +42,12 @@ export class WhiteLightService extends LightService {
       }
     );
   }
+
+  public onAttributesUpdated = (newAttributes: Attributes) => {
+    if (this.light.detailedLogging) {
+      this.log(`white light updated ${JSON.stringify(newAttributes)}`);
+    }
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bright);
+  };
 }

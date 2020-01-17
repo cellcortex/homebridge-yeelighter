@@ -141,6 +141,7 @@ export class Light {
         await this.updatePromise;
       } catch (error) {
         this.log("retrieving attributes failed. Using last attributes.", error);
+        delete this.updatePromise;
       }
     }
     return this.attributes;
@@ -179,22 +180,25 @@ export class Light {
       }
       this.updateTimestamp = Date.now();
       // this.log(`Attributes for ${this.info.id} updated ${JSON.stringify(this.attributes)}`);
-      this.services.forEach(service => service.onAttributesUpdated(this.attributes));
     } else if (error) {
       this.log(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
       // reject any pending waits
       if (this.updateReject) {
         this.updateReject();
         this.updatePromisePending = false;
+        delete this.updateResolve;
+        delete this.updateReject;
       }
     }
   };
 
-  private onDeviceConnected = () => {
+  private onDeviceConnected = async () => {
     this.connected = true;
     this.log("Connected");
     this.accessory.reachable = true;
-    this.requestAttributes();
+    // this.requestAttributes();
+    const attributes = await this.getAttributes();
+    this.services.forEach(service => service.onAttributesUpdated(attributes));
   };
 
   private onDeviceDisconnected = () => {

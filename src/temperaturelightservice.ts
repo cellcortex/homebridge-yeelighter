@@ -6,11 +6,12 @@ import {
   POWERMODE_MOON,
   convertColorTemperature,
   Attributes,
-  powerModeFromColorModeAndActiveMode
+  powerModeFromColorModeAndActiveMode,
+  ConcreteLightService
 } from "./lightservice";
 import { Light } from "./light";
 
-export class TemperatureLightService extends LightService {
+export class TemperatureLightService extends LightService implements ConcreteLightService {
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
     config: Configuration,
@@ -101,13 +102,11 @@ export class TemperatureLightService extends LightService {
       this.log(`temperature light updated ${JSON.stringify(newAttributes)}`);
     }
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
-    if (this.updateCharateristics) {
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, this.getBrightness(newAttributes));
-      this.updateCharacteristic(
-        this.homebridge.hap.Characteristic.ColorTemperature,
-        convertColorTemperature(newAttributes.ct)
-      );
-    }
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, this.getBrightness(newAttributes));
+    this.updateCharacteristic(
+      this.homebridge.hap.Characteristic.ColorTemperature,
+      convertColorTemperature(newAttributes.ct)
+    );
   };
 }

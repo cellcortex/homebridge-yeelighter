@@ -5,12 +5,13 @@ import {
   convertColorTemperature,
   POWERMODE_CT,
   powerModeFromColorModeAndActiveMode,
-  Attributes
+  Attributes,
+  ConcreteLightService
 } from "./lightservice";
 import { Configuration } from "homebridge";
 import { Light } from "./light";
 
-export class ColorLightService extends LightService {
+export class ColorLightService extends LightService implements ConcreteLightService {
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
     config: Configuration,
@@ -95,15 +96,13 @@ export class ColorLightService extends LightService {
       this.log(`color light updated ${JSON.stringify(newAttributes)}`);
     }
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
-    if (this.updateCharateristics) {
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.sat);
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.hue);
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bright);
-      this.updateCharacteristic(
-        this.homebridge.hap.Characteristic.ColorTemperature,
-        convertColorTemperature(newAttributes.ct)
-      );
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
-    }
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.sat);
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.hue);
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bright);
+    this.updateCharacteristic(
+      this.homebridge.hap.Characteristic.ColorTemperature,
+      convertColorTemperature(newAttributes.ct)
+    );
+    this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
   };
 }
