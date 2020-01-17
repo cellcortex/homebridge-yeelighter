@@ -1,13 +1,6 @@
 // import { Service, Characteristic, Accessory } from "hap-nodejs";
-import {
-  Attributes,
-  LightService,
-  Specs,
-  EMPTY_ATTRIBUTES,
-  MODEL_SPECS,
-  EMPTY_SPECS,
-  Configuration
-} from "./lightservice";
+import { Attributes, LightService, EMPTY_ATTRIBUTES, Configuration } from "./lightservice";
+import { Specs, MODEL_SPECS, EMPTY_SPECS } from "./specs";
 import { Device } from "./yeedevice";
 import { ColorLightService } from "./colorlightservice";
 import { WhiteLightService } from "./whitelightservice";
@@ -52,6 +45,7 @@ export class Light {
   public overrideConfig?: OverrideLightConfiguration;
   private pluginLog: (message?: any, ...optionalParams: any[]) => void;
   public detailedLogging = false;
+  public connected = false;
 
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
@@ -142,7 +136,7 @@ export class Light {
       });
     }
     // this promise will be awaited for by everybody entering here while a request is still in the air
-    if (this.updatePromise) {
+    if (this.updatePromise && this.connected) {
       try {
         await this.updatePromise;
       } catch (error) {
@@ -197,23 +191,24 @@ export class Light {
   };
 
   private onDeviceConnected = () => {
+    this.connected = true;
     this.log("Connected");
     this.accessory.reachable = true;
     this.requestAttributes();
   };
 
   private onDeviceDisconnected = () => {
+    this.connected = false;
     if (this.accessory.reachable) {
       this.log("Disconnected");
       if (this.overrideConfig?.offOnDisconnect) {
         this.services.forEach(service => service.onPowerOff());
       }
-      if (this.updateReject) {
-        this.updateReject();
-        this.updatePromisePending = false;
-      }
-
       this.accessory.reachable = false;
+    }
+    if (this.updateReject) {
+      this.updateReject();
+      this.updatePromisePending = false;
     }
   };
 
