@@ -1,5 +1,5 @@
 // import { Service, Characteristic, Accessory } from "hap-nodejs";
-import { Attributes, LightService, EMPTY_ATTRIBUTES, Configuration } from "./lightservice";
+import { Attributes, EMPTY_ATTRIBUTES, Configuration, ConcreteLightService } from "./lightservice";
 import { Specs, MODEL_SPECS, EMPTY_SPECS } from "./specs";
 import { Device } from "./yeedevice";
 import { ColorLightService } from "./colorlightservice";
@@ -32,7 +32,7 @@ export interface ColorTemperatureConfiguration {
 
 export class Light {
   public name: string;
-  private services = new Array<LightService>();
+  private services = new Array<ConcreteLightService>();
   private support: string[];
   private updateTimestamp: number;
   private updateResolve?: (update: string[]) => void;
@@ -203,17 +203,16 @@ export class Light {
 
   private onDeviceDisconnected = () => {
     this.connected = false;
-    if (this.accessory.reachable) {
-      this.log("Disconnected");
-      if (this.overrideConfig?.offOnDisconnect) {
-        this.services.forEach(service => service.onPowerOff());
-      }
-      this.accessory.reachable = false;
+    this.log("Disconnected");
+    if (this.overrideConfig?.offOnDisconnect) {
+      this.log("configured to mark as powered-off when disconnected");
+      this.services.forEach(service => service.onPowerOff());
     }
     if (this.updateReject) {
       this.updateReject();
       this.updatePromisePending = false;
     }
+    this.accessory.reachable = false;
   };
 
   private onDeviceError = error => {

@@ -105,6 +105,7 @@ export function convertColorTemperature(value: number): number {
 export interface ConcreteLightService {
   service: Service;
   onAttributesUpdated: (newAttributes: Attributes) => void;
+  onPowerOff: () => void;
 }
 
 export class LightService {
@@ -181,11 +182,6 @@ export class LightService {
 
   public onPowerOff = () => {
     this.updateCharacteristic(this.homebridge.hap.Characteristic.On, false);
-  };
-
-  public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.log(`updated ${JSON.stringify(newAttributes)}`);
-    this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
   };
 
   protected sendCommand(method: string, parameters: Array<string | number | boolean>) {
