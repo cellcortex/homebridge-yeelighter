@@ -259,14 +259,18 @@ export class Light {
   }
 
   sendCommand(method: string, parameters: Array<string | number | boolean>) {
-    const supportedCommands = this.device.info.support.split(",");
-    if (!supportedCommands.includes) {
-      this.log(`WARN: sending ${method} although unsupported.`);
+    if (this.connected && this.accessory.reachable) {
+      const supportedCommands = this.device.info.support.split(",");
+      if (!supportedCommands.includes) {
+        this.log(`WARN: sending ${method} although unsupported.`);
+      }
+      if (this.detailedLogging) {
+        this.log(`sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
+      }
+      this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
+    } else {
+      this.log(`WARN: failed to send command since the device is not connected`);
     }
-    if (this.detailedLogging) {
-      this.log(`sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
-    }
-    this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
   }
 
   requestAttributes() {

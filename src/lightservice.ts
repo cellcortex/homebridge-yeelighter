@@ -164,9 +164,17 @@ export class LightService {
     if (!characteristic) {
       return Promise.reject();
     }
-    characteristic.on("get", async callback => callback(null, await getter()));
+    characteristic.on("get", async callback => {
+      if (this.light.connected) {
+        callback(null, await getter());
+      } else {
+        callback("light disconnected");
+      }
+    });
     characteristic.on("set", async (value, callback) => {
-      await setter(value);
+      if (this.light.connected) {
+        await setter(value);
+      }
       callback();
     });
     return characteristic;
