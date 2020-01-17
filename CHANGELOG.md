@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.27](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.26...v1.2.27) (2020-01-17)
+
+
+### Bug Fixes
+
+* sending commands to disconnected lights did hang ([65af343](https://github.com/cellcortex/homebridge-yeelighter/commit/65af343fbbf254556ac6ec167dd927c8afe872a8))
+
 ### [1.2.26](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.25...v1.2.26) (2020-01-17)
 
 
