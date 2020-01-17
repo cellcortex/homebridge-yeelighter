@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.28](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.27...v1.2.28) (2020-01-17)
+
+
+### Features
+
+* 5s timeout when requesting attributes to handle power-off case ([212db99](https://github.com/cellcortex/homebridge-yeelighter/commit/212db9946b5d7d72dba9867999ad43f15c8a05be))
+
 ### [1.2.27](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.26...v1.2.27) (2020-01-17)
 
 
