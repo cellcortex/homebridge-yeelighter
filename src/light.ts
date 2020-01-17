@@ -30,6 +30,15 @@ export interface ColorTemperatureConfiguration {
   max: number;
 }
 
+function timeout(ms: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const id = setTimeout(() => {
+      clearTimeout(id);
+      reject("timeout");
+    }, ms);
+  });
+}
+
 export class Light {
   public name: string;
   private services = new Array<ConcreteLightService>();
@@ -138,7 +147,7 @@ export class Light {
     // this promise will be awaited for by everybody entering here while a request is still in the air
     if (this.updatePromise && this.connected) {
       try {
-        await this.updatePromise;
+        await Promise.race([this.updatePromise, timeout(5000)]);
       } catch (error) {
         this.log("retrieving attributes failed. Using last attributes.", error);
         delete this.updatePromise;
