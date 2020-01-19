@@ -222,6 +222,11 @@ export class Light {
       this.updatePromisePending = false;
     }
     this.accessory.reachable = false;
+    if (this.overrideConfig?.offOnDisconnect) {
+      this.attributes.power = false;
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      this.attributes.bg_power = false;
+    }
   };
 
   private onDeviceError = error => {
