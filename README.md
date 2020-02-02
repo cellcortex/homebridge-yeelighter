@@ -46,7 +46,7 @@ In homebridge's config.json you need to specify homebridge-yeelighter as a platf
 ```
 "platforms": [
   {
-    "platform": "yeelighter"
+    "platform": "yeelighter",
     "name": "Yeelighter"
   }
 ]
