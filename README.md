@@ -46,7 +46,7 @@ In homebridge's config.json you need to specify homebridge-yeelighter as a platf
 ```
 "platforms": [
   {
-    "platform": "yeelighter"
+    "platform": "Yeelighter",
     "name": "Yeelighter"
   }
 ]
@@ -59,8 +59,8 @@ You can use the override array to override the automatic configuration of the li
 ```
 "platforms": [
   {
-    "platform": "yeelighter"
-    "name": "Yeelighter"
+    "platform": "Yeelighter",
+    "name": "Yeelighter",
     "override": [
       {
         "id": "0x00000000deadbeef",
