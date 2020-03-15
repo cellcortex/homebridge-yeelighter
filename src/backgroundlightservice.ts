@@ -43,26 +43,6 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
       }
     );
 
-    const characteristic = await this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.ColorTemperature,
-      async () => {
-        return convertColorTemperature((await this.attributes()).bg_ct);
-      },
-      value => {
-        this.ensurePowerMode(POWERMODE_CT, "bg_");
-        this.sendSuddenCommand("bg_set_ct_abx", convertColorTemperature(value));
-        if (this.light.detailedLogging) {
-          this.log(`setCT: ${convertColorTemperature(value)}`);
-        }
-        this.updateColorFromCT(value);
-        this.saveDefaultIfNeeded();
-      }
-    );
-    characteristic.setProps({
-      ...characteristic.props,
-      maxValue: convertColorTemperature(this.specs.colorTemperature.min),
-      minValue: convertColorTemperature(this.specs.colorTemperature.max)
-    });
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Hue,
       async () => (await this.attributes()).bg_hue,
@@ -91,9 +71,5 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
     this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.bg_hue);
     this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.bg_power);
     this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bg_bright);
-    this.updateCharacteristic(
-      this.homebridge.hap.Characteristic.ColorTemperature,
-      convertColorTemperature(newAttributes.bg_ct)
-    );
   };
 }
