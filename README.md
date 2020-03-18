@@ -70,7 +70,7 @@ You can use the override array to override the automatic configuration of the li
       {
         "id": "0x0000000012345678",
         "background": false,
-        "moonlight": true
+        "nightLight": true
       }
     ]
   }

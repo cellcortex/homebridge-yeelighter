@@ -71,7 +71,7 @@ export class Light {
     if (!this.specs) {
       const specs = { ...EMPTY_SPECS };
       this.log(
-        `no specs for light ${device.info.id} ${device.info.model}. It supports: ${device.info.support}. Using fallback. This will not give you moonlight support.`
+        `no specs for light ${device.info.id} ${device.info.model}. It supports: ${device.info.support}. Using fallback. This will not give you nightLight support.`
       );
       specs.name = device.info.model;
       specs.color = this.support.includes("set_hsv");

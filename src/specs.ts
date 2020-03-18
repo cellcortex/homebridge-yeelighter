@@ -110,6 +110,13 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     name: "Moon Pro (Jiaoyue 650)",
     color: false
   },
+  ceiling5: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Mi LED Ceiling Light",
+    color: false
+  },
   ceiling10: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: false,
