@@ -11,6 +11,12 @@
       "default": "Yeelighter",
       "required": true
     },
+    "timeout": {
+      "title": "Timeout for requests",
+      "type": "Number",
+      "default": "5000",
+      "required": false
+    },
     "override": {
       "type": "array",
       "items": {

@@ -136,7 +136,7 @@ export class Light {
 
   public getAttributes = async (): Promise<Attributes> => {
     // make sure we don't query in parallel and not more often than every second
-    if (this.updateTimestamp < Date.now() - 500 && (!this.updatePromise || !this.updatePromisePending)) {
+    if (this.updateTimestamp < Date.now() - 1000 && (!this.updatePromise || !this.updatePromisePending)) {
       this.updatePromise = new Promise<string[]>((resolve, reject) => {
         this.updatePromisePending = true;
         this.updateResolve = resolve;
@@ -147,7 +147,7 @@ export class Light {
     // this promise will be awaited for by everybody entering here while a request is still in the air
     if (this.updatePromise && this.connected) {
       try {
-        await Promise.race([this.updatePromise, timeout(5000)]);
+        await Promise.race([this.updatePromise, timeout(this.config?.timeout)]);
       } catch (error) {
         this.log("retrieving attributes failed. Using last attributes.", error);
         delete this.updatePromise;
@@ -173,22 +173,23 @@ export class Light {
         delete this.updateResolve;
         delete this.updateReject;
       }
+      const newAttributes = { ...EMPTY_ATTRIBUTES };
       for (const key of Object.keys(this.attributes)) {
         const index = TRACKED_ATTRIBUTES.indexOf(key);
         switch (typeof EMPTY_ATTRIBUTES[key]) {
           case "number":
-            this.attributes[key] = Number(result[index]);
+            newAttributes[key] = Number(result[index]);
             break;
           case "boolean":
-            this.attributes[key] = result[index] == "on";
+            newAttributes[key] = result[index] == "on";
             break;
           default:
-            this.attributes[key] = result[index];
+            newAttributes[key] = result[index];
             break;
         }
       }
       this.updateTimestamp = Date.now();
-      // this.log(`Attributes for ${this.info.id} updated ${JSON.stringify(this.attributes)}`);
+      this.onUpdateAttributes(newAttributes);
     } else if (error) {
       this.log(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
       // reject any pending waits
@@ -198,6 +199,14 @@ export class Light {
         delete this.updateResolve;
         delete this.updateReject;
       }
+    }
+  };
+
+  private onUpdateAttributes = (newAttributes: Attributes) => {
+    // this.services.forEach(service => service.onAttributesUpdated(newAttributes));
+    if (JSON.stringify(this.attributes) !== JSON.stringify(newAttributes)) {
+      // this.services.forEach(service => service.onAttributesUpdated(newAttributes));
+      this.attributes = { ...newAttributes };
     }
   };
 
@@ -214,6 +223,9 @@ export class Light {
     this.connected = false;
     this.log("Disconnected");
     if (this.overrideConfig?.offOnDisconnect) {
+      this.attributes.power = false;
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      this.attributes.bg_power = false;
       this.log("configured to mark as powered-off when disconnected");
       this.services.forEach(service => service.onPowerOff());
     }
@@ -222,11 +234,6 @@ export class Light {
       this.updatePromisePending = false;
     }
     this.accessory.reachable = false;
-    if (this.overrideConfig?.offOnDisconnect) {
-      this.attributes.power = false;
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      this.attributes.bg_power = false;
-    }
   };
 
   private onDeviceError = error => {
