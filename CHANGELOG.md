@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.30](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.29...v1.2.30) (2020-03-19)
+
+
+### Features
+
+* support for Mi LED Ceiling Light ([21948f9](https://github.com/cellcortex/homebridge-yeelighter/commit/21948f9de93b23fc86e61271a1f8853593f0c8b7))
+
 ### [1.2.29](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.28...v1.2.29) (2020-01-19)
 
 
