@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.33](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.32...v1.2.33) (2020-03-21)
+
+
+### Features
+
+* option to disable CT for color lights ([3f527eb](https://github.com/cellcortex/homebridge-yeelighter/commit/3f527ebba0e5f40b44db5fd4fb043493533e5432))
+* option to use non-blocking requests and update intervals ([9214e86](https://github.com/cellcortex/homebridge-yeelighter/commit/9214e86e271a38efdc1a7558094cf0324bd1c01b))
+
 ### [1.2.32](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.31...v1.2.32) (2020-03-19)
 
 ### [1.2.30](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.29...v1.2.30) (2020-03-19)
