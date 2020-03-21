@@ -17,6 +17,18 @@
       "default": "5000",
       "required": false
     },
+    "ctforcolor": {
+      "title": "(BETA) Allow CT to be set for RGB lights",
+      "type": "boolean",
+      "default": "true",
+      "required": false
+    },
+    "nonblocking": {
+      "title": "(ALPHA) use non-blocking getters",
+      "type": "boolean",
+      "default": "false",
+      "required": false
+    },
     "override": {
       "type": "array",
       "items": {

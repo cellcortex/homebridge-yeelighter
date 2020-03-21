@@ -42,27 +42,28 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
         this.saveDefaultIfNeeded();
       }
     );
-
-    const characteristic = await this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.ColorTemperature,
-      async () => {
-        return convertColorTemperature((await this.attributes()).bg_ct);
-      },
-      value => {
-        this.ensurePowerMode(POWERMODE_CT, "bg_");
-        this.sendSuddenCommand("bg_set_ct_abx", convertColorTemperature(value));
-        if (this.light.detailedLogging) {
-          this.log(`setCT: ${convertColorTemperature(value)}`);
+    if (this.config.ctforcolor) {
+      const characteristic = await this.handleCharacteristic(
+        this.homebridge.hap.Characteristic.ColorTemperature,
+        async () => {
+          return convertColorTemperature((await this.attributes()).bg_ct);
+        },
+        value => {
+          this.ensurePowerMode(POWERMODE_CT, "bg_");
+          this.sendSuddenCommand("bg_set_ct_abx", convertColorTemperature(value));
+          if (this.light.detailedLogging) {
+            this.log(`setCT: ${convertColorTemperature(value)}`);
+          }
+          this.updateColorFromCT(value);
+          this.saveDefaultIfNeeded();
         }
-        this.updateColorFromCT(value);
-        this.saveDefaultIfNeeded();
-      }
-    );
-    characteristic.setProps({
-      ...characteristic.props,
-      maxValue: convertColorTemperature(this.specs.colorTemperature.min),
-      minValue: convertColorTemperature(this.specs.colorTemperature.max)
-    });
+      );
+      characteristic.setProps({
+        ...characteristic.props,
+        maxValue: convertColorTemperature(this.specs.colorTemperature.min),
+        minValue: convertColorTemperature(this.specs.colorTemperature.max)
+      });
+    }
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Hue,
       async () => (await this.attributes()).bg_hue,
