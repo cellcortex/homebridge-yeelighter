@@ -221,7 +221,7 @@ export class Light {
     const attributes = await this.getAttributes();
     this.services.forEach(service => service.onAttributesUpdated(attributes));
     if (this.config.interval) {
-      this.interval = setInterval(() => this.requestAttributes, this.config.interval);
+      this.interval = setInterval(this.onInterval, this.config.interval);
     }
   };
 
@@ -303,6 +303,11 @@ export class Light {
       this.log(`WARN: failed to send command since the device is not connected`);
     }
   }
+
+  private onInterval = () => {
+    this.log(`onInterval`);
+    this.requestAttributes();
+  };
 
   requestAttributes() {
     this.sendCommand("get_prop", this.device.info.trackedAttributes);
