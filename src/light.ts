@@ -160,11 +160,13 @@ export class Light {
 
   private onDeviceUpdate = ({ id, result, error }) => {
     if (result && result.length == 1 && result[0] == "ok") {
+      this.accessory.reachable = true;
       if (this.detailedLogging) {
         this.log(`received ${id}: OK`);
       }
       // simple ok
     } else if (result && result.length > 3) {
+      this.accessory.reachable = true;
       if (this.detailedLogging) {
         this.log(`received update ${id}: ${JSON.stringify(result)}`);
       }
@@ -216,10 +218,7 @@ export class Light {
   private onDeviceConnected = async () => {
     this.connected = true;
     this.log("Connected");
-    this.accessory.reachable = true;
-    // this.requestAttributes();
-    const attributes = await this.getAttributes();
-    this.services.forEach(service => service.onAttributesUpdated(attributes));
+    this.requestAttributes();
     if (this.config.interval) {
       this.interval = setInterval(this.onInterval, this.config.interval);
     }
