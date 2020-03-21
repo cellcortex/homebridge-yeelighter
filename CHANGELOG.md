@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.37](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.36...v1.2.37) (2020-03-21)
+
+
+### Bug Fixes
+
+* activate light only when first update received ([62142bc](https://github.com/cellcortex/homebridge-yeelighter/commit/62142bccf2002dc49a210bd8809c9b37e9699e5f))
+
 ### [1.2.36](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.35...v1.2.36) (2020-03-21)
 
 ### [1.2.35](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.34...v1.2.35) (2020-03-21)
