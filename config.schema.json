@@ -17,6 +17,12 @@
       "default": "5000",
       "required": false
     },
+    "interval": {
+      "title": "Polling interval for requests (0 means never)",
+      "type": "Number",
+      "default": "0",
+      "required": false
+    },
     "ctforcolor": {
       "title": "(BETA) Allow CT to be set for RGB lights",
       "type": "boolean",

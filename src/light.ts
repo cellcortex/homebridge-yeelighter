@@ -55,6 +55,7 @@ export class Light {
   private pluginLog: (message?: any, ...optionalParams: any[]) => void;
   public detailedLogging = false;
   public connected = false;
+  private interval?: NodeJS.Timeout;
 
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
@@ -135,22 +136,23 @@ export class Light {
   };
 
   public getAttributes = async (): Promise<Attributes> => {
-    // make sure we don't query in parallel and not more often than every second
-    if (this.updateTimestamp < Date.now() - 1000 && (!this.updatePromise || !this.updatePromisePending)) {
-      this.updatePromise = new Promise<string[]>((resolve, reject) => {
-        this.updatePromisePending = true;
-        this.updateResolve = resolve;
-        this.updateReject = reject;
-        this.requestAttributes();
-      });
-    }
-    // this promise will be awaited for by everybody entering here while a request is still in the air
-    if (this.updatePromise && this.connected) {
-      try {
-        await Promise.race([this.updatePromise, timeout(this.config?.timeout)]);
-      } catch (error) {
-        this.log("retrieving attributes failed. Using last attributes.", error);
-        delete this.updatePromise;
+    if (!this.config?.nonblocking) {
+      if (this.updateTimestamp < Date.now() - 1000 && (!this.updatePromise || !this.updatePromisePending)) {
+        // make sure we don't query in parallel and not more often than every second
+        this.updatePromise = new Promise<string[]>((resolve, reject) => {
+          this.updatePromisePending = true;
+          this.updateResolve = resolve;
+          this.updateReject = reject;
+          this.requestAttributes();
+        });
+      }
+      // this promise will be awaited for by everybody entering here while a request is still in the air
+      if (this.updatePromise && this.connected) {
+        try {
+          await Promise.race([this.updatePromise, timeout(this.config?.timeout)]);
+        } catch (error) {
+          this.log("retrieving attributes failed. Using last attributes.", error);
+        }
       }
     }
     return this.attributes;
@@ -203,9 +205,10 @@ export class Light {
   };
 
   private onUpdateAttributes = (newAttributes: Attributes) => {
-    // this.services.forEach(service => service.onAttributesUpdated(newAttributes));
     if (JSON.stringify(this.attributes) !== JSON.stringify(newAttributes)) {
-      // this.services.forEach(service => service.onAttributesUpdated(newAttributes));
+      if (this.config?.nonblocking) {
+        this.services.forEach(service => service.onAttributesUpdated(newAttributes));
+      }
       this.attributes = { ...newAttributes };
     }
   };
@@ -217,6 +220,9 @@ export class Light {
     // this.requestAttributes();
     const attributes = await this.getAttributes();
     this.services.forEach(service => service.onAttributesUpdated(attributes));
+    if (this.config.interval) {
+      this.interval = setInterval(() => this.requestAttributes, this.config.interval);
+    }
   };
 
   private onDeviceDisconnected = () => {
@@ -234,6 +240,10 @@ export class Light {
       this.updatePromisePending = false;
     }
     this.accessory.reachable = false;
+    if (this.interval) {
+      clearInterval(this.interval);
+      delete this.interval;
+    }
   };
 
   private onDeviceError = error => {
