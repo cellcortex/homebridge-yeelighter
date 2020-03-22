@@ -3,7 +3,7 @@
 
 import { Light } from "./light";
 import { convertHomeKitColorTemperatureToHomeKitColor } from "./colortools";
-import { Specs } from "./Specs";
+import { Specs } from "./specs";
 
 // HACK: since importing these types will somehow create a dependency to hap-nodejs
 export type Accessory = any;
