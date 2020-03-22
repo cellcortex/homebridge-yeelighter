@@ -47,7 +47,9 @@ In homebridge's config.json you need to specify homebridge-yeelighter as a platf
 "platforms": [
   {
     "platform": "Yeelighter",
-    "name": "Yeelighter"
+    "name": "Yeelighter",
+    "timeout": 5000,
+    "interval": 60000
   }
 ]
 ```
@@ -59,8 +61,8 @@ You can use the override array to override the automatic configuration of the li
 ```
 "platforms": [
   {
-    "platform": "Yeelighter"
-    "name": "Yeelighter"
+    "platform": "Yeelighter",
+    "name": "Yeelighter",
     "override": [
       {
         "id": "0x00000000deadbeef",
@@ -69,7 +71,7 @@ You can use the override array to override the automatic configuration of the li
       {
         "id": "0x0000000012345678",
         "background": false,
-        "moonlight": true
+        "nightLight": true
       }
     ]
   }

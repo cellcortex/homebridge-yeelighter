@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.39](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.38...v1.2.39) (2020-03-22)
+
+### [1.2.38](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.37...v1.2.38) (2020-03-22)
+
+
+### Features
+
+* converted to non-blocking (slow polling) retrieval of properties ([f48ead3](https://github.com/cellcortex/homebridge-yeelighter/commit/f48ead316109a0615f7f34e0be0751490972cac4))
+
+
+### Bug Fixes
+
+* check reachable with interval ([c45e00b](https://github.com/cellcortex/homebridge-yeelighter/commit/c45e00b481d6ac202804a5d7751baaa2ecc81a28))
+
+### [1.2.37](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.36...v1.2.37) (2020-03-21)
+
+
+### Bug Fixes
+
+* activate light only when first update received ([62142bc](https://github.com/cellcortex/homebridge-yeelighter/commit/62142bccf2002dc49a210bd8809c9b37e9699e5f))
+
+### [1.2.36](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.35...v1.2.36) (2020-03-21)
+
+### [1.2.35](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.34...v1.2.35) (2020-03-21)
+
+### [1.2.34](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.33...v1.2.34) (2020-03-21)
+
+### [1.2.33](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.32...v1.2.33) (2020-03-21)
+
+
+### Features
+
+* option to disable CT for color lights ([3f527eb](https://github.com/cellcortex/homebridge-yeelighter/commit/3f527ebba0e5f40b44db5fd4fb043493533e5432))
+* option to use non-blocking requests and update intervals ([9214e86](https://github.com/cellcortex/homebridge-yeelighter/commit/9214e86e271a38efdc1a7558094cf0324bd1c01b))
+
+### [1.2.32](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.31...v1.2.32) (2020-03-19)
+
+### [1.2.30](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.29...v1.2.30) (2020-03-19)
+
+
+### Features
+
+* support for Mi LED Ceiling Light ([21948f9](https://github.com/cellcortex/homebridge-yeelighter/commit/21948f9de93b23fc86e61271a1f8853593f0c8b7))
+
 ### [1.2.29](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.28...v1.2.29) (2020-01-19)
 
 

@@ -55,6 +55,7 @@ export class Light {
   private pluginLog: (message?: any, ...optionalParams: any[]) => void;
   public detailedLogging = false;
   public connected = false;
+  private interval?: NodeJS.Timeout;
 
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
@@ -71,7 +72,7 @@ export class Light {
     if (!this.specs) {
       const specs = { ...EMPTY_SPECS };
       this.log(
-        `no specs for light ${device.info.id} ${device.info.model}. It supports: ${device.info.support}. Using fallback. This will not give you moonlight support.`
+        `no specs for light ${device.info.id} ${device.info.model}. It supports: ${device.info.support}. Using fallback. This will not give you nightLight support.`
       );
       specs.name = device.info.model;
       specs.color = this.support.includes("set_hsv");
@@ -135,22 +136,23 @@ export class Light {
   };
 
   public getAttributes = async (): Promise<Attributes> => {
-    // make sure we don't query in parallel and not more often than every second
-    if (this.updateTimestamp < Date.now() - 500 && (!this.updatePromise || !this.updatePromisePending)) {
-      this.updatePromise = new Promise<string[]>((resolve, reject) => {
-        this.updatePromisePending = true;
-        this.updateResolve = resolve;
-        this.updateReject = reject;
-        this.requestAttributes();
-      });
-    }
-    // this promise will be awaited for by everybody entering here while a request is still in the air
-    if (this.updatePromise && this.connected) {
-      try {
-        await Promise.race([this.updatePromise, timeout(5000)]);
-      } catch (error) {
-        this.log("retrieving attributes failed. Using last attributes.", error);
-        delete this.updatePromise;
+    if (!this.config?.nonblocking) {
+      if (this.updateTimestamp < Date.now() - 1000 && (!this.updatePromise || !this.updatePromisePending)) {
+        // make sure we don't query in parallel and not more often than every second
+        this.updatePromise = new Promise<string[]>((resolve, reject) => {
+          this.updatePromisePending = true;
+          this.updateResolve = resolve;
+          this.updateReject = reject;
+          this.requestAttributes();
+        });
+      }
+      // this promise will be awaited for by everybody entering here while a request is still in the air
+      if (this.updatePromise && this.connected) {
+        try {
+          await Promise.race([this.updatePromise, timeout(this.config?.timeout)]);
+        } catch (error) {
+          this.log("retrieving attributes failed. Using last attributes.", error);
+        }
       }
     }
     return this.attributes;
@@ -158,11 +160,13 @@ export class Light {
 
   private onDeviceUpdate = ({ id, result, error }) => {
     if (result && result.length == 1 && result[0] == "ok") {
+      this.accessory.reachable = true;
       if (this.detailedLogging) {
         this.log(`received ${id}: OK`);
       }
       // simple ok
     } else if (result && result.length > 3) {
+      this.accessory.reachable = true;
       if (this.detailedLogging) {
         this.log(`received update ${id}: ${JSON.stringify(result)}`);
       }
@@ -173,22 +177,23 @@ export class Light {
         delete this.updateResolve;
         delete this.updateReject;
       }
+      const newAttributes = { ...EMPTY_ATTRIBUTES };
       for (const key of Object.keys(this.attributes)) {
         const index = TRACKED_ATTRIBUTES.indexOf(key);
         switch (typeof EMPTY_ATTRIBUTES[key]) {
           case "number":
-            this.attributes[key] = Number(result[index]);
+            newAttributes[key] = Number(result[index]);
             break;
           case "boolean":
-            this.attributes[key] = result[index] == "on";
+            newAttributes[key] = result[index] == "on";
             break;
           default:
-            this.attributes[key] = result[index];
+            newAttributes[key] = result[index];
             break;
         }
       }
       this.updateTimestamp = Date.now();
-      // this.log(`Attributes for ${this.info.id} updated ${JSON.stringify(this.attributes)}`);
+      this.onUpdateAttributes(newAttributes);
     } else if (error) {
       this.log(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
       // reject any pending waits
@@ -201,19 +206,31 @@ export class Light {
     }
   };
 
+  private onUpdateAttributes = (newAttributes: Attributes) => {
+    if (JSON.stringify(this.attributes) !== JSON.stringify(newAttributes)) {
+      if (this.config?.nonblocking) {
+        this.services.forEach(service => service.onAttributesUpdated(newAttributes));
+      }
+      this.attributes = { ...newAttributes };
+    }
+  };
+
   private onDeviceConnected = async () => {
     this.connected = true;
     this.log("Connected");
-    this.accessory.reachable = true;
-    // this.requestAttributes();
-    const attributes = await this.getAttributes();
-    this.services.forEach(service => service.onAttributesUpdated(attributes));
+    this.requestAttributes();
+    if (this.config.interval !== 0) {
+      this.interval = setInterval(this.onInterval, this.config.interval || 60000);
+    }
   };
 
   private onDeviceDisconnected = () => {
     this.connected = false;
     this.log("Disconnected");
     if (this.overrideConfig?.offOnDisconnect) {
+      this.attributes.power = false;
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      this.attributes.bg_power = false;
       this.log("configured to mark as powered-off when disconnected");
       this.services.forEach(service => service.onPowerOff());
     }
@@ -222,10 +239,9 @@ export class Light {
       this.updatePromisePending = false;
     }
     this.accessory.reachable = false;
-    if (this.overrideConfig?.offOnDisconnect) {
-      this.attributes.power = false;
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      this.attributes.bg_power = false;
+    if (this.interval) {
+      clearInterval(this.interval);
+      delete this.interval;
     }
   };
 
@@ -284,8 +300,24 @@ export class Light {
       this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
     } else {
       this.log(`WARN: failed to send command since the device is not connected`);
+      this.accessory.reachable = false;
+      if (this.interval) {
+        clearInterval(this.interval);
+        delete this.interval;
+      }
     }
   }
+
+  private onInterval = () => {
+    if (this.connected && this.accessory.reachable) {
+      this.requestAttributes();
+    } else {
+      if (this.interval) {
+        clearInterval(this.interval);
+        delete this.interval;
+      }
+    }
+  };
 
   requestAttributes() {
     this.sendCommand("get_prop", this.device.info.trackedAttributes);

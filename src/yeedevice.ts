@@ -2,7 +2,7 @@
  * Yeelight Device Handling.
  */
 
-import EventEmitter from "events";
+import { EventEmitter } from "events";
 import net from "net";
 
 export interface DeviceInfo {
@@ -112,11 +112,14 @@ export class Device extends EventEmitter {
   }
 
   socketClosed(error) {
+    console.log("Socket Closed", this.forceDisconnect);
     if (this.forceDisconnect) return;
 
     if (error && this.debug) {
-      console.log("Socket Closed :", error);
+      console.log("Socket Closed:", error);
       console.log("Reconnecting in 5 secs");
+    } else {
+      console.log("Socket Closed without error");
     }
     this.disconnect(false);
     if (this.retryTimer) {
