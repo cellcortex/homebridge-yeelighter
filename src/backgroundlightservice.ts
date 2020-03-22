@@ -92,9 +92,5 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
     this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.bg_hue);
     this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.bg_power);
     this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bg_bright);
-    this.updateCharacteristic(
-      this.homebridge.hap.Characteristic.ColorTemperature,
-      convertColorTemperature(newAttributes.bg_ct)
-    );
   };
 }
