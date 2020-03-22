@@ -2,7 +2,7 @@
  * Yeelight Device Handling.
  */
 
-import EventEmitter from "events";
+import { EventEmitter } from "events";
 import net from "net";
 
 export interface DeviceInfo {
