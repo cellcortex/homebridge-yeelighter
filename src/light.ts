@@ -161,12 +161,14 @@ export class Light {
   private onDeviceUpdate = ({ id, result, error }) => {
     if (result && result.length == 1 && result[0] == "ok") {
       this.accessory.reachable = true;
+      this.connected = true;
       if (this.detailedLogging) {
         this.log(`received ${id}: OK`);
       }
       // simple ok
     } else if (result && result.length > 3) {
       this.accessory.reachable = true;
+      this.connected = true;
       if (this.detailedLogging) {
         this.log(`received update ${id}: ${JSON.stringify(result)}`);
       }
@@ -289,23 +291,20 @@ export class Light {
   }
 
   sendCommand(method: string, parameters: Array<string | number | boolean>) {
-    if (this.connected && this.accessory.reachable) {
-      const supportedCommands = this.device.info.support.split(",");
-      if (!supportedCommands.includes) {
-        this.log(`WARN: sending ${method} although unsupported.`);
-      }
-      if (this.detailedLogging) {
-        this.log(`sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
-      }
-      this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
-    } else {
-      this.log(`WARN: failed to send command since the device is not connected`);
-      this.accessory.reachable = false;
-      if (this.interval) {
-        clearInterval(this.interval);
-        delete this.interval;
-      }
+    if (!this.connected) {
+      this.log(`WARN: send command but device doesn't seem connected`);
     }
+    if (!this.accessory.reachable) {
+      this.log(`WARN: send command but device doesn't seem reachable`);
+    }
+    const supportedCommands = this.device.info.support.split(",");
+    if (!supportedCommands.includes) {
+      this.log(`WARN: sending ${method} although unsupported.`);
+    }
+    if (this.detailedLogging) {
+      this.log(`sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
+    }
+    this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
   }
 
   private onInterval = () => {
