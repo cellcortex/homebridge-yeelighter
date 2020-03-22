@@ -300,12 +300,23 @@ export class Light {
       this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
     } else {
       this.log(`WARN: failed to send command since the device is not connected`);
+      this.accessory.reachable = false;
+      if (this.interval) {
+        clearInterval(this.interval);
+        delete this.interval;
+      }
     }
   }
 
   private onInterval = () => {
-    this.log(`onInterval`);
-    this.requestAttributes();
+    if (this.connected && this.accessory.reachable) {
+      this.requestAttributes();
+    } else {
+      if (this.interval) {
+        clearInterval(this.interval);
+        delete this.interval;
+      }
+    }
   };
 
   requestAttributes() {
