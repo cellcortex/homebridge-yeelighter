@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.38](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.37...v1.2.38) (2020-03-22)
+
+
+### Features
+
+* converted to non-blocking (slow polling) retrieval of properties ([f48ead3](https://github.com/cellcortex/homebridge-yeelighter/commit/f48ead316109a0615f7f34e0be0751490972cac4))
+
+
+### Bug Fixes
+
+* check reachable with interval ([c45e00b](https://github.com/cellcortex/homebridge-yeelighter/commit/c45e00b481d6ac202804a5d7751baaa2ecc81a28))
+
 ### [1.2.37](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.36...v1.2.37) (2020-03-21)
 
 
