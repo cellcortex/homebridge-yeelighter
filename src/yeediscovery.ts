@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import { EventEmitter } from "events";
 import dgram from "dgram";
 import url from "url";
 import { DeviceInfo, EMPTY_DEVICEINFO } from "./yeedevice";
