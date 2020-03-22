@@ -49,7 +49,7 @@ In homebridge's config.json you need to specify homebridge-yeelighter as a platf
     "platform": "Yeelighter",
     "name": "Yeelighter",
     "timeout": 5000,
-    "interval": 5000
+    "interval": 60000
   }
 ]
 ```

@@ -20,7 +20,7 @@
     "interval": {
       "title": "Polling interval for requests (0 means never)",
       "type": "Number",
-      "default": "0",
+      "default": "60000",
       "required": false
     },
     "ctforcolor": {
@@ -30,7 +30,7 @@
       "required": false
     },
     "nonblocking": {
-      "title": "(ALPHA) use non-blocking getters",
+      "title": "use non-blocking getters",
       "type": "boolean",
       "default": "false",
       "required": false

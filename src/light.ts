@@ -219,8 +219,8 @@ export class Light {
     this.connected = true;
     this.log("Connected");
     this.requestAttributes();
-    if (this.config.interval) {
-      this.interval = setInterval(this.onInterval, this.config.interval);
+    if (this.config.interval !== 0) {
+      this.interval = setInterval(this.onInterval, this.config.interval || 60000);
     }
   };
 
