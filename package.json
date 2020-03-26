@@ -1,6 +1,6 @@
 {
   "name": "homebridge-yeelighter",
-  "version": "1.2.41",
+  "version": "1.2.42",
   "description": "Yeelight support for Homebridge with particular support of ceiling lights",
   "license": "MIT",
   "keywords": [
@@ -67,7 +67,6 @@
     "hap-nodejs": "^0.5.3",
     "homebridge": "^0.4.50",
     "husky": "^4.2.3",
-    "json-schema-to-typescript": "^8.0.0",
     "lint-staged": "^10.0.8",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.1",
