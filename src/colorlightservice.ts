@@ -28,7 +28,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.On,
       async () => (await this.attributes()).power,
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, POWERMODE_HSV])
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 0])
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
