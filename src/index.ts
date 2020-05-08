@@ -31,6 +31,7 @@ class YeelighterPlatform {
 
   private onFinishLaunching = () => {
     this.agent.listen();
+
     return null;
   };
 

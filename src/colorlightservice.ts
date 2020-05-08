@@ -98,13 +98,17 @@ export class ColorLightService extends LightService implements ConcreteLightServ
       this.log(`color light updated ${JSON.stringify(newAttributes)}`);
     }
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
-    this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.sat);
-    this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.hue);
-    this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bright);
-    this.updateCharacteristic(
-      this.homebridge.hap.Characteristic.ColorTemperature,
-      convertColorTemperature(newAttributes.ct)
-    );
+    if (this.powerMode === POWERMODE_HSV) {
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.sat);
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.hue);
+      this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bright);
+    }
+    if (this.powerMode === POWERMODE_CT) {
+      this.updateCharacteristic(
+        this.homebridge.hap.Characteristic.ColorTemperature,
+        convertColorTemperature(newAttributes.ct)
+      );
+    }
     this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
   };
 }
