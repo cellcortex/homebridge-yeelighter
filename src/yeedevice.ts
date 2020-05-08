@@ -115,18 +115,19 @@ export class Device extends EventEmitter {
     console.log("Socket Closed", this.forceDisconnect);
     if (this.forceDisconnect) return;
 
-    if (error && this.debug) {
-      console.log("Socket Closed:", error);
-      console.log("Reconnecting in 5 secs");
+    if (error) {
+      console.log("Socket Closed, reconnecting in 5s", error);
     } else {
       console.log("Socket Closed without error");
     }
     this.disconnect(false);
-    if (this.retryTimer) {
-      clearTimeout(this.retryTimer);
-      delete this.retryTimer;
+    if (error) {
+      if (this.retryTimer) {
+        clearTimeout(this.retryTimer);
+        delete this.retryTimer;
+      }
+      this.retryTimer = setTimeout(this.connect.bind(this), 5000);
     }
-    this.retryTimer = setTimeout(this.connect.bind(this), 5000);
   }
 
   didConnect() {
