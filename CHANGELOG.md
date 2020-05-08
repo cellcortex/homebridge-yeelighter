@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.43](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.42...v1.2.43) (2020-05-08)
+
+
+### Bug Fixes
+
+* reconnect only on error ([9dfeb61](https://github.com/cellcortex/homebridge-yeelighter/commit/9dfeb615978dcf6f9ed1fa076aa37d428db01586))
+* update CT on color lights only when in CT mode ([6b4141d](https://github.com/cellcortex/homebridge-yeelighter/commit/6b4141d55f20a58f8faedfb403d0708ab06354a8))
+
 ### [1.2.42](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.41...v1.2.42) (2020-03-26)
 
 ### [1.2.41](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.40...v1.2.41) (2020-03-22)
