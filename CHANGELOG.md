@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.49](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.48...v1.2.49) (2020-05-23)
+
+
+### Bug Fixes
+
+* stricter check if light is unreachable ([493aa92](https://github.com/cellcortex/homebridge-yeelighter/commit/493aa9233f32dde090309dcef9abd1e8e029d8f4))
+
 ### [1.2.48](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.47...v1.2.48) (2020-05-23)
 
 
