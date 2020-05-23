@@ -62,7 +62,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
             if (this.powerMode !== 5) {
               this.ensurePowerMode(POWERMODE_MOON);
               if (this.light.detailedLogging) {
-                this.log(`Moonlight on`);
+                this.log(`debug: Moonlight on`);
               }
             }
             this.sendSuddenCommand("set_bright", value * 2);
@@ -70,7 +70,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
             if (this.powerMode !== 1) {
               this.ensurePowerMode(POWERMODE_CT);
               if (this.light.detailedLogging) {
-                this.log(`Moonlight off`);
+                this.log(`debug: Moonlight off`);
               }
             }
             this.sendSuddenCommand("set_bright", (value - 50) * 2);
@@ -99,7 +99,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
     if (this.light.detailedLogging) {
-      this.log(`temperature light updated ${JSON.stringify(newAttributes)}`);
+      this.log(`debug: temperature light updated ${JSON.stringify(newAttributes)}`);
     }
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
     this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);

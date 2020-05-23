@@ -52,7 +52,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
           this.ensurePowerMode(POWERMODE_CT, "bg_");
           this.sendSuddenCommand("bg_set_ct_abx", convertColorTemperature(value));
           if (this.light.detailedLogging) {
-            this.log(`setCT: ${convertColorTemperature(value)}`);
+            this.log(`debug: setCT ${convertColorTemperature(value)}`);
           }
           this.updateColorFromCT(value);
           this.saveDefaultIfNeeded();
@@ -84,7 +84,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
     if (this.light.detailedLogging) {
-      this.log(`backlight updated ${JSON.stringify(newAttributes)}`);
+      this.log(`debug: backlight updated ${JSON.stringify(newAttributes)}`);
     }
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.bg_lmode, 0);
 

@@ -164,18 +164,18 @@ export class Light {
       this.accessory.reachable = true;
       this.connected = true;
       if (this.detailedLogging) {
-        this.log(`received ${id}: OK`);
+        this.log(`debug: received ${id}: OK`);
       }
       // simple ok
     } else if (result && result.length > 3) {
       this.accessory.reachable = true;
       this.connected = true;
       if (this.lastCommandId - 1 !== id) {
-        this.log(`WARN: update with unexpected id: ${id}, expected: ${this.lastCommandId - 1}`);
+        this.log(`warning: update with unexpected id: ${id}, expected: ${this.lastCommandId - 1}`);
       }
       if (this.detailedLogging) {
         const seconds = (Date.now() - this.queryTimestamp) / 1000;
-        this.log(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
+        this.log(`debug: received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
       }
       if (this.updateResolve) {
         // resolve the promise and delete the resolvers
@@ -297,17 +297,17 @@ export class Light {
 
   sendCommand(method: string, parameters: Array<string | number | boolean>) {
     if (!this.connected) {
-      this.log(`WARN: send command but device doesn't seem connected`);
+      this.log(`warning: send command but device doesn't seem connected`);
     }
     if (!this.accessory.reachable) {
-      this.log(`WARN: send command but device doesn't seem reachable`);
+      this.log(`warning: send command but device doesn't seem reachable`);
     }
     const supportedCommands = this.device.info.support.split(",");
     if (!supportedCommands.includes) {
-      this.log(`WARN: sending ${method} although unsupported.`);
+      this.log(`warning: sending ${method} although unsupported.`);
     }
     if (this.detailedLogging) {
-      this.log(`sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
+      this.log(`debug: sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
     }
     this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
   }
@@ -317,7 +317,7 @@ export class Light {
       const updateSince = (Date.now() - this.updateTimestamp) / 1000;
       const updateThreshold = (this.config.timeout || 5000 + this.config.interval || 60000) / 1000;
       if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
-        this.log(`No update received within ${updateSince}s - switching to unreachable`);
+        this.log(`No update received within ${updateSince}s (Threshold: ${updateThreshold} => switching to unreachable`);
         this.connected = false;
         this.accessory.reachable = false;
       }

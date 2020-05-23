@@ -44,7 +44,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
         async () => {
           const attributes = await this.attributes();
           if (this.light.detailedLogging) {
-            this.log(`getCT: ${JSON.stringify(attributes)} -> ${convertColorTemperature(attributes.ct)}`);
+            this.log(`debug: getCT: ${JSON.stringify(attributes)} -> ${convertColorTemperature(attributes.ct)}`);
           }
           return convertColorTemperature(attributes.ct);
         },
@@ -52,7 +52,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
           const kelvin = convertColorTemperature(value);
           this.ensurePowerMode(POWERMODE_CT);
           if (this.light.detailedLogging) {
-            this.log(`setCT: ${convertColorTemperature(value)}`);
+            this.log(`debug: setCT: ${convertColorTemperature(value)}`);
           }
           this.sendSuddenCommand("set_ct_abx", kelvin);
           this.updateColorFromCT(value);
@@ -82,7 +82,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
       async () => {
         const attributes = await this.attributes();
         if (this.light.detailedLogging) {
-          this.log(`getSat: ${JSON.stringify(attributes)}`);
+          this.log(`debug: getSat: ${JSON.stringify(attributes)}`);
         }
         return attributes.sat;
       },
