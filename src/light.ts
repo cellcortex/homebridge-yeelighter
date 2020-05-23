@@ -174,7 +174,7 @@ export class Light {
         this.log(`WARN: update with unexpected id: ${id}, expected: ${this.lastCommandId - 1}`);
       }
       if (this.detailedLogging) {
-        const seconds = Date.now() - this.queryTimestamp;
+        const seconds = (Date.now() - this.queryTimestamp) / 1000;
         this.log(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
       }
       if (this.updateResolve) {
