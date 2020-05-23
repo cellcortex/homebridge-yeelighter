@@ -15,15 +15,19 @@
       },
       "timeout": {
         "title": "Timeout for requests",
-        "type": "Number",
+        "type": "integer",
         "default": "5000",
+        "minimum": 0,
+        "maximum": 600000,
         "required": false,
         "description": "The timeout allowed for lights to respond to requests (in ms)"
       },
       "interval": {
         "title": "Polling interval for requests (0 means never)",
-        "type": "Number",
-        "default": "60000",
+        "type": "integer",
+        "default": 60000,
+        "minimum": 5000,
+        "maximum": 600000,
         "required": false,
         "description": "The frequency that the lights will be queried for updates (in ms)"
       },
@@ -31,7 +35,8 @@
         "title": "(BETA) Allow CT to be set for RGB lights",
         "type": "boolean",
         "default": "true",
-        "required": false
+        "required": false,
+        "description": "color temperature setting combined with color setting enabled."
       },
       "blocking": {
         "title": "use blocking getters (old behavior)",
