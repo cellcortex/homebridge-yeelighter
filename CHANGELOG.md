@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.48](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.47...v1.2.48) (2020-05-23)
+
+
+### Bug Fixes
+
+* logging of seconds was the wrong number ([2916819](https://github.com/cellcortex/homebridge-yeelighter/commit/2916819a0bec73a561fc02c7473052879a5af993))
+
 ### [1.2.47](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.46...v1.2.47) (2020-05-23)
 
 
@@ -15,6 +22,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 * default to non-blocking ([64d2458](https://github.com/cellcortex/homebridge-yeelighter/commit/64d24588e9ee7173468d8c782c555c67c168c513))
+* HSV settings for color lights should work now
 
 ### [1.2.43](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.42...v1.2.43) (2020-05-08)
 
