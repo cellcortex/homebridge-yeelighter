@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.4](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.3.3...v1.3.4) (2020-05-23)
+
+
+### Bug Fixes
+
+* threshold calculation for timeout was wrong ([e899671](https://github.com/cellcortex/homebridge-yeelighter/commit/e8996711a20f715c02854f472d09098ad34fbf21))
+
 ### [1.3.3](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.3.2...v1.3.3) (2020-05-23)
 
 ### [1.3.2](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.3.1...v1.3.2) (2020-05-23)
