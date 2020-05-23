@@ -50,6 +50,7 @@ export class Light {
   private updatePromisePending: boolean;
   private attributes: Attributes = { ...EMPTY_ATTRIBUTES };
   private lastCommandId = 1;
+  private queryTimestamp = 0;
   public specs: Specs;
   public overrideConfig?: OverrideLightConfiguration;
   private pluginLog: (message?: any, ...optionalParams: any[]) => void;
@@ -169,8 +170,12 @@ export class Light {
     } else if (result && result.length > 3) {
       this.accessory.reachable = true;
       this.connected = true;
+      if (this.lastCommandId - 1 !== id) {
+        this.log(`WARN: update with unexpected id: ${id}, expected: ${this.lastCommandId - 1}`);
+      }
       if (this.detailedLogging) {
-        this.log(`received update ${id}: ${JSON.stringify(result)}`);
+        const seconds = Date.now() - this.queryTimestamp;
+        this.log(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
       }
       if (this.updateResolve) {
         // resolve the promise and delete the resolvers
@@ -309,6 +314,12 @@ export class Light {
 
   private onInterval = () => {
     if (this.connected && this.accessory.reachable) {
+      const updateSince = (Date.now() - this.updateTimestamp);
+      if (this.updateTimestamp !== 0 && this.updateTimestamp < Date.now() - this.config.interval * 2) {
+        this.log(`No update received since ${updateSince}s - switching to unreachable`);
+        this.connected = false;
+        this.accessory.reachable = false;
+      }
       this.requestAttributes();
     } else {
       if (this.interval) {
@@ -319,6 +330,7 @@ export class Light {
   };
 
   requestAttributes() {
+    this.queryTimestamp = Date.now();
     this.sendCommand("get_prop", this.device.info.trackedAttributes);
   }
 }
