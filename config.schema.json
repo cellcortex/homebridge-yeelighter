@@ -5,101 +5,108 @@
   "headerDisplay": "You must enable LAN control for the lights.",
   "footerDisplay": "For help look at https://github.com/cellcortex/homebridge-yeelighter",
   "schema": {
-    "name": {
-      "title": "Name",
-      "type": "string",
-      "default": "Yeelighter",
-      "required": true
-    },
-    "timeout": {
-      "title": "Timeout for requests",
-      "type": "Number",
-      "default": "5000",
-      "required": false
-    },
-    "interval": {
-      "title": "Polling interval for requests (0 means never)",
-      "type": "Number",
-      "default": "60000",
-      "required": false
-    },
-    "ctforcolor": {
-      "title": "(BETA) Allow CT to be set for RGB lights",
-      "type": "boolean",
-      "default": "true",
-      "required": false
-    },
-    "blocking": {
-      "title": "use blocking getters (old behavior)",
-      "type": "boolean",
-      "default": "false",
-      "required": false
-    },
-    "override": {
-      "type": "array",
-      "items": {
-        "title": "Override Light Configuration",
-        "type": "object",
-        "properties": {
-          "id": {
-            "title": "Identifier of the light",
-            "type": "string",
-            "pattern": "^0x[0-9a-fA-F]{16}",
-            "required": true
-          },
-          "name": {
-            "title": "Name of the light",
-            "type": "string",
-            "required": false
-          },
-          "log": {
-            "title": "Detailed logging of this light",
-            "type": "boolean",
-            "required": false
-          },
-          "color": {
-            "title": "Treat this as an HSV color light",
-            "type": "boolean",
-            "required": false
-          },
-          "backgroundLight": {
-            "title": "Add an extra control for background light",
-            "type": "boolean",
-            "required": false
-          },
-          "nightLight": {
-            "title": "Add an extra range for moonlight mode",
-            "type": "boolean",
-            "required": false
-          },
-          "ignored": {
-            "title": "Ignore this light",
-            "type": "boolean",
-            "required": false
-          },
-          "offOnDisconnect": {
-            "title": "Switch light off in homekit when disconnected",
-            "type": "boolean",
-            "required": false
-          },
-          "colorTemperature": {
-            "title": "Override Light Configuration",
-            "type": "object",
-            "required": false,
-            "properties": {
-              "min": {
-                "title": "Minimal color temperature (in Kelvin)",
-                "type": "number",
-                "required": true,
-                "minimum": 0,
-                "maximum": 10000
-              },
-              "max": {
-                "title": "Maximum color temperature (in Kelvin)",
-                "type": "number",
-                "required": true,
-                "minimum": 0,
-                "maximum": 10000
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "Yeelighter",
+        "required": true
+      },
+      "timeout": {
+        "title": "Timeout for requests",
+        "type": "Number",
+        "default": "5000",
+        "required": false,
+        "description": "The timeout allowed for lights to respond to requests (in ms)"
+      },
+      "interval": {
+        "title": "Polling interval for requests (0 means never)",
+        "type": "Number",
+        "default": "60000",
+        "required": false,
+        "description": "The frequency that the lights will be queried for updates (in ms)"
+      },
+      "ctforcolor": {
+        "title": "(BETA) Allow CT to be set for RGB lights",
+        "type": "boolean",
+        "default": "true",
+        "required": false
+      },
+      "blocking": {
+        "title": "use blocking getters (old behavior)",
+        "type": "boolean",
+        "default": "false",
+        "required": false,
+        "description": "If enabled, instead of regularly pulling updates from the lights, this will query updates only when homekit requests them. This has proven to be problematic since it freezes the homekit UI while waiting for updates."
+      },
+      "override": {
+        "type": "array",
+        "items": {
+          "title": "Override Light Configuration",
+          "type": "object",
+          "properties": {
+            "id": {
+              "title": "Identifier of the light",
+              "type": "string",
+              "pattern": "^0x[0-9a-fA-F]{16}",
+              "required": true
+            },
+            "name": {
+              "title": "Name of the light",
+              "type": "string",
+              "required": false,
+              "description": "This name will be displayed in the logs instead if the id"
+            },
+            "log": {
+              "title": "Detailed logging of this light",
+              "type": "boolean",
+              "required": false
+            },
+            "color": {
+              "title": "Treat this as an HSV color light",
+              "type": "boolean",
+              "required": false
+            },
+            "backgroundLight": {
+              "title": "Add an extra control for background light",
+              "type": "boolean",
+              "required": false
+            },
+            "nightLight": {
+              "title": "Add an extra range for moonlight mode",
+              "type": "boolean",
+              "required": false
+            },
+            "ignored": {
+              "title": "Ignore this light",
+              "type": "boolean",
+              "required": false
+            },
+            "offOnDisconnect": {
+              "title": "Switch light off in homekit when disconnected",
+              "type": "boolean",
+              "required": false
+            },
+            "colorTemperature": {
+              "title": "Override Light Configuration",
+              "type": "object",
+              "required": false,
+              "properties": {
+                "min": {
+                  "title": "Minimal color temperature (in Kelvin)",
+                  "type": "number",
+                  "required": true,
+                  "minimum": 0,
+                  "maximum": 10000
+                },
+                "max": {
+                  "title": "Maximum color temperature (in Kelvin)",
+                  "type": "number",
+                  "required": true,
+                  "minimum": 0,
+                  "maximum": 10000
+                }
               }
             }
           }
