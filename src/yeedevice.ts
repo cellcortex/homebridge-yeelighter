@@ -107,18 +107,16 @@ export class Device extends EventEmitter {
 
     this.socket?.on("end", () => {
       this.emit("socketEnd");
-      this.socketClosed("no error");
+      this.socketClosed();
     });
   }
 
-  socketClosed(error) {
-    console.log("Socket Closed", this.forceDisconnect);
+  socketClosed(error?: Error) {
+    // console.log("Socket Closed", this.forceDisconnect);
     if (this.forceDisconnect) return;
 
     if (error) {
-      console.log("Socket Closed, reconnecting in 5s", error);
-    } else {
-      console.log("Socket Closed without error");
+      console.log(`Socket Closed with error "${error.name}"`, error.message);
     }
     this.disconnect(false);
     if (error) {

@@ -136,7 +136,7 @@ export class Light {
   };
 
   public getAttributes = async (): Promise<Attributes> => {
-    if (!this.config?.nonblocking) {
+    if (this.config?.blocking) {
       if (this.updateTimestamp < Date.now() - 1000 && (!this.updatePromise || !this.updatePromisePending)) {
         // make sure we don't query in parallel and not more often than every second
         this.updatePromise = new Promise<string[]>((resolve, reject) => {
@@ -210,7 +210,7 @@ export class Light {
 
   private onUpdateAttributes = (newAttributes: Attributes) => {
     if (JSON.stringify(this.attributes) !== JSON.stringify(newAttributes)) {
-      if (this.config?.nonblocking) {
+      if (!this.config?.blocking) {
         this.services.forEach(service => service.onAttributesUpdated(newAttributes));
       }
       this.attributes = { ...newAttributes };

@@ -29,8 +29,8 @@
       "default": "true",
       "required": false
     },
-    "nonblocking": {
-      "title": "use non-blocking getters",
+    "blocking": {
+      "title": "use blocking getters (old behavior)",
       "type": "boolean",
       "default": "false",
       "required": false
