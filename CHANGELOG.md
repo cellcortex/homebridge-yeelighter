@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.47](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.46...v1.2.47) (2020-05-23)
+
+
+### Features
+
+* better detection of powered off lights ([64aa01d](https://github.com/cellcortex/homebridge-yeelighter/commit/64aa01d731f6eb8e983868fb153713f3c5ce4f22))
+
 ### [1.2.45](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.44...v1.2.45) (2020-05-23)
 
 
