@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.49...v1.3.0) (2020-05-23)
+
+
+### Bug Fixes
+
+* config schema for homebridge-ui was wrong, now it should work ([1804ec8](https://github.com/cellcortex/homebridge-yeelighter/commit/1804ec89ce74725bcb5551e888244870e24fe131))
+* release script doesn't query for version ([e6c4864](https://github.com/cellcortex/homebridge-yeelighter/commit/e6c48647f58dae0ba9da7ad63cd9afad10b9f3ae))
+* timeout of lights (now really) ([c9ebdc3](https://github.com/cellcortex/homebridge-yeelighter/commit/c9ebdc3b402214520708b2933528ed70a36ef8a8))
+
 ### [1.2.49](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.2.48...v1.2.49) (2020-05-23)
 
 
