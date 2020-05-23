@@ -116,9 +116,17 @@ export class Device extends EventEmitter {
     if (this.forceDisconnect) return;
 
     if (error) {
-      console.log(`Socket Closed with error "${error.name}"`, error.message);
+      if (error.message.includes("EHOSTUNREACH")) {
+        // unreachable, no need to retry
+        this.disconnect(true);
+      } else {
+        console.log(`Socket Closed with error "${error.name}"`, error.message);
+        this.disconnect(false);
+      }
+    } else {
+      this.disconnect(false);
     }
-    this.disconnect(false);
+    
     if (error) {
       if (this.retryTimer) {
         clearTimeout(this.retryTimer);

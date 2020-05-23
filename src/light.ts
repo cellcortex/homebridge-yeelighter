@@ -232,18 +232,20 @@ export class Light {
   };
 
   private onDeviceDisconnected = () => {
-    this.connected = false;
-    this.log("Disconnected");
-    if (this.overrideConfig?.offOnDisconnect) {
-      this.attributes.power = false;
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      this.attributes.bg_power = false;
-      this.log("configured to mark as powered-off when disconnected");
-      this.services.forEach(service => service.onPowerOff());
-    }
-    if (this.updateReject) {
-      this.updateReject();
-      this.updatePromisePending = false;
+    if (this.connected) {
+      this.connected = false;
+      this.log("Disconnected");
+      if (this.overrideConfig?.offOnDisconnect) {
+        this.attributes.power = false;
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        this.attributes.bg_power = false;
+        this.log("configured to mark as powered-off when disconnected");
+        this.services.forEach(service => service.onPowerOff());
+      }
+      if (this.updateReject) {
+        this.updateReject();
+        this.updatePromisePending = false;
+      }
     }
     this.accessory.reachable = false;
     if (this.interval) {
