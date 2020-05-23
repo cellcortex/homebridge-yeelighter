@@ -315,7 +315,8 @@ export class Light {
   private onInterval = () => {
     if (this.connected && this.accessory.reachable) {
       const updateSince = (Date.now() - this.updateTimestamp) / 1000;
-      if (this.updateTimestamp !== 0 && updateSince > 30) {
+      const updateThreshold = (this.config.timeout || 5000 + this.config.interval || 60000) / 1000;
+      if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
         this.log(`No update received within ${updateSince}s - switching to unreachable`);
         this.connected = false;
         this.accessory.reachable = false;
