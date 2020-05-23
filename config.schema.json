@@ -32,7 +32,7 @@
         "description": "The frequency that the lights will be queried for updates (in ms)"
       },
       "ctforcolor": {
-        "title": "(BETA) Allow CT to be set for RGB lights",
+        "title": "Allow CT to be set for RGB lights",
         "type": "boolean",
         "default": "true",
         "required": false,
@@ -100,14 +100,14 @@
               "properties": {
                 "min": {
                   "title": "Minimal color temperature (in Kelvin)",
-                  "type": "number",
+                  "type": "integer",
                   "required": true,
                   "minimum": 0,
                   "maximum": 10000
                 },
                 "max": {
                   "title": "Maximum color temperature (in Kelvin)",
-                  "type": "number",
+                  "type": "integer",
                   "required": true,
                   "minimum": 0,
                   "maximum": 10000
