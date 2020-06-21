@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.3.5...v1.5.0) (2020-06-21)
+
+
+### Features
+
+* set initial name for homekit ([9a91b20](https://github.com/cellcortex/homebridge-yeelighter/commit/9a91b20c5a5d7dcc1a19812a215d4ad624270681))
+* update characteristics from what is set ([0048c75](https://github.com/cellcortex/homebridge-yeelighter/commit/0048c758e5544d2137ed7073c2a862e3c6ba46df))
+
 ## [1.4.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.3.5...v1.4.0) (2020-06-21)
 
 
