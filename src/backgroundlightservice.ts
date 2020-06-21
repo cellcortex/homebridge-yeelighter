@@ -37,8 +37,11 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
       async () => (await this.attributes()).bg_bright,
-      value => {
-        this.sendSuddenCommand("bg_set_bright", value);
+      async value => {
+        await this.sendSuddenCommand("bg_set_bright", value);
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        this.setAttributes({ bg_bright: value });
+        this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, value);
         this.saveDefaultIfNeeded();
       }
     );
@@ -48,12 +51,12 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
         async () => {
           return convertColorTemperature((await this.attributes()).bg_ct);
         },
-        value => {
+        async value => {
           this.ensurePowerMode(POWERMODE_CT, "bg_");
-          this.sendSuddenCommand("bg_set_ct_abx", convertColorTemperature(value));
           if (this.light.detailedLogging) {
             this.log(`debug: setCT ${convertColorTemperature(value)}`);
           }
+          await this.sendSuddenCommand("bg_set_ct_abx", convertColorTemperature(value));
           this.updateColorFromCT(value);
           this.saveDefaultIfNeeded();
         }
@@ -69,7 +72,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
       async () => (await this.attributes()).bg_hue,
       async value => {
         this.lastHue = value;
-        this.setHSV("bg_");
+        await this.setHSV("bg_");
       }
     );
     this.handleCharacteristic(
@@ -77,7 +80,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
       async () => (await this.attributes()).bg_sat,
       async value => {
         this.lastSat = value;
-        this.setHSV("bg_");
+        await this.setHSV("bg_");
       }
     );
   }

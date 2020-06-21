@@ -42,6 +42,11 @@ function timeout(ms: number): Promise<void> {
 
 const nameCount = new Map<string, number>();
 
+interface Deferred<T> {
+  resolve: (value: T) => void;
+  reject: (error: Error) => void;
+}
+
 export class Light {
   public name: string;
   private services = new Array<ConcreteLightService>();
@@ -60,6 +65,7 @@ export class Light {
   public detailedLogging = false;
   public connected = false;
   private interval?: NodeJS.Timeout;
+  private transactions = new Map<number, Deferred<void>>();
 
   constructor(
     log: (message?: any, ...optionalParams: any[]) => void,
@@ -162,13 +168,20 @@ export class Light {
     return this.attributes;
   };
 
+  public setAttributes(attributes: Partial<Attributes>) {
+    this.attributes = { ...this.attributes, ...attributes };
+  }
+
   private onDeviceUpdate = ({ id, result, error }) => {
+    const transaction = this.transactions.get(id);
+    this.transactions.delete(id);
     if (result && result.length == 1 && result[0] == "ok") {
       this.accessory.reachable = true;
       this.connected = true;
       if (this.detailedLogging) {
         this.log(`debug: received ${id}: OK`);
       }
+      transaction?.resolve();
       // simple ok
     } else if (result && result.length > 3) {
       this.accessory.reachable = true;
@@ -204,6 +217,7 @@ export class Light {
       }
       this.updateTimestamp = Date.now();
       this.onUpdateAttributes(newAttributes);
+      transaction?.resolve();
     } else if (error) {
       this.log(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
       // reject any pending waits
@@ -213,6 +227,7 @@ export class Light {
         delete this.updateResolve;
         delete this.updateReject;
       }
+      transaction?.reject(error);
     }
   };
 
@@ -324,6 +339,14 @@ export class Light {
       this.log(`debug: sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
     }
     this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
+    return this.lastCommandId;
+  }
+
+  async sendCommandPromise(method: string, parameters: Array<string | number | boolean>): Promise<void> {
+    const id = this.sendCommand(method, parameters);
+    return new Promise((resolve, reject) => {
+      this.transactions.set(id, { resolve, reject });
+    })
   }
 
   private onInterval = () => {
@@ -347,5 +370,8 @@ export class Light {
   requestAttributes() {
     this.queryTimestamp = Date.now();
     this.sendCommand("get_prop", this.device.info.trackedAttributes);
+    if (this.detailedLogging) { 
+      this.log(`requesting attributes. Transactions: ${this.transactions.size}`);
+    }
   }
 }

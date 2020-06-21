@@ -155,6 +155,10 @@ export class LightService {
     return this.light.getAttributes();
   }
 
+  public setAttributes(attributes: Partial<Attributes>) {
+    this.light.setAttributes(attributes);
+  }
+
   protected async handleCharacteristic(
     uuid: any,
     getter: () => Promise<any>,
@@ -192,16 +196,16 @@ export class LightService {
     this.updateCharacteristic(this.homebridge.hap.Characteristic.On, false);
   };
 
-  protected sendCommand(method: string, parameters: Array<string | number | boolean>) {
-    this.light.sendCommand(method, parameters);
+  protected async sendCommand(method: string, parameters: Array<string | number | boolean>): Promise<void> {
+    return this.light.sendCommandPromise(method, parameters);
   }
 
-  protected sendSuddenCommand(method: string, parameter: string | number | boolean) {
-    this.light.sendCommand(method, [parameter, "sudden", 0]);
+  protected async sendSuddenCommand(method: string, parameter: string | number | boolean) {
+    return this.light.sendCommandPromise(method, [parameter, "sudden", 0]);
   }
 
-  protected sendSmoothCommand(method: string, parameter: string | number | boolean) {
-    this.light.sendCommand(method, [parameter, "smooth", 500]);
+  protected async sendSmoothCommand(method: string, parameter: string | number | boolean) {
+    return this.light.sendCommandPromise(method, [parameter, "smooth", 500]);
   }
 
   protected saveDefaultIfNeeded() {
@@ -217,13 +221,20 @@ export class LightService {
     }
   }
 
-  protected setHSV(prefix = "") {
-    if (this.lastHue && this.lastSat) {
+  protected async setHSV(prefix = "") {
+    const hue = this.lastHue;
+    const sat = this.lastSat;
+    if (hue && sat) {
       this.ensurePowerMode(POWERMODE_HSV, prefix);
-      const hsv = [this.lastHue, this.lastSat, "sudden", 0];
-      this.sendCommand(`${prefix}set_hsv`, hsv);
+      const hsv = [hue, sat, "sudden", 0];
       delete this.lastHue;
       delete this.lastSat;
+      await this.sendCommand(`${prefix}set_hsv`, hsv);
+      if (prefix == "bg") {
+        this.setAttributes({ bg_hue: hue, bg_sat: sat });
+      } else {
+        this.setAttributes({ hue, sat });
+      }
       this.saveDefaultIfNeeded();
     }
   }

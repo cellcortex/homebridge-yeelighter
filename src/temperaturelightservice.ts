@@ -49,14 +49,19 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         const attributes = await this.attributes();
         return attributes.power;
       },
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || POWERMODE_CT])
+      async value => {
+        await this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || POWERMODE_CT]);
+        this.setAttributes({ power: value });
+        this.updateCharacteristic(this.homebridge.hap.Characteristic.On, value);
+      }
     );
     this.handleCharacteristic(
       this.homebridge.hap.Characteristic.Brightness,
       async () => {
         return this.getBrightness(await this.attributes());
       },
-      value => {
+      async value => {
+        let valueToSet = value;
         if (this.specs.nightLight) {
           if (value < 50) {
             if (this.powerMode !== 5) {
@@ -65,7 +70,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
                 this.log(`debug: Moonlight on`);
               }
             }
-            this.sendSuddenCommand("set_bright", value * 2);
+            valueToSet = value * 2;
           } else {
             if (this.powerMode !== 1) {
               this.ensurePowerMode(POWERMODE_CT);
@@ -73,20 +78,27 @@ export class TemperatureLightService extends LightService implements ConcreteLig
                 this.log(`debug: Moonlight off`);
               }
             }
-            this.sendSuddenCommand("set_bright", (value - 50) * 2);
+            valueToSet = (value - 50) * 2;
           }
-        } else {
-          this.sendSuddenCommand("set_bright", value);
-        }
+        } 
+        await this.sendSuddenCommand("set_bright", valueToSet);
+        this.setAttributes({ bright: valueToSet });
+        this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, this.getBrightness(valueToSet));
         this.saveDefaultIfNeeded();
       }
     );
     const characteristic = await this.handleCharacteristic(
       this.homebridge.hap.Characteristic.ColorTemperature,
       async () => convertColorTemperature((await this.attributes()).ct),
-      value => {
+      async value => {
         this.ensurePowerMode(POWERMODE_CT);
-        this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+        await this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+        this.setAttributes({ ct: convertColorTemperature(value) });
+        this.updateCharacteristic(
+          this.homebridge.hap.Characteristic.ColorTemperature,
+          value
+        );
+
         this.saveDefaultIfNeeded();
       }
     );

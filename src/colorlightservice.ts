@@ -48,13 +48,14 @@ export class ColorLightService extends LightService implements ConcreteLightServ
           }
           return convertColorTemperature(attributes.ct);
         },
-        value => {
+        async value => {
           const kelvin = convertColorTemperature(value);
           this.ensurePowerMode(POWERMODE_CT);
           if (this.light.detailedLogging) {
             this.log(`debug: setCT: ${convertColorTemperature(value)}`);
           }
-          this.sendSuddenCommand("set_ct_abx", kelvin);
+          await this.sendSuddenCommand("set_ct_abx", kelvin);
+          this.setAttributes({ ct: kelvin });
           this.updateColorFromCT(value);
           this.saveDefaultIfNeeded();
         }
@@ -74,7 +75,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
       },
       async value => {
         this.lastHue = value;
-        this.setHSV();
+        await this.setHSV();
       }
     );
     this.handleCharacteristic(
@@ -88,7 +89,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
       },
       async value => {
         this.lastSat = value;
-        this.setHSV();
+        await this.setHSV();
       }
     );
   }
