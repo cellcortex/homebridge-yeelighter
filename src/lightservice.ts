@@ -214,9 +214,9 @@ export class LightService {
     }
   }
 
-  protected ensurePowerMode(mode: number, prefix = "") {
+  protected async ensurePowerMode(mode: number, prefix = "") {
     if (this.powerMode !== mode) {
-      this.light.sendCommand(`${prefix}set_power`, ["on", "sudden", 0, mode]);
+      await this.light.sendCommand(`${prefix}set_power`, ["on", "sudden", 0, mode]);
       this.powerMode = mode;
     }
   }
@@ -225,7 +225,7 @@ export class LightService {
     const hue = this.lastHue;
     const sat = this.lastSat;
     if (hue && sat) {
-      this.ensurePowerMode(POWERMODE_HSV, prefix);
+      await this.ensurePowerMode(POWERMODE_HSV, prefix);
       const hsv = [hue, sat, "sudden", 0];
       delete this.lastHue;
       delete this.lastSat;

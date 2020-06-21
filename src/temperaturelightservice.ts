@@ -52,7 +52,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
       async value => {
         await this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || POWERMODE_CT]);
         this.setAttributes({ power: value });
-        this.updateCharacteristic(this.homebridge.hap.Characteristic.On, value);
+        // this.updateCharacteristic(this.homebridge.hap.Characteristic.On, value);
       }
     );
     this.handleCharacteristic(
@@ -83,7 +83,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         } 
         await this.sendSuddenCommand("set_bright", valueToSet);
         this.setAttributes({ bright: valueToSet });
-        this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, this.getBrightness(valueToSet));
+        // this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, this.getBrightness(valueToSet));
         this.saveDefaultIfNeeded();
       }
     );
@@ -94,10 +94,10 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         this.ensurePowerMode(POWERMODE_CT);
         await this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
         this.setAttributes({ ct: convertColorTemperature(value) });
-        this.updateCharacteristic(
+        /*this.updateCharacteristic(
           this.homebridge.hap.Characteristic.ColorTemperature,
           value
-        );
+        );\*/
 
         this.saveDefaultIfNeeded();
       }

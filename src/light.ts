@@ -45,6 +45,7 @@ const nameCount = new Map<string, number>();
 interface Deferred<T> {
   resolve: (value: T) => void;
   reject: (error: Error) => void;
+  timestamp: number;
 }
 
 export class Light {
@@ -172,8 +173,16 @@ export class Light {
     this.attributes = { ...this.attributes, ...attributes };
   }
 
-  private onDeviceUpdate = ({ id, result, error }) => {
+  private onDeviceUpdate = (update: { id, result, error }) => {
+    const { id, result, error } = update;
     const transaction = this.transactions.get(id);
+    if (!id) {
+      this.log(`warning: no transation found for ${id}`, update);
+    }
+    if (this.detailedLogging && transaction) {
+      const seconds = (Date.now() - transaction.timestamp) / 1000;
+      this.log(`transaction ${id} took ${seconds}s`, update);
+    }
     this.transactions.delete(id);
     if (result && result.length == 1 && result[0] == "ok") {
       this.accessory.reachable = true;
@@ -344,8 +353,12 @@ export class Light {
 
   async sendCommandPromise(method: string, parameters: Array<string | number | boolean>): Promise<void> {
     const id = this.sendCommand(method, parameters);
+    if (this.detailedLogging) {
+      this.log(`sent command ${id}: ${method}`);
+    }
     return new Promise((resolve, reject) => {
-      this.transactions.set(id, { resolve, reject });
+      const timestamp = Date.now();
+      this.transactions.set(id, { resolve, reject, timestamp });
     })
   }
 

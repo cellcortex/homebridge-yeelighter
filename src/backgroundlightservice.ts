@@ -41,7 +41,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
         await this.sendSuddenCommand("bg_set_bright", value);
         // eslint-disable-next-line @typescript-eslint/camelcase
         this.setAttributes({ bg_bright: value });
-        this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, value);
+        // this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, value);
         this.saveDefaultIfNeeded();
       }
     );
