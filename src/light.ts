@@ -396,9 +396,9 @@ export class Light {
     }
   };
 
-  requestAttributes() {
+  async requestAttributes() {
     this.queryTimestamp = Date.now();
-    this.sendCommand("get_prop", this.device.info.trackedAttributes);
+    this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
     if (this.detailedLogging) { 
       this.log(`requesting attributes. Transactions: ${this.transactions.size}`);
     }

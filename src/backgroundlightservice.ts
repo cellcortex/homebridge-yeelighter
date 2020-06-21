@@ -52,7 +52,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
           return convertColorTemperature((await this.attributes()).bg_ct);
         },
         async value => {
-          this.ensurePowerMode(POWERMODE_CT, "bg_");
+          await this.ensurePowerMode(POWERMODE_CT, "bg_");
           if (this.light.detailedLogging) {
             this.log(`debug: setCT ${convertColorTemperature(value)}`);
           }

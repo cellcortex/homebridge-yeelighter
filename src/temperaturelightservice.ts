@@ -65,7 +65,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         if (this.specs.nightLight) {
           if (value < 50) {
             if (this.powerMode !== 5) {
-              this.ensurePowerMode(POWERMODE_MOON);
+              await this.ensurePowerMode(POWERMODE_MOON);
               if (this.light.detailedLogging) {
                 this.log(`debug: Moonlight on`);
               }
@@ -73,7 +73,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
             valueToSet = value * 2;
           } else {
             if (this.powerMode !== 1) {
-              this.ensurePowerMode(POWERMODE_CT);
+              await this.ensurePowerMode(POWERMODE_CT);
               if (this.light.detailedLogging) {
                 this.log(`debug: Moonlight off`);
               }
@@ -91,7 +91,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
       this.homebridge.hap.Characteristic.ColorTemperature,
       async () => convertColorTemperature((await this.attributes()).ct),
       async value => {
-        this.ensurePowerMode(POWERMODE_CT);
+        await this.ensurePowerMode(POWERMODE_CT);
         await this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
         this.setAttributes({ ct: convertColorTemperature(value) });
         /*this.updateCharacteristic(

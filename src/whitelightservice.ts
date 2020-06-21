@@ -31,13 +31,15 @@ export class WhiteLightService extends LightService implements ConcreteLightServ
         const attributes = await this.attributes();
         return attributes.bright;
       },
-      value => {
+      async value => {
         if (value > 0) {
-          this.ensurePowerMode(0);
-          this.sendSuddenCommand("set_bright", value);
+          await this.ensurePowerMode(0);
+          await this.sendSuddenCommand("set_bright", value);
+          this.setAttributes({ power: true, bright: value });
           this.saveDefaultIfNeeded();
         } else {
-          this.sendSmoothCommand("set_power", "off");
+          await this.sendSmoothCommand("set_power", "off");
+          this.setAttributes({ power: false, bright: 0 });
         }
       }
     );

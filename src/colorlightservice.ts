@@ -50,7 +50,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
         },
         async value => {
           const kelvin = convertColorTemperature(value);
-          this.ensurePowerMode(POWERMODE_CT);
+          await this.ensurePowerMode(POWERMODE_CT);
           if (this.light.detailedLogging) {
             this.log(`debug: setCT: ${convertColorTemperature(value)}`);
           }

@@ -218,6 +218,11 @@ export class LightService {
     if (this.powerMode !== mode) {
       await this.light.sendCommand(`${prefix}set_power`, ["on", "sudden", 0, mode]);
       this.powerMode = mode;
+      if (prefix == "bg") {
+        this.setAttributes({ bg_power: true });
+      } else {
+        this.setAttributes({ power: true });
+      }
     }
   }
 
