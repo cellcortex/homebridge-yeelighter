@@ -61,6 +61,7 @@ export class Device extends EventEmitter {
   forceDisconnect: boolean;
   retryTimer?: NodeJS.Timeout;
   socket?: net.Socket;
+  rest = "";
   constructor(info: DeviceInfo) {
     super();
     this.info = info;
@@ -141,7 +142,9 @@ export class Device extends EventEmitter {
   }
 
   didReceiveResponse(data) {
-    const dataArray = data.toString("utf8").split("\r\n");
+    const combined = this.rest + data.toString("utf8");
+    const dataArray = combined.split("\r\n");
+    this.rest = dataArray.pop() || "";
     dataArray.forEach(dataString => {
       if (dataString.length === 0) return;
       try {

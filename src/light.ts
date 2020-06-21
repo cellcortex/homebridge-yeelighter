@@ -192,7 +192,7 @@ export class Light {
     }
     if (this.detailedLogging && transaction) {
       const seconds = (Date.now() - transaction.timestamp) / 1000;
-      this.log(`transaction ${id} took ${seconds}s`, update);
+      this.log(`debug: transaction ${id} took ${seconds}s`, update);
     }
     this.transactions.delete(id);
     if (result && result.length == 1 && result[0] == "ok") {
@@ -368,12 +368,12 @@ export class Light {
   }
 
   async sendCommandPromise(method: string, parameters: Array<string | number | boolean>): Promise<void> {
-    const id = this.sendCommand(method, parameters);
-    if (this.detailedLogging) {
-      this.log(`sent command ${id}: ${method}`);
-    }
     return new Promise((resolve, reject) => {
       const timestamp = Date.now();
+      const id = this.sendCommand(method, parameters);
+      if (this.detailedLogging) {
+        this.log(`sent command ${id}: ${method}`);
+      }
       this.transactions.set(id, { resolve, reject, timestamp });
     })
   }
