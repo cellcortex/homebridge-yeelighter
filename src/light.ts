@@ -250,6 +250,11 @@ export class Light {
         delete this.updateReject;
       }
       transaction?.reject(error);
+    } else {
+      if (this.detailedLogging) {
+        this.log(`warn: received unhandled ${id}:`, update);
+      }
+      transaction?.resolve();
     }
   };
 
