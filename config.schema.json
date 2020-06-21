@@ -45,6 +45,13 @@
         "required": false,
         "description": "If enabled, instead of regularly pulling updates from the lights, this will query updates only when homekit requests them. This has proven to be problematic since it freezes the homekit UI while waiting for updates."
       },
+      "split": {
+        "title": "split lighs with multiple services into separate homekit lights",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Instead of having mulitple services as sub-items in one light, separate them into multiple lights."
+      },
       "override": {
         "type": "array",
         "items": {
@@ -62,6 +69,13 @@
               "type": "string",
               "required": false,
               "description": "This name will be displayed in the logs instead if the id"
+            },
+            "useNameAsId": {
+              "title": "Override of id to be displayed (dangerous)",
+              "type": "boolean",
+              "required": false,
+              "default": false,
+              "description": "instead of using the ID, use the name defined above as the Id that the light reports. The id needs to be unique."
             },
             "log": {
               "title": "Detailed logging of this light",

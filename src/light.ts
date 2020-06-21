@@ -22,6 +22,7 @@ export interface OverrideLightConfiguration {
   colorTemperature?: ColorTemperatureConfiguration;
   log?: boolean;
   offOnDisconnect?: boolean;
+  useNameAsId?: boolean;
   [k: string]: any;
 }
 
@@ -38,6 +39,8 @@ function timeout(ms: number): Promise<void> {
     }, ms);
   });
 }
+
+const nameCount = new Map<string, number>();
 
 export class Light {
   public name: string;
@@ -125,7 +128,7 @@ export class Light {
     this.log(`installed as ${typeString}`);
     this.updateTimestamp = 0;
     this.updatePromisePending = false;
-    this.setInfoService();
+    this.setInfoService(overrideConfig);
   }
 
   get info() {
@@ -272,16 +275,24 @@ export class Light {
     callback();
   }
 
-  setInfoService() {
+  setInfoService(override: OverrideLightConfiguration | undefined) {
     // type helpers
     const Characteristic = this.homebridge.hap.Characteristic;
     const Service = this.homebridge.hap.Service;
     const infoService = this.accessory.getService(Service.AccessoryInformation);
+    let name = override?.name || this.specs.name;
+    let count = nameCount.get(name) || 0;
+    count = count + 1;
+    nameCount.set(name, count);
+    if (count > 1) {
+      name = `${name} ${count}`;
+    }
     if (!infoService) {
       const infoService = new Service.AccessoryInformation();
       infoService
         .updateCharacteristic(Characteristic.Manufacturer, "Yeelighter")
         .updateCharacteristic(Characteristic.Model, this.specs.name)
+        .updateCharacteristic(Characteristic.Name, name)
         .updateCharacteristic(Characteristic.SerialNumber, this.device.info.id)
         .updateCharacteristic(Characteristic.FirmwareRevision, this.device.info.fw_ver);
       this.accessory.addService(infoService);
@@ -291,6 +302,7 @@ export class Light {
       infoService
         .updateCharacteristic(Characteristic.Manufacturer, "Yeelighter")
         .updateCharacteristic(Characteristic.Model, this.specs.name)
+        .updateCharacteristic(Characteristic.Name, name)
         .updateCharacteristic(Characteristic.SerialNumber, this.device.info.id)
         .updateCharacteristic(Characteristic.FirmwareRevision, this.device.info.fw_ver);
     }
