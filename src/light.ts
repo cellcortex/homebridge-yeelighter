@@ -206,8 +206,8 @@ export class Light {
     } else if (result && result.length > 3) {
       this.accessory.reachable = true;
       this.connected = true;
-      if (this.lastCommandId - 1 !== id) {
-        this.log(`warning: update with unexpected id: ${id}, expected: ${this.lastCommandId - 1}`);
+      if (this.lastCommandId !== id) {
+        this.log(`warning: update with unexpected id: ${id}, expected: ${this.lastCommandId}`);
       }
       if (this.detailedLogging) {
         const seconds = (Date.now() - this.queryTimestamp) / 1000;
@@ -380,6 +380,17 @@ export class Light {
     })
   }
 
+  private clearOldTransactions() {
+    this.transactions.forEach((item, key) => {
+      // clear transactions older than 60s
+      if (item.timestamp > Date.now() + 60000) {
+        this.log(`error: timeout for request ${key}`);
+        item.reject(new Error("timeout"));
+        this.transactions.delete(key);
+      }
+    })
+  }
+
   private onInterval = () => {
     if (this.connected && this.accessory.reachable) {
       const updateSince = (Date.now() - this.updateTimestamp) / 1000;
@@ -390,12 +401,14 @@ export class Light {
         this.accessory.reachable = false;
       }
       this.requestAttributes();
+      //
     } else {
       if (this.interval) {
         clearInterval(this.interval);
         delete this.interval;
       }
     }
+    this.clearOldTransactions();
   };
 
   async requestAttributes() {
