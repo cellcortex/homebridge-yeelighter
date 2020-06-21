@@ -360,11 +360,13 @@ export class Light {
     if (!supportedCommands.includes) {
       this.log(`warning: sending ${method} although unsupported.`);
     }
+    const id = this.lastCommandId + 1;
     if (this.detailedLogging) {
-      this.log(`debug: sendCommand(${this.lastCommandId}, ${method}, ${JSON.stringify(parameters)})`);
+      this.log(`debug: sendCommand(${id}, ${method}, ${JSON.stringify(parameters)})`);
     }
-    this.device.sendCommand({ id: this.lastCommandId++, method, params: parameters });
-    return this.lastCommandId;
+    this.device.sendCommand({ id, method, params: parameters });
+    this.lastCommandId = id;
+    return id;
   }
 
   async sendCommandPromise(method: string, parameters: Array<string | number | boolean>): Promise<void> {
