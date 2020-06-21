@@ -142,12 +142,15 @@ export class Device extends EventEmitter {
 
   didReceiveResponse(data) {
     const dataArray = data.toString("utf8").split("\r\n");
-    console.log("XXX received", dataArray);
     dataArray.forEach(dataString => {
       if (dataString.length === 0) return;
       try {
         const response = JSON.parse(dataString);
-        this.emit("deviceUpdate", response);
+        if (response.id) {
+          this.emit("deviceUpdate", response);
+        } else {
+          // invalid message (disabled logging since this seems to happen regularly for some lights)
+        }
       } catch (error) {
         console.error(error, dataString);
       }

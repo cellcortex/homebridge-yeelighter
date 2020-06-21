@@ -16,8 +16,6 @@ interface IncomingMessage {
   id?: number,
   result?: any[],
   error?: any,
-  method?: string,
-  params?: string[]
 }
 
 export interface OverrideLightConfiguration {
