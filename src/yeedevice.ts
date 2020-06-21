@@ -142,6 +142,7 @@ export class Device extends EventEmitter {
 
   didReceiveResponse(data) {
     const dataArray = data.toString("utf8").split("\r\n");
+    console.log("XXX received", dataArray);
     dataArray.forEach(dataString => {
       if (dataString.length === 0) return;
       try {

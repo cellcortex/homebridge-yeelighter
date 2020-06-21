@@ -12,6 +12,14 @@ type Accessory = any;
 
 export const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 
+interface IncomingMessage {
+  id?: number,
+  result?: any[],
+  error?: any,
+  method?: string,
+  params?: string[]
+}
+
 export interface OverrideLightConfiguration {
   id: string;
   name?: string;
@@ -173,10 +181,15 @@ export class Light {
     this.attributes = { ...this.attributes, ...attributes };
   }
 
-  private onDeviceUpdate = (update: { id, result, error }) => {
+  private onDeviceUpdate = (update: IncomingMessage) => {
     const { id, result, error } = update;
-    const transaction = this.transactions.get(id);
     if (!id) {
+      // this is some strange unknown message
+      this.log(`debug: unknown response`, update);
+      return;
+    }
+    const transaction = this.transactions.get(id);
+    if (!transaction) {
       this.log(`warning: no transation found for ${id}`, update);
     }
     if (this.detailedLogging && transaction) {
