@@ -188,7 +188,7 @@ export class Light {
     }
     const transaction = this.transactions.get(id);
     if (!transaction) {
-      this.log(`warning: no transation found for ${id}`, update);
+      this.log(`warning: no transactions found for ${id}`, update);
     }
     if (this.detailedLogging && transaction) {
       const seconds = (Date.now() - transaction.timestamp) / 1000;
