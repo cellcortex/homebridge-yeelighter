@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.11](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.5.9...v1.5.11) (2020-06-26)
+
+
+### Bug Fixes
+
+* changin power mode didn't save request id ([76fdcf0](https://github.com/cellcortex/homebridge-yeelighter/commit/76fdcf0cc7597d5aef1f82eb50fd131cf2dbfdac))
+
 ### [1.5.10](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.5.9...v1.5.10) (2020-06-26)
 
 
