@@ -158,5 +158,12 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     backgroundLight: false,
     name: "Color Temperature bulb",
     color: false
+  },
+  desklamp: {
+    colorTemperature: { min: 4000, max: 4000 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "Serene Pro Desk Lamp",
+    color: false
   }
 };
