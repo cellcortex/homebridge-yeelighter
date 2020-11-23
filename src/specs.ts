@@ -131,11 +131,32 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     name: "Ceiling Light (YLXD41YL)",
     color: false
   },
+  ceiling13: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Ceiling Light (A2001R900)",
+    color: false
+  },
+  ceiling14: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Ceiling Light (A2001C550)",
+    color: false
+  },
   ceiling15: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
     backgroundLight: false,
     name: "Ceiling Light (YLXD42YL)",
+    color: false
+  },
+  ceiling18: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Ceiling Light (A2001C450)",
     color: false
   },
   ceiling20: {
