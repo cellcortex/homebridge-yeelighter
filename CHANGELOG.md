@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.16](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.5.15...v1.5.16) (2020-11-23)
+
+
+### Bug Fixes
+
+* can't use HAP without webpacking ([b11efdf](https://github.com/cellcortex/homebridge-yeelighter/commit/b11efdff03314dc167137248c05bd98963661da0))
+
 ### [1.5.15](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.5.14...v1.5.15) (2020-11-23)
 
 
