@@ -6,6 +6,7 @@ import { ColorLightService } from "./colorlightservice";
 import { WhiteLightService } from "./whitelightservice";
 import { TemperatureLightService } from "./temperaturelightservice";
 import { BackgroundLightService } from "./backgroundlightservice";
+import { Characteristic, CharacteristicSetCallback } from "hap-nodejs";
 
 // HACK: since importing these types will somehow create a dependency to hap-nodejs
 type Accessory = any;
@@ -56,6 +57,7 @@ interface Deferred<T> {
 
 export class Light {
   public name: string;
+  public displayName: string;
   private services = new Array<ConcreteLightService>();
   private support: string[];
   private updateTimestamp: number;
@@ -85,6 +87,7 @@ export class Light {
     this.specs = MODEL_SPECS[device.info.model];
     this.name = device.info.id;
     this.pluginLog = log;
+    this.displayName = "unset";
 
     if (!this.specs) {
       const specs = { ...EMPTY_SPECS };
@@ -141,7 +144,8 @@ export class Light {
     this.log(`installed as ${typeString}`);
     this.updateTimestamp = 0;
     this.updatePromisePending = false;
-    this.setInfoService(overrideConfig);
+    const infoService = this.setInfoService(overrideConfig);
+    infoService.getCharacteristic(Characteristic.ConfiguredName).on("set", this.onSetConfiguredName);
   }
 
   get info() {
@@ -389,6 +393,17 @@ export class Light {
         this.transactions.delete(key);
       }
     })
+  }
+
+  private onSetConfiguredName = async (name: string, callback: CharacteristicSetCallback) => {
+    this.displayName = name;
+    const Characteristic = this.homebridge.hap.Characteristic;
+    const Service = this.homebridge.hap.Service;
+    const infoService = this.accessory.getService(Service.AccessoryInformation);
+    infoService.displayName = name;
+    this.log(`setting Displayname to '${name}'`);
+    infoService.setCharacteristic(Characteristic.Name, infoService.displayName);
+    callback();
   }
 
   private onInterval = () => {

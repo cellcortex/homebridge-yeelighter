@@ -4,6 +4,7 @@
 import { Light } from "./light";
 import { convertHomeKitColorTemperatureToHomeKitColor } from "./colortools";
 import { Specs } from "./specs";
+import { ConfiguredName } from "hap-nodejs/dist/lib/gen/HomeKit-TV";
 
 // HACK: since importing these types will somehow create a dependency to hap-nodejs
 export type Accessory = any;
