@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.14](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.5.13...v1.5.14) (2020-11-23)
+
+
+### Features
+
+* add support for ceiling13, ceiling14, celing18 ([4077ccb](https://github.com/cellcortex/homebridge-yeelighter/commit/4077ccb1832be054ce6e92959001f1fbadb599bb))
+
 ### [1.5.13](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.5.12...v1.5.13) (2020-07-19)
 
 ### [1.5.12](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.5.11...v1.5.12) (2020-06-26)
