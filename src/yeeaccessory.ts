@@ -1,8 +1,8 @@
-import { Service, PlatformAccessory, CharacteristicChange, CharacteristicSetCallback, CharacteristicGetCallback } from "homebridge";
+import { PlatformAccessory } from "homebridge";
 import { YeelighterPlatform } from "./platform";
 import { MODEL_SPECS, EMPTY_SPECS, Specs } from "./specs";
 import { Device } from "./yeedevice";
-import { Attributes, EMPTY_ATTRIBUTES, ConcreteLightService, LightServiceParameters as LightServiceParameters } from "./lightservice";
+import { Attributes, EMPTY_ATTRIBUTES, ConcreteLightService, LightServiceParameters } from "./lightservice";
 import { ColorLightService } from "./colorlightservice";
 import { WhiteLightService } from "./whitelightservice";
 import { TemperatureLightService } from "./temperaturelightservice";
@@ -215,7 +215,7 @@ export class YeeAccessory {
     const { id, result, error } = update;
     if (!id) {
       // this is some strange unknown message
-      this.log("debug: unknown response", update);
+      this.log("unknown response", update);
       return;
     }
     const transaction = this.transactions.get(id);
@@ -224,14 +224,14 @@ export class YeeAccessory {
     }
     if (this.detailedLogging && transaction) {
       const seconds = (Date.now() - transaction.timestamp) / 1000;
-      this.log(`debug: transaction ${id} took ${seconds}s`, update);
+      this.log(`transaction ${id} took ${seconds}s`, update);
     }
     this.transactions.delete(id);
     if (result && result.length === 1 && result[0] === "ok") {
       this.accessory.reachable = true;
       this.connected = true;
       if (this.detailedLogging) {
-        this.log(`debug: received ${id}: OK`);
+        this.log(`received ${id}: OK`);
       }
       transaction?.resolve();
       // simple ok
@@ -243,7 +243,7 @@ export class YeeAccessory {
       }
       if (this.detailedLogging) {
         const seconds = (Date.now() - this.queryTimestamp) / 1000;
-        this.log(`debug: received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
+        this.log(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
       }
       if (this.updateResolve) {
         // resolve the promise and delete the resolvers
@@ -399,7 +399,7 @@ export class YeeAccessory {
     }
     const id = this.lastCommandId + 1;
     if (this.detailedLogging) {
-      this.log(`debug: sendCommand(${id}, ${method}, ${JSON.stringify(parameters)})`);
+      this.log(`sendCommand(${id}, ${method}, ${JSON.stringify(parameters)})`);
     }
     this.device.sendCommand({ id, method, params: parameters });
     this.lastCommandId = id;

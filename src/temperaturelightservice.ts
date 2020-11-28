@@ -22,11 +22,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
       const { bright, nl_br, active_mode } = attributes;
       const br1 = Number(bright);
       const br2 = Number(nl_br);
-      if (active_mode === 0) {
-        return br1 / 2 + 50;
-      } else {
-        return br2 / 2;
-      }
+      return active_mode === 0 ? br1 / 2 + 50 : br2 / 2;
     } else {
       return attributes.bright;
     }
@@ -98,7 +94,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.debug(`debug: temperature light updated ${JSON.stringify(newAttributes)}`);
+    this.debug(`temperature light updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
     this.updateCharacteristic(this.platform.Characteristic.On, newAttributes.power);
     this.updateCharacteristic(this.platform.Characteristic.Brightness, this.getBrightness(newAttributes));

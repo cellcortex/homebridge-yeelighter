@@ -38,7 +38,7 @@ export class WhiteLightService extends LightService implements ConcreteLightServ
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.debug(`debug: white light updated ${JSON.stringify(newAttributes)}`);
+    this.debug(`white light updated ${JSON.stringify(newAttributes)}`);
     this.updateCharacteristic(this.platform.Characteristic.On, newAttributes.power);
     this.updateCharacteristic(this.platform.Characteristic.Brightness, newAttributes.bright);
   };

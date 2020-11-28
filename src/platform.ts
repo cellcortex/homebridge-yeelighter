@@ -17,8 +17,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
   private agent: Discovery;
-  private devices = new Map<string, Device>();
-  private cachedAccessories: Map<string, PlatformAccessory> = new Map();
+  private handledAccessories = new Map<string, YeeAccessory>();
 
   constructor(
     public readonly log: Logger,
@@ -54,6 +53,12 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   }
 
   private onDeviceDiscovery = (detectedInfo: DeviceInfo) => {
+
+    if (this.handledAccessories.has(detectedInfo.id)) {
+      this.log.info("re-discovered", detectedInfo.id);
+      return;
+    }
+
     const trackedAttributes = TRACKED_ATTRIBUTES; // .filter(attribute => supportedAttributes.includes(attribute));
 
     const override: OverrideLightConfiguration[] = this.config.override as OverrideLightConfiguration[] || [];
@@ -81,6 +86,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     // see if an accessory with the same uuid has already been registered and restored from
     // the cached devices we stored in the `configureAccessory` method above
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+    
 
     if (existingAccessory) {
       // the accessory already exists
@@ -93,10 +99,11 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
-        new YeeAccessory(this, existingAccessory);
+        const a = new YeeAccessory(this, existingAccessory);
           
         // update accessory cache with any changes to the accessory details and information
         this.api.updatePlatformAccessories([existingAccessory]);
+        this.handledAccessories.set(newDeviceInfo.id, a);
       } else if (!device) {
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
         // remove platform accessories when no longer present
@@ -115,10 +122,11 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
 
       // create the accessory handler for the newly create accessory
       // this is imported from `platformAccessory.ts`
-      new YeeAccessory(this, accessory);
+      const a = new YeeAccessory(this, accessory);
 
       // link the accessory to your platform
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      this.handledAccessories.set(newDeviceInfo.id, a);
     }
   };
 }
