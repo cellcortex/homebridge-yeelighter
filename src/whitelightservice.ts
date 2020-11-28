@@ -1,16 +1,8 @@
-import { LightService, Accessory, ConcreteLightService, Attributes } from "./lightservice";
-import { Configuration } from "homebridge";
-import { Light } from "./light";
+import { LightService, LightServiceParameters as LightServiceParameters, ConcreteLightService, Attributes } from "./lightservice";
 
 export class WhiteLightService extends LightService implements ConcreteLightService {
-  constructor(
-    log: (message?: any, ...optionalParams: any[]) => void,
-    config: Configuration,
-    light: Light,
-    homebridge: any,
-    accessory: Accessory
-  ) {
-    super(log, config, light, homebridge, accessory, "main");
+  constructor(parameters: LightServiceParameters) {
+    super(parameters, "main");
     this.service.displayName = "White Light";
 
     this.installHandlers();
@@ -18,15 +10,15 @@ export class WhiteLightService extends LightService implements ConcreteLightServ
 
   private async installHandlers() {
     this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.On,
+      this.platform.Characteristic.On,
       async () => {
         const attributes = await this.attributes();
         return attributes.power;
       },
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 0])
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 0]),
     );
     this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Brightness,
+      this.platform.Characteristic.Brightness,
       async () => {
         const attributes = await this.attributes();
         return attributes.bright;
@@ -41,15 +33,13 @@ export class WhiteLightService extends LightService implements ConcreteLightServ
           await this.sendSmoothCommand("set_power", "off");
           this.setAttributes({ power: false, bright: 0 });
         }
-      }
+      },
     );
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    if (this.light.detailedLogging) {
-      this.log(`debug: white light updated ${JSON.stringify(newAttributes)}`);
-    }
-    this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
-    this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bright);
+    this.debug(`debug: white light updated ${JSON.stringify(newAttributes)}`);
+    this.updateCharacteristic(this.platform.Characteristic.On, newAttributes.power);
+    this.updateCharacteristic(this.platform.Characteristic.Brightness, newAttributes.bright);
   };
 }

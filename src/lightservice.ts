@@ -1,15 +1,8 @@
-/* eslint-disable @typescript-eslint/camelcase */
-// import { Service, Characteristic, CharacteristicEventTypes, WithUUID, Accessory } from "hap-nodejs";
-
-import { Light } from "./light";
+import { Service, PlatformAccessory, Characteristic } from "homebridge";
 import { convertHomeKitColorTemperatureToHomeKitColor } from "./colortools";
+import { YeelighterPlatform } from "./platform";
+import { YeeAccessory, OverrideLightConfiguration } from "./yeeaccessory";
 import { Specs } from "./specs";
-import { ConfiguredName } from "hap-nodejs/dist/lib/gen/HomeKit-TV";
-
-// HACK: since importing these types will somehow create a dependency to hap-nodejs
-export type Accessory = any;
-export type Service = any;
-export type Characteristic = any;
 
 export const POWERMODE_DEFAULT = 0;
 export const POWERMODE_CT = 1;
@@ -62,7 +55,7 @@ export const EMPTY_ATTRIBUTES: Attributes = {
   bg_lmode: 0,
   nl_br: 0,
   active_mode: 0,
-  name: "unknown"
+  name: "unknown",
 };
 
 export function powerModeFromColorModeAndActiveMode(color_mode: number, active_mode: number) {
@@ -95,10 +88,6 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
   }
 }
 
-export interface Configuration {
-  [key: string]: any;
-}
-
 export function convertColorTemperature(value: number): number {
   return Math.round(1000000 / value);
 }
@@ -109,22 +98,32 @@ export interface ConcreteLightService {
   onPowerOff: () => void;
 }
 
+export interface LightServiceParameters {
+  platform: YeelighterPlatform;
+  readonly accessory: PlatformAccessory;
+  light: YeeAccessory;
+}
+
 export class LightService {
   public service: Service;
   protected powerMode: number;
   protected lastHue?: number;
   protected lastSat?: number;
+  protected readonly platform: YeelighterPlatform;
+  protected readonly accessory: PlatformAccessory;
+  protected light: YeeAccessory;
+
 
   constructor(
-    protected log: (message?: any, ...optionalParams: any[]) => void,
-    protected config: Configuration,
-    protected light: Light,
-    protected homebridge: any,
-    accessory: any,
-    protected subtype?: string
+    parameters,
+    protected subtype?: string,
   ) {
+    this.platform = parameters.platform;
+    this.accessory = parameters.accessory;
+    this.light = parameters.light;
+    
     // we use powerMode to store the currently set mode
-    switch (light.info.color_mode) {
+    switch (this.light.info.color_mode) {
       case 2:
         this.powerMode = POWERMODE_CT;
         break;
@@ -136,16 +135,32 @@ export class LightService {
         this.powerMode = POWERMODE_DEFAULT;
         break;
     }
-    const service = accessory.getServiceByUUIDAndSubType(this.homebridge.hap.Service.Lightbulb, subtype);
-    if (!service) {
-      this.log(`Creating new service of subtype '${subtype}' and adding it`);
-      const newService = new this.homebridge.hap.Service.Lightbulb(this.specs.name || "Main", subtype);
-      accessory.addService(newService);
-      this.service = newService;
+    
+    if (subtype) {
+      this.service = this.accessory.getServiceById(this.platform.Service.Lightbulb, subtype) || 
+                      this.accessory.addService(this.platform.Service.Lightbulb, subtype);
     } else {
-      this.log(`Re-using service of subtype '${subtype}'.`);
-      this.service = service;
+      this.service = this.accessory.getService(this.platform.Service.Lightbulb) 
+                     || this.accessory.addService(this.platform.Service.Lightbulb);
     }
+  }
+
+  protected get log() {
+    return this.platform.log.info;
+  }
+
+  protected get debug() {
+    return this.platform.log.debug;
+  }
+
+  protected get config(): OverrideLightConfiguration {
+    const override = (this.platform.config.override || []) as OverrideLightConfiguration[];
+    const { device } = this.accessory.context;
+    const overrideConfig: OverrideLightConfiguration | undefined = override.find(
+      item => item.id === device.info.id,
+    );
+
+    return overrideConfig || { id: device.info.id };
   }
 
   get specs(): Specs {
@@ -163,7 +178,7 @@ export class LightService {
   protected async handleCharacteristic(
     uuid: any,
     getter: () => Promise<any>,
-    setter: (value: any) => void
+    setter: (value: any) => void,
   ): Promise<Characteristic> {
     const characteristic = this.service.getCharacteristic(uuid);
     if (!characteristic) {
@@ -194,7 +209,7 @@ export class LightService {
   }
 
   public onPowerOff = () => {
-    this.updateCharacteristic(this.homebridge.hap.Characteristic.On, false);
+    this.updateCharacteristic(this.platform.Characteristic.On, false);
   };
 
   protected async sendCommand(method: string, parameters: Array<string | number | boolean>): Promise<void> {
@@ -247,9 +262,7 @@ export class LightService {
 
   protected updateColorFromCT(value: number) {
     const { h, s } = convertHomeKitColorTemperatureToHomeKitColor(value);
-    this.service.getCharacteristic(this.homebridge.hap.Characteristic.Hue).updateValue(h);
-    this.service.getCharacteristic(this.homebridge.hap.Characteristic.Saturation).updateValue(s);
+    this.service.getCharacteristic(this.platform.Characteristic.Hue).updateValue(h);
+    this.service.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(s);
   }
 }
-
-/* eslint-enable @typescript-eslint/camelcase */

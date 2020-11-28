@@ -1,73 +1,61 @@
 import {
-  Accessory,
   LightService,
+  LightServiceParameters as LightServiceParameters,
   POWERMODE_HSV,
   convertColorTemperature,
   POWERMODE_CT,
   powerModeFromColorModeAndActiveMode,
   Attributes,
-  ConcreteLightService
+  ConcreteLightService,
 } from "./lightservice";
-import { Configuration } from "homebridge";
-import { Light } from "./light";
 
 export class ColorLightService extends LightService implements ConcreteLightService {
-  constructor(
-    log: (message?: any, ...optionalParams: any[]) => void,
-    config: Configuration,
-    light: Light,
-    homebridge: any,
-    accessory: Accessory
-  ) {
-    super(log, config, light, homebridge, accessory, "main");
+  constructor(parameters: LightServiceParameters) {
+    super(parameters, "main");
     this.service.displayName = "Color Light";
     this.installHandlers();
   }
 
   private async installHandlers() {
     this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.On,
+      this.platform.Characteristic.On,
       async () => (await this.attributes()).power,
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 0])
+      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 0]),
     );
     this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Brightness,
+      this.platform.Characteristic.Brightness,
       async () => (await this.attributes()).bright,
       value => {
         this.sendSuddenCommand("set_bright", value);
         this.saveDefaultIfNeeded();
-      }
+      },
     );
     if (this.config.ctforcolor) {
       const characteristic = await this.handleCharacteristic(
-        this.homebridge.hap.Characteristic.ColorTemperature,
+        this.platform.Characteristic.ColorTemperature,
         async () => {
           const attributes = await this.attributes();
-          if (this.light.detailedLogging) {
-            this.log(`debug: getCT: ${JSON.stringify(attributes)} -> ${convertColorTemperature(attributes.ct)}`);
-          }
+          this.debug(`getCT: ${JSON.stringify(attributes)} -> ${convertColorTemperature(attributes.ct)}`);
           return convertColorTemperature(attributes.ct);
         },
         async value => {
           const kelvin = convertColorTemperature(value);
           await this.ensurePowerMode(POWERMODE_CT);
-          if (this.light.detailedLogging) {
-            this.log(`debug: setCT: ${convertColorTemperature(value)}`);
-          }
+          this.debug(`setCT: ${convertColorTemperature(value)}`);
           await this.sendSuddenCommand("set_ct_abx", kelvin);
           this.setAttributes({ ct: kelvin });
           this.updateColorFromCT(value);
           this.saveDefaultIfNeeded();
-        }
+        },
       );
       characteristic.setProps({
         ...characteristic.props,
         maxValue: convertColorTemperature(this.specs.colorTemperature.min),
-        minValue: convertColorTemperature(this.specs.colorTemperature.max)
+        minValue: convertColorTemperature(this.specs.colorTemperature.max),
       });
     }
     this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Hue,
+      this.platform.Characteristic.Hue,
       async () => {
         const attributes = await this.attributes();
         this.log(`getHue: ${JSON.stringify(attributes)}`);
@@ -76,40 +64,36 @@ export class ColorLightService extends LightService implements ConcreteLightServ
       async value => {
         this.lastHue = value;
         await this.setHSV();
-      }
+      },
     );
     this.handleCharacteristic(
-      this.homebridge.hap.Characteristic.Saturation,
+      this.platform.Characteristic.Saturation,
       async () => {
         const attributes = await this.attributes();
-        if (this.light.detailedLogging) {
-          this.log(`debug: getSat: ${JSON.stringify(attributes)}`);
-        }
+        this.debug(`getSat: ${JSON.stringify(attributes)}`);
         return attributes.sat;
       },
       async value => {
         this.lastSat = value;
         await this.setHSV();
-      }
+      },
     );
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    if (this.light.detailedLogging) {
-      this.log(`color light updated ${JSON.stringify(newAttributes)}`);
-    }
+    this.debug(`color light updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
     if (this.powerMode === POWERMODE_HSV) {
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.Saturation, newAttributes.sat);
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.Hue, newAttributes.hue);
-      this.updateCharacteristic(this.homebridge.hap.Characteristic.Brightness, newAttributes.bright);
+      this.updateCharacteristic(this.platform.Characteristic.Saturation, newAttributes.sat);
+      this.updateCharacteristic(this.platform.Characteristic.Hue, newAttributes.hue);
+      this.updateCharacteristic(this.platform.Characteristic.Brightness, newAttributes.bright);
     }
     if (this.powerMode === POWERMODE_CT) {
       this.updateCharacteristic(
-        this.homebridge.hap.Characteristic.ColorTemperature,
-        convertColorTemperature(newAttributes.ct)
+        this.platform.Characteristic.ColorTemperature,
+        convertColorTemperature(newAttributes.ct),
       );
     }
-    this.updateCharacteristic(this.homebridge.hap.Characteristic.On, newAttributes.power);
+    this.updateCharacteristic(this.platform.Characteristic.On, newAttributes.power);
   };
 }

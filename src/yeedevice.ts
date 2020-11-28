@@ -32,7 +32,6 @@ export const EMPTY_DEVICEINFO: DeviceInfo = {
   support: "string",
   power: false,
   bright: 0,
-  // eslint-disable-next-line @typescript-eslint/camelcase
   color_mode: -1,
   ct: 0,
   rgb: "string",
@@ -41,11 +40,9 @@ export const EMPTY_DEVICEINFO: DeviceInfo = {
   host: "string",
   port: 0,
   debug: false,
-  // eslint-disable-next-line @typescript-eslint/camelcase
   trackedAttributes: [],
-  // eslint-disable-next-line @typescript-eslint/camelcase
   fw_ver: "0,0.0",
-  name: "string"
+  name: "string",
 };
 
 export interface Command {
@@ -53,7 +50,9 @@ export interface Command {
   method: string;
   params: Array<number | string | boolean>;
 }
-
+/**
+ * Handles the connection to a concrete Yee light.
+ */
 export class Device extends EventEmitter {
   info: DeviceInfo;
   debug: boolean;
@@ -114,7 +113,9 @@ export class Device extends EventEmitter {
 
   socketClosed(error?: Error) {
     // console.log("Socket Closed", this.forceDisconnect);
-    if (this.forceDisconnect) return;
+    if (this.forceDisconnect) {
+      return;
+    }
 
     if (error) {
       if (error.message.includes("EHOSTUNREACH")) {
@@ -146,7 +147,9 @@ export class Device extends EventEmitter {
     const dataArray = combined.split("\r\n");
     this.rest = dataArray.pop() || "";
     dataArray.forEach(dataString => {
-      if (dataString.length === 0) return;
+      if (dataString.length === 0) {
+        return;
+      }
       try {
         const response = JSON.parse(dataString);
         if (response.id) {

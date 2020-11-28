@@ -1,21 +1,20 @@
-// import { Service, Characteristic, Accessory } from "hap-nodejs";
-import { Attributes, EMPTY_ATTRIBUTES, Configuration, ConcreteLightService } from "./lightservice";
-import { Specs, MODEL_SPECS, EMPTY_SPECS } from "./specs";
+import { Service, PlatformAccessory, CharacteristicChange, CharacteristicSetCallback, CharacteristicGetCallback } from "homebridge";
+import { YeelighterPlatform } from "./platform";
+import { MODEL_SPECS, EMPTY_SPECS, Specs } from "./specs";
 import { Device } from "./yeedevice";
+import { Attributes, EMPTY_ATTRIBUTES, ConcreteLightService, LightServiceParameters as LightServiceParameters } from "./lightservice";
 import { ColorLightService } from "./colorlightservice";
 import { WhiteLightService } from "./whitelightservice";
 import { TemperatureLightService } from "./temperaturelightservice";
-import { BackgroundLightService } from "./backgroundlightservice";
+import { BackgroundLightService} from "./backgroundlightservice";
 
-// HACK: since importing these types will somehow create a dependency to hap-nodejs
-type Accessory = any;
 
 export const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 
 interface IncomingMessage {
-  id?: number,
-  result?: any[],
-  error?: any,
+  id?: number;
+  result?: any[];
+  error?: any;
 }
 
 export interface OverrideLightConfiguration {
@@ -54,10 +53,21 @@ interface Deferred<T> {
   timestamp: number;
 }
 
-export class Light {
-  public name: string;
-  public displayName: string;
-  private services = new Array<ConcreteLightService>();
+
+/**
+ * Platform Accessory
+ * An instance of this class is created for each accessory your platform registers
+ * Each accessory may expose multiple services of different service types.
+ */
+export class YeeAccessory {
+  private services: ConcreteLightService[] = [];
+  private detailedLogging = false;
+  public connected: boolean;
+  public readonly name: string;
+  public readonly specs: Specs;
+  
+
+  public displayName = "unset";
   private support: string[];
   private updateTimestamp: number;
   private updateResolve?: (update: string[]) => void;
@@ -67,91 +77,111 @@ export class Light {
   private attributes: Attributes = { ...EMPTY_ATTRIBUTES };
   private lastCommandId = 1;
   private queryTimestamp = 0;
-  public specs: Specs;
   public overrideConfig?: OverrideLightConfiguration;
-  private pluginLog: (message?: any, ...optionalParams: any[]) => void;
-  public detailedLogging = false;
-  public connected = false;
   private interval?: NodeJS.Timeout;
   private transactions = new Map<number, Deferred<void>>();
 
   constructor(
-    log: (message?: any, ...optionalParams: any[]) => void,
-    private config: Configuration,
-    private device: Device,
-    private homebridge: any,
-    private accessory: Accessory
+    private readonly platform: YeelighterPlatform,
+    private readonly accessory: PlatformAccessory,
   ) {
-    this.support = device.info.support.split(" ");
-    this.specs = MODEL_SPECS[device.info.model];
-    this.name = device.info.id;
-    this.pluginLog = log;
-    this.displayName = "unset";
+    const device: Device = accessory.context.device;
+    const support = device.info.support.split(" ");
+    let specs = MODEL_SPECS[device.info.model];
+    let name = device.info.id;
+    const displayName = "unset";
+    const logger = platform.log;
+    this.connected = false;
+    const override: OverrideLightConfiguration[] = platform.config.override as OverrideLightConfiguration[] || [];
+  
+  
 
-    if (!this.specs) {
-      const specs = { ...EMPTY_SPECS };
-      this.log(
-        `no specs for light ${device.info.id} ${device.info.model}. It supports: ${device.info.support}. Using fallback. This will not give you nightLight support.`
+    if (!specs) {
+      specs = { ...EMPTY_SPECS };
+      logger.info(
+        `no specs for light ${device.info.id} ${device.info.model}. 
+        It supports: ${device.info.support}. Using fallback. This will not give you nightLight support.`,
       );
       specs.name = device.info.model;
-      specs.color = this.support.includes("set_hsv");
-      specs.backgroundLight = this.support.includes("bg_set_hsv");
+      specs.color = support.includes("set_hsv");
+      specs.backgroundLight = support.includes("bg_set_hsv");
       specs.nightLight = false;
-      if (!this.support.includes("set_ct_abx")) {
+      if (!support.includes("set_ct_abx")) {
         specs.colorTemperature.min = 0;
         specs.colorTemperature.max = 0;
       }
-      this.specs = specs;
+    
     }
-    const overrideConfig: OverrideLightConfiguration | undefined = this.config?.override?.find(
-      item => item.id === device.info.id
+    const overrideConfig: OverrideLightConfiguration | undefined = override?.find(
+      item => item.id === device.info.id,
     );
     if (overrideConfig?.backgroundLight) {
-      this.specs.backgroundLight = overrideConfig.backgroundLight;
+      specs.backgroundLight = overrideConfig.backgroundLight;
     }
     if (overrideConfig?.color) {
-      this.specs.color = overrideConfig.color;
+      specs.color = overrideConfig.color;
     }
     if (overrideConfig?.name) {
-      this.name = overrideConfig.name;
+      name = overrideConfig.name;
     }
+    this.name = name;
     if (overrideConfig?.nightLight) {
-      this.specs.nightLight = overrideConfig.nightLight;
+      specs.nightLight = overrideConfig.nightLight;
     }
-    this.overrideConfig = overrideConfig;
+    this.specs = specs;
     this.detailedLogging = !!overrideConfig?.log;
 
-    this.support = device.info.support.split(" ");
-    this.connectDevice();
+    this.connectDevice(device);
+
     let typeString = "UNKNOWN";
-    if (this.specs.color) {
-      this.services.push(new ColorLightService(this.log, config, this, homebridge, accessory));
+    const parameters = {
+      accessory,
+      platform,
+      light: this,
+    };
+    if (specs.color) {
+      this.services.push(new ColorLightService(parameters));
       typeString = "Color light";
     } else {
-      if (this.specs.colorTemperature.min === 0 && this.specs.colorTemperature.max === 0) {
-        this.services.push(new WhiteLightService(this.log, config, this, homebridge, accessory));
+      if (specs.colorTemperature.min === 0 && specs.colorTemperature.max === 0) {
+        this.services.push(new WhiteLightService(parameters));
         typeString = "White light";
       } else {
-        this.services.push(new TemperatureLightService(this.log, config, this, homebridge, accessory));
+        this.services.push(new TemperatureLightService(parameters));
         typeString = "Color temperature light";
       }
     }
-    if (this.support.includes("bg_set_power")) {
-      this.services.push(new BackgroundLightService(this.log, config, this, homebridge, accessory));
+    if (support.includes("bg_set_power")) {
+      this.services.push(new BackgroundLightService(parameters));
       typeString = `${typeString} with mood light`;
     }
-    this.log(`installed as ${typeString}`);
+    logger.info(`installed as ${typeString}`);
+
+    this.support = support;
     this.updateTimestamp = 0;
     this.updatePromisePending = false;
-    this.setInfoService(overrideConfig);
+  }
+
+  get device(): Device {
+    return this.accessory.context.device;
   }
 
   get info() {
     return this.device.info;
   }
 
-  public log = (message?: any, ...optionalParameters: any[]): void => {
-    this.pluginLog(`[${this.name}] ${message}`, optionalParameters);
+  protected get config(): OverrideLightConfiguration {
+    const override = (this.platform.config.override || []) as OverrideLightConfiguration[];
+    const { device } = this.accessory.context;
+    const overrideConfig: OverrideLightConfiguration | undefined = override.find(
+      item => item.id === device.info.id,
+    );
+
+    return overrideConfig || { id: device.info.id };
+  }
+
+  public log = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.info(`[${this.name}] ${message}`, optionalParameters);
   };
 
   public getAttributes = async (): Promise<Attributes> => {
@@ -185,7 +215,7 @@ export class Light {
     const { id, result, error } = update;
     if (!id) {
       // this is some strange unknown message
-      this.log(`debug: unknown response`, update);
+      this.log("debug: unknown response", update);
       return;
     }
     const transaction = this.transactions.get(id);
@@ -197,7 +227,7 @@ export class Light {
       this.log(`debug: transaction ${id} took ${seconds}s`, update);
     }
     this.transactions.delete(id);
-    if (result && result.length == 1 && result[0] == "ok") {
+    if (result && result.length === 1 && result[0] === "ok") {
       this.accessory.reachable = true;
       this.connected = true;
       if (this.detailedLogging) {
@@ -230,7 +260,7 @@ export class Light {
             newAttributes[key] = Number(result[index]);
             break;
           case "boolean":
-            newAttributes[key] = result[index] == "on";
+            newAttributes[key] = result[index] === "on";
             break;
           default:
             newAttributes[key] = result[index];
@@ -282,7 +312,6 @@ export class Light {
       this.log("Disconnected");
       if (this.overrideConfig?.offOnDisconnect) {
         this.attributes.power = false;
-        // eslint-disable-next-line @typescript-eslint/camelcase
         this.attributes.bg_power = false;
         this.log("configured to mark as powered-off when disconnected");
         this.services.forEach(service => service.onPowerOff());
@@ -303,25 +332,30 @@ export class Light {
     this.log("Device Error", error);
   };
 
-  connectDevice() {
-    this.device.connect();
-    this.device.on("deviceUpdate", this.onDeviceUpdate);
-    this.device.on("connected", this.onDeviceConnected);
-    this.device.on("disconnected", this.onDeviceDisconnected);
-    this.device.on("deviceError", this.onDeviceError);
+  connectDevice(device: Device) {
+    device.connect();
+    device.on("deviceUpdate", this.onDeviceUpdate);
+    device.on("connected", this.onDeviceConnected);
+    device.on("disconnected", this.onDeviceDisconnected);
+    device.on("deviceError", this.onDeviceError);
   }
 
   // Respond to identify request
   identify(callback: () => void): void {
-    this.log(`Hi ${this.device.info.model}`);
+    this.log(`Hi ${this.info.model}`);
     callback();
   }
 
   setInfoService(override: OverrideLightConfiguration | undefined) {
-    // type helpers
-    const Characteristic = this.homebridge.hap.Characteristic;
-    const Service = this.homebridge.hap.Service;
-    const infoService = this.accessory.getService(Service.AccessoryInformation);
+    const { accessory, platform } = this;
+    // set accessory information
+    accessory.getService(platform.Service.AccessoryInformation)!
+      .setCharacteristic(platform.Characteristic.Manufacturer, "Default-Manufacturer")
+      .setCharacteristic(platform.Characteristic.Model, "Default-Model")
+      .setCharacteristic(platform.Characteristic.SerialNumber, "Default-Serial");
+
+
+    const infoService = this.accessory.getService(platform.Service.AccessoryInformation);
     let name = override?.name || this.specs.name;
     let count = nameCount.get(name) || 0;
     count = count + 1;
@@ -330,36 +364,34 @@ export class Light {
       name = `${name} ${count}`;
     }
     if (!infoService) {
-      const infoService = new Service.AccessoryInformation();
+      const infoService = new platform.Service.AccessoryInformation();
       infoService
-        .updateCharacteristic(Characteristic.Manufacturer, "Yeelighter")
-        .updateCharacteristic(Characteristic.Model, this.specs.name)
-        .updateCharacteristic(Characteristic.Name, name)
-        .updateCharacteristic(Characteristic.SerialNumber, this.device.info.id)
-        .updateCharacteristic(Characteristic.FirmwareRevision, this.device.info.fw_ver);
+        .updateCharacteristic(platform.Characteristic.Manufacturer, "Yeelighter")
+        .updateCharacteristic(platform.Characteristic.Model, this.specs.name)
+        .updateCharacteristic(platform.Characteristic.Name, name)
+        .updateCharacteristic(platform.Characteristic.SerialNumber, this.info.id)
+        .updateCharacteristic(platform.Characteristic.FirmwareRevision, this.info.fw_ver);
       this.accessory.addService(infoService);
-      infoService.getCharacteristic(Characteristic.ConfiguredName).on("set", this.onSetConfiguredName);
       return infoService;
     } else {
       // re-use service from cache
       infoService
-        .updateCharacteristic(Characteristic.Manufacturer, "Yeelighter")
-        .updateCharacteristic(Characteristic.Model, this.specs.name)
-        .updateCharacteristic(Characteristic.Name, name)
-        .updateCharacteristic(Characteristic.SerialNumber, this.device.info.id)
-        .updateCharacteristic(Characteristic.FirmwareRevision, this.device.info.fw_ver);
+        .updateCharacteristic(platform.Characteristic.Manufacturer, "Yeelighter")
+        .updateCharacteristic(platform.Characteristic.Model, this.specs.name)
+        .updateCharacteristic(platform.Characteristic.Name, name)
+        .updateCharacteristic(platform.Characteristic.SerialNumber, this.info.id)
+        .updateCharacteristic(platform.Characteristic.FirmwareRevision, this.info.fw_ver);
     }
-    infoService.getCharacteristic(Characteristic.ConfiguredName).on("set", this.onSetConfiguredName);
 
     return infoService;
   }
 
   sendCommand(method: string, parameters: Array<string | number | boolean>) {
     if (!this.connected) {
-      this.log(`warning: send command but device doesn't seem connected`);
+      this.log("warning: send command but device doesn't seem connected");
     }
     if (!this.accessory.reachable) {
-      this.log(`warning: send command but device doesn't seem reachable`);
+      this.log("warning: send command but device doesn't seem reachable");
     }
     const supportedCommands = this.device.info.support.split(",");
     if (!supportedCommands.includes) {
@@ -382,7 +414,7 @@ export class Light {
         this.log(`sent command ${id}: ${method}`);
       }
       this.transactions.set(id, { resolve, reject, timestamp });
-    })
+    });
   }
 
   private clearOldTransactions() {
@@ -393,18 +425,7 @@ export class Light {
         item.reject(new Error("timeout"));
         this.transactions.delete(key);
       }
-    })
-  }
-
-  private onSetConfiguredName = async (name: string, callback: any) => {
-    this.displayName = name;
-    const Characteristic = this.homebridge.hap.Characteristic;
-    const Service = this.homebridge.hap.Service;
-    const infoService = this.accessory.getService(Service.AccessoryInformation);
-    infoService.displayName = name;
-    this.log(`setting Displayname to '${name}'`);
-    infoService.setCharacteristic(Characteristic.Name, infoService.displayName);
-    callback();
+    });
   }
 
   private onInterval = () => {
@@ -434,4 +455,6 @@ export class Light {
       this.log(`requesting attributes. Transactions: ${this.transactions.size}`);
     }
   }
+
+
 }
