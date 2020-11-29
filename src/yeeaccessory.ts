@@ -65,8 +65,6 @@ export class YeeAccessory {
   public connected: boolean;
   public readonly name: string;
   public readonly specs: Specs;
-  
-
   public displayName = "unset";
   private support: string[];
   private updateTimestamp: number;
@@ -92,7 +90,6 @@ export class YeeAccessory {
     YeeAccessory.handledAccessories.set(id, a);
     return a;
   }
-
 
   private constructor(
     private readonly platform: YeelighterPlatform,
@@ -169,6 +166,7 @@ export class YeeAccessory {
     this.updateTimestamp = 0;
     this.updatePromisePending = false;
 
+    this.log(`setting devie info`, this.info);
     this.setInfoService(overrideConfig);
     this.log(`installed as ${typeString}`);
   }
