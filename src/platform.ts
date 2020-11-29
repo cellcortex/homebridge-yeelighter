@@ -61,7 +61,14 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     if (overrideConfig) {
       this.log.info(`Override config for ${detectedInfo.id}: ${JSON.stringify(overrideConfig)}`);
       if (overrideConfig.ignored) {
-        this.log.info(`Ignoring ${detectedInfo.id} as configured.`);
+        this.log.info(`Ignoring ${detectedInfo.id} as configured. Removing from cache.`);
+            // see if an accessory with the same uuid has already been registered and restored from
+            // the cached devices we stored in the `configureAccessory` method above
+            const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);            
+            if (existingAccessory) {
+                this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+                this.log.info("Removing accessory from cache:", existingAccessory.displayName);
+            }
         return;
       }
     }
@@ -89,11 +96,10 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
         existingAccessory.context.device = device;
         YeeAccessory.instance(newDeviceInfo.id, this, existingAccessory);
          
-        this.api.updatePlatformAccessories([existingAccessory]);
         // update accessory cache with any changes to the accessory details and information
         this.api.updatePlatformAccessories([existingAccessory]);
 
-      } else if (!device) {
+      } else {
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
         // remove platform accessories when no longer present
         this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
