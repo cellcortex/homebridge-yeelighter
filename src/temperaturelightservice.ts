@@ -64,7 +64,8 @@ export class TemperatureLightService extends LightService implements ConcreteLig
             }
             valueToSet = (value - 50) * 2;
           }
-        } 
+        }
+        this.log("set brightness", value);
         await this.sendSuddenCommand("set_bright", valueToSet);
         this.setAttributes({ bright: valueToSet });
         // this.updateCharacteristic(this.platform.Characteristic.Brightness, this.getBrightness(valueToSet));

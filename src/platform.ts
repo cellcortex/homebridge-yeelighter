@@ -34,7 +34,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     // in order to ensure they weren't added to homebridge already. This event can also be used
     // to start discovery of new accessories.
     this.api.on("didFinishLaunching", () => {
-      log.debug("Executed didFinishLaunching callback");
+      this.log.debug("Executed didFinishLaunching callback");
       // iscover / register your devices as accessories
       this.agent.listen();
     });

@@ -154,7 +154,7 @@ export class LightService {
 
     // name handling
     this.service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
-      this.debug("setConfiguredName", value);
+      this.log("setConfiguredName", value);
       this.service.displayName = value;
       this.name = value;
       this.service.setCharacteristic(this.platform.Characteristic.Name, this.service.displayName);
@@ -168,19 +168,19 @@ export class LightService {
   }
 
   public log = (message?: unknown, ...optionalParameters: unknown[]): void => {
-    this.platform.log.info(`[${this.name}] ${message}`, optionalParameters);
+    this.platform.log.info(`[${this.name}#${this.subtype}] ${message}`, optionalParameters);
   };
 
   public warn = (message?: unknown, ...optionalParameters: unknown[]): void => {
-    this.platform.log.warn(`[${this.name}] ${message}`, optionalParameters);
+    this.platform.log.warn(`[${this.name}#${this.subtype}] ${message}`, optionalParameters);
   };
 
   public error = (message?: unknown, ...optionalParameters: unknown[]): void => {
-    this.platform.log.error(`[${this.name}] ${message}`, optionalParameters);
+    this.platform.log.error(`[${this.name}#${this.subtype}] ${message}`, optionalParameters);
   };
 
   public debug = (message?: unknown, ...optionalParameters: unknown[]): void => {
-    this.platform.log.debug(`[${this.name}] ${message}`, optionalParameters);
+    this.platform.log.debug(`[${this.name}#${this.subtype}] ${message}`, optionalParameters);
   };
 
   protected get config(): OverrideLightConfiguration {
@@ -295,14 +295,4 @@ export class LightService {
     this.service.getCharacteristic(this.platform.Characteristic.Hue).updateValue(h);
     this.service.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(s);
   }
-
-  private setConfiguredName(value, callback) {
-    // debug('this', this.service.displayName);
-    // this.platform.log.debug('setConfiguredName', value, this.service.displayName);
-    this.service.displayName = value;
-    this.service.setCharacteristic(this.platform.Characteristic.Name, this.service.displayName);
-    this.platform.api.updatePlatformAccessories([this.accessory]);
-    callback();
-  }
-
 }
