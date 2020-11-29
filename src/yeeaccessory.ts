@@ -166,7 +166,6 @@ export class YeeAccessory {
     this.updateTimestamp = 0;
     this.updatePromisePending = false;
 
-    this.log(`setting devie info`, this.info);
     this.setInfoService(overrideConfig);
     this.log(`installed as ${typeString}`);
   }
@@ -314,7 +313,7 @@ export class YeeAccessory {
 
   private onDeviceConnected = async () => {
     this.connected = true;
-    this.log("Connected");
+    this.log(`${this.info.model} Connected`);
     this.requestAttributes();
     if (this.config.interval !== 0) {
       this.interval = setInterval(this.onInterval, this.config.interval || 60000);
@@ -455,9 +454,7 @@ export class YeeAccessory {
   async requestAttributes() {
     this.queryTimestamp = Date.now();
     this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
-    if (this.detailedLogging) { 
-      this.log(`requesting attributes. Transactions: ${this.transactions.size}`);
-    }
+    this.log(`requesting attributes. Transactions: ${this.transactions.size}`);
   }
 
 

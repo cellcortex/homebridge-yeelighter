@@ -95,7 +95,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
-    this.debug(`temperature light updated ${JSON.stringify(newAttributes)}`);
+    this.log(`temperature light updated ${JSON.stringify(newAttributes)}`);
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
     this.updateCharacteristic(this.platform.Characteristic.On, newAttributes.power);
     this.updateCharacteristic(this.platform.Characteristic.Brightness, this.getBrightness(newAttributes));
