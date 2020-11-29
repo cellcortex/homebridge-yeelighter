@@ -86,8 +86,10 @@ export class YeeAccessory {
   public static instance(id: string, platform: YeelighterPlatform, accessory: PlatformAccessory) {
     const cache = this.handledAccessories.get(id);
     if (cache) {
+      platform.log.info("cached", id);
       return cache;
     }
+    platform.log.info("new", id);
     const a = new YeeAccessory(platform, accessory);
     this.handledAccessories.set(id, a);
     return a;

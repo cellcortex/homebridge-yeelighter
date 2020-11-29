@@ -80,7 +80,6 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     // the cached devices we stored in the `configureAccessory` method above
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
     
-
     if (existingAccessory) {
       // the accessory already exists
       if (device) {
@@ -102,8 +101,9 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       }
     } else {
       // the accessory does not yet exist, so we need to create it
-      this.log.info(`New ${newDeviceInfo.model} [${newDeviceInfo.id}] found  at ${newDeviceInfo.location}`);
+      this.log.info(`New ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
       const accessory = new this.api.platformAccessory(newDeviceInfo.id, uuid);
+      this.accessories.push(accessory);
       this.log.info(`Accessory created with UUID ${uuid}`);
 
       // store a copy of the device object in the `accessory.context`

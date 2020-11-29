@@ -115,9 +115,8 @@ export class LightService {
   protected light: YeeAccessory;
   protected name: string;
 
-
   constructor(
-    parameters,
+    parameters: LightServiceParameters,
     protected subtype?: string,
   ) {
     this.platform = parameters.platform;
@@ -151,6 +150,17 @@ export class LightService {
       this.service = this.accessory.getService(this.platform.Service.Lightbulb) 
                      || this.accessory.addService(this.platform.Service.Lightbulb);
     }
+
+
+    // name handling
+    this.service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
+      this.debug("setConfiguredName", value);
+      this.service.displayName = value;
+      this.name = value;
+      this.service.setCharacteristic(this.platform.Characteristic.Name, this.service.displayName);
+      this.platform.api.updatePlatformAccessories([this.accessory]);
+      callback();
+    });
   }
 
   protected get device(): Device {
@@ -285,4 +295,14 @@ export class LightService {
     this.service.getCharacteristic(this.platform.Characteristic.Hue).updateValue(h);
     this.service.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(s);
   }
+
+  private setConfiguredName(value, callback) {
+    // debug('this', this.service.displayName);
+    // this.platform.log.debug('setConfiguredName', value, this.service.displayName);
+    this.service.displayName = value;
+    this.service.setCharacteristic(this.platform.Characteristic.Name, this.service.displayName);
+    this.platform.api.updatePlatformAccessories([this.accessory]);
+    callback();
+  }
+
 }
