@@ -17,7 +17,6 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
   private agent: Discovery;
-  private handledAccessories = new Map<string, YeeAccessory>();
 
   constructor(
     public readonly log: Logger,
@@ -53,12 +52,6 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   }
 
   private onDeviceDiscovery = (detectedInfo: DeviceInfo) => {
-
-    if (this.handledAccessories.has(detectedInfo.id)) {
-      this.log.info("re-discovered", detectedInfo.id);
-      return;
-    }
-
     const trackedAttributes = TRACKED_ATTRIBUTES; // .filter(attribute => supportedAttributes.includes(attribute));
 
     const override: OverrideLightConfiguration[] = this.config.override as OverrideLightConfiguration[] || [];
@@ -95,12 +88,9 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
 
         // update the accessory.context
         existingAccessory.context.device = device;
+        YeeAccessory.instance(newDeviceInfo.id, this, existingAccessory);
+         
         this.api.updatePlatformAccessories([existingAccessory]);
-
-        // create the accessory handler for the restored accessory
-        // this is imported from `platformAccessory.ts`
-        const a = new YeeAccessory(this, existingAccessory);
-        this.handledAccessories.set(newDeviceInfo.id, a);          
         // update accessory cache with any changes to the accessory details and information
         this.api.updatePlatformAccessories([existingAccessory]);
 
@@ -122,8 +112,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
 
       // create the accessory handler for the newly create accessory
       // this is imported from `platformAccessory.ts`
-      const a = new YeeAccessory(this, accessory);
-      this.handledAccessories.set(newDeviceInfo.id, a);
+      YeeAccessory.instance(newDeviceInfo.id, this, accessory);
 
       // link the accessory to your platform
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);

@@ -81,7 +81,20 @@ export class YeeAccessory {
   private interval?: NodeJS.Timeout;
   private transactions = new Map<number, Deferred<void>>();
 
-  constructor(
+  private static handledAccessories = new Map<string, YeeAccessory>();
+
+  public static instance(id: string, platform: YeelighterPlatform, accessory: PlatformAccessory) {
+    const cache = this.handledAccessories.get(id);
+    if (cache) {
+      return cache;
+    }
+    const a = new YeeAccessory(platform, accessory);
+    this.handledAccessories.set(id, a);
+    return a;
+  }
+
+
+  private constructor(
     private readonly platform: YeelighterPlatform,
     private readonly accessory: PlatformAccessory,
   ) {
