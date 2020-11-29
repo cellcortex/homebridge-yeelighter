@@ -236,9 +236,9 @@ export class YeeAccessory {
     }
     const transaction = this.transactions.get(id);
     if (!transaction) {
-      this.log(`warning: no transactions found for ${id}`, update);
+      this.warn(`no transactions found for ${id}`, update);
     }
-    if (this.detailedLogging && transaction) {
+    if (transaction) {
       const seconds = (Date.now() - transaction.timestamp) / 1000;
       this.log(`transaction ${id} took ${seconds}s`, update);
     }
@@ -253,12 +253,10 @@ export class YeeAccessory {
     } else if (result && result.length > 3) {
       this.connected = true;
       if (this.lastCommandId !== id) {
-        this.log(`warning: update with unexpected id: ${id}, expected: ${this.lastCommandId}`);
+        this.warn(`update with unexpected id: ${id}, expected: ${this.lastCommandId}`);
       }
-      if (this.detailedLogging) {
-        const seconds = (Date.now() - this.queryTimestamp) / 1000;
-        this.log(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
-      }
+      const seconds = (Date.now() - this.queryTimestamp) / 1000;
+      this.log(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
       if (this.updateResolve) {
         // resolve the promise and delete the resolvers
         this.updateResolve(result);
@@ -285,7 +283,7 @@ export class YeeAccessory {
       this.onUpdateAttributes(newAttributes);
       transaction?.resolve();
     } else if (error) {
-      this.log(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
+      this.error(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
       // reject any pending waits
       if (this.updateReject) {
         this.updateReject();
@@ -296,7 +294,7 @@ export class YeeAccessory {
       transaction?.reject(error);
     } else {
       if (this.detailedLogging) {
-        this.warn(`warn: received unhandled ${id}:`, update);
+        this.warn(`received unhandled ${id}:`, update);
       }
       transaction?.resolve();
     }
