@@ -166,7 +166,7 @@ export class LightService {
   public updateName(value: string) {
     this.name = value;
     this.service.setCharacteristic(this.platform.Characteristic.Name, `${value} ${this.subtype}`);
-    this.platform.api.updatePlatformAccessories([this.accessory]);
+    // this.platform.api.updatePlatformAccessories([this.accessory]);
 }
 
   protected get device(): Device {

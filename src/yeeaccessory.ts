@@ -366,10 +366,10 @@ export class YeeAccessory {
       // this.name = value;
       this.displayName = value;
       service.setCharacteristic(this.platform.Characteristic.Name, value);
-      this.platform.api.updatePlatformAccessories([this.accessory]);
       for (const service of this.services) {
         service.updateName(value);
       }
+      this.platform.api.updatePlatformAccessories([this.accessory]);
       callback();
     });
   }
