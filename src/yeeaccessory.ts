@@ -86,10 +86,8 @@ export class YeeAccessory {
   public static instance(id: string, platform: YeelighterPlatform, accessory: PlatformAccessory) {
     const cache = this.handledAccessories.get(id);
     if (cache) {
-      platform.log.info("cached", id);
       return cache;
     }
-    platform.log.info("new", id);
     const a = new YeeAccessory(platform, accessory);
     this.handledAccessories.set(id, a);
     return a;
@@ -104,15 +102,12 @@ export class YeeAccessory {
     const support = device.info.support.split(" ");
     let specs = MODEL_SPECS[device.info.model];
     let name = device.info.id;
-    const logger = platform.log;
     this.connected = false;
     const override: OverrideLightConfiguration[] = platform.config.override as OverrideLightConfiguration[] || [];
   
-  
-
     if (!specs) {
       specs = { ...EMPTY_SPECS };
-      logger.info(
+      this.warn(
         `no specs for light ${device.info.id} ${device.info.model}. 
         It supports: ${device.info.support}. Using fallback. This will not give you nightLight support.`,
       );
@@ -169,11 +164,13 @@ export class YeeAccessory {
       this.services.push(new BackgroundLightService(parameters));
       typeString = `${typeString} with mood light`;
     }
-    logger.info(`installed as ${typeString}`);
 
     this.support = support;
     this.updateTimestamp = 0;
     this.updatePromisePending = false;
+
+    this.setInfoService(overrideConfig);
+    this.log(`installed as ${typeString}`);
   }
 
   get device(): Device {
@@ -368,12 +365,6 @@ export class YeeAccessory {
   setInfoService(override: OverrideLightConfiguration | undefined) {
     const { accessory, platform } = this;
     // set accessory information
-    accessory.getService(platform.Service.AccessoryInformation)!
-      .setCharacteristic(platform.Characteristic.Manufacturer, "Default-Manufacturer")
-      .setCharacteristic(platform.Characteristic.Model, "Default-Model")
-      .setCharacteristic(platform.Characteristic.SerialNumber, "Default-Serial");
-
-
     const infoService = this.accessory.getService(platform.Service.AccessoryInformation);
     let name = override?.name || this.specs.name;
     let count = nameCount.get(name) || 0;
@@ -390,7 +381,7 @@ export class YeeAccessory {
         .updateCharacteristic(platform.Characteristic.Name, name)
         .updateCharacteristic(platform.Characteristic.SerialNumber, this.info.id)
         .updateCharacteristic(platform.Characteristic.FirmwareRevision, this.info.fw_ver);
-      this.accessory.addService(infoService);
+      accessory.addService(infoService);
       return infoService;
     } else {
       // re-use service from cache
