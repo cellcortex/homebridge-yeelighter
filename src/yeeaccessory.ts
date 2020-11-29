@@ -84,12 +84,12 @@ export class YeeAccessory {
   private static handledAccessories = new Map<string, YeeAccessory>();
 
   public static instance(id: string, platform: YeelighterPlatform, accessory: PlatformAccessory) {
-    const cache = this.handledAccessories.get(id);
+    const cache = YeeAccessory.handledAccessories.get(id);
     if (cache) {
       return cache;
     }
     const a = new YeeAccessory(platform, accessory);
-    this.handledAccessories.set(id, a);
+    YeeAccessory.handledAccessories.set(id, a);
     return a;
   }
 
@@ -299,7 +299,7 @@ export class YeeAccessory {
       transaction?.reject(error);
     } else {
       if (this.detailedLogging) {
-        this.log(`warn: received unhandled ${id}:`, update);
+        this.warn(`warn: received unhandled ${id}:`, update);
       }
       transaction?.resolve();
     }
@@ -398,11 +398,11 @@ export class YeeAccessory {
 
   sendCommand(method: string, parameters: Array<string | number | boolean>) {
     if (!this.connected) {
-      this.log("warning: send command but device doesn't seem connected");
+      this.warn("send command but device doesn't seem connected");
     }
     const supportedCommands = this.device.info.support.split(",");
     if (!supportedCommands.includes) {
-      this.log(`warning: sending ${method} although unsupported.`);
+      this.warn(`sending ${method} although unsupported.`);
     }
     const id = this.lastCommandId + 1;
     if (this.detailedLogging) {

@@ -142,7 +142,7 @@ export class LightService {
     // we create multiple services for lights that have a subtype set
     if (subtype) {
       const subtypeUid = `${this.light.info.id}#${subtype}`
-      this.debug(`registering subtype ${subtypeUid}`);
+      this.log(`registering subtype ${subtypeUid}`);
       this.service = this.accessory.getService(subtypeUid) || 
                       this.accessory.addService(this.platform.Service.Lightbulb, subtype, subtypeUid);
     } else {
