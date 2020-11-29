@@ -2,7 +2,7 @@ import { PlatformAccessory } from "homebridge";
 import { YeelighterPlatform } from "./platform";
 import { MODEL_SPECS, EMPTY_SPECS, Specs } from "./specs";
 import { Device } from "./yeedevice";
-import { Attributes, EMPTY_ATTRIBUTES, ConcreteLightService, LightServiceParameters } from "./lightservice";
+import { Attributes, EMPTY_ATTRIBUTES, ConcreteLightService } from "./lightservice";
 import { ColorLightService } from "./colorlightservice";
 import { WhiteLightService } from "./whitelightservice";
 import { TemperatureLightService } from "./temperaturelightservice";
@@ -89,7 +89,6 @@ export class YeeAccessory {
     const support = device.info.support.split(" ");
     let specs = MODEL_SPECS[device.info.model];
     let name = device.info.id;
-    const displayName = "unset";
     const logger = platform.log;
     this.connected = false;
     const override: OverrideLightConfiguration[] = platform.config.override as OverrideLightConfiguration[] || [];
@@ -228,7 +227,6 @@ export class YeeAccessory {
     }
     this.transactions.delete(id);
     if (result && result.length === 1 && result[0] === "ok") {
-      this.accessory.reachable = true;
       this.connected = true;
       if (this.detailedLogging) {
         this.log(`received ${id}: OK`);
@@ -236,7 +234,6 @@ export class YeeAccessory {
       transaction?.resolve();
       // simple ok
     } else if (result && result.length > 3) {
-      this.accessory.reachable = true;
       this.connected = true;
       if (this.lastCommandId !== id) {
         this.log(`warning: update with unexpected id: ${id}, expected: ${this.lastCommandId}`);
@@ -321,7 +318,6 @@ export class YeeAccessory {
         this.updatePromisePending = false;
       }
     }
-    this.accessory.reachable = false;
     if (this.interval) {
       clearInterval(this.interval);
       delete this.interval;
@@ -390,9 +386,6 @@ export class YeeAccessory {
     if (!this.connected) {
       this.log("warning: send command but device doesn't seem connected");
     }
-    if (!this.accessory.reachable) {
-      this.log("warning: send command but device doesn't seem reachable");
-    }
     const supportedCommands = this.device.info.support.split(",");
     if (!supportedCommands.includes) {
       this.log(`warning: sending ${method} although unsupported.`);
@@ -429,13 +422,12 @@ export class YeeAccessory {
   }
 
   private onInterval = () => {
-    if (this.connected && this.accessory.reachable) {
+    if (this.connected) {
       const updateSince = (Date.now() - this.updateTimestamp) / 1000;
       const updateThreshold = (this.config?.timeout || 5000) + (this.config?.interval || 60000) / 1000;
       if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
         this.log(`No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.config?.timeout}+${this.config?.interval}) => switching to unreachable`);
         this.connected = false;
-        this.accessory.reachable = false;
       }
       this.requestAttributes();
       //

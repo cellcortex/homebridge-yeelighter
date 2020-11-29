@@ -100,10 +100,10 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
         const a = new YeeAccessory(this, existingAccessory);
-          
+        this.handledAccessories.set(newDeviceInfo.id, a);          
         // update accessory cache with any changes to the accessory details and information
         this.api.updatePlatformAccessories([existingAccessory]);
-        this.handledAccessories.set(newDeviceInfo.id, a);
+
       } else if (!device) {
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
         // remove platform accessories when no longer present
@@ -123,53 +123,10 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       // create the accessory handler for the newly create accessory
       // this is imported from `platformAccessory.ts`
       const a = new YeeAccessory(this, accessory);
+      this.handledAccessories.set(newDeviceInfo.id, a);
 
       // link the accessory to your platform
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-      this.handledAccessories.set(newDeviceInfo.id, a);
     }
   };
 }
-
-
-
-
-
-/*
-    // XXXX okd
-    const oldDevice = this.devices.get(detectedInfo.id);
-    // this.log(`${detectedInfo.id} tracking [${trackedAttributes}] of [${supportedAttributes}]`);
-    if (oldDevice) {
-      // Device already exists
-      if (oldDevice.info.location !== detectedInfo.location) {
-        // info.trackedAttributes = TRACKED_ATTRIBUTES;
-        oldDevice.updateDevice(detectedInfo);
-        // this.devices.set(info.id, oldDevice);
-      }
-      return;
-    }
-    const createdDevice = new Device(newDeviceInfo);
-    this.devices.set(newDeviceInfo.id, createdDevice);
-    let accessory = this.cachedAccessories.get(uuid);
-    let register = false;
-    if (!accessory) {
-      this.log.info(`New ${newDeviceInfo.model} [${newDeviceInfo.id}] found  at ${newDeviceInfo.location}`);
-      accessory = new this.api.platformAccessory(newDeviceInfo.id, uuid);
-      register = true;
-      this.log.info(`Accessory created with UUID ${uuid}`);
-    } else {
-      this.log.info(`Cached ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
-    }
-    // help typescript see this is never null
-    if (accessory) {
-      accessory['context'] = newDeviceInfo;
-      accessory.reachable = true;
-      const light = new Light(this.log, this.config, createdDevice, this.api, accessory);
-      if (register) {
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-      }
-      this.myAccessories.set(newDeviceInfo.id, light);
-    }
-  };
-}
-*/
