@@ -185,6 +185,10 @@ export class YeeAccessory {
     return overrideConfig || { id: device.id };
   }
 
+  public debug = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.debug(`[${this.name}] ${message}`, optionalParameters);
+  };
+
   public log = (message?: unknown, ...optionalParameters: unknown[]): void => {
     this.platform.log.info(`[${this.name}] ${message}`, optionalParameters);
   };
@@ -228,7 +232,7 @@ export class YeeAccessory {
     const { id, result, error } = update;
     if (!id) {
       // this is some strange unknown message
-      this.log("unknown response", update);
+      this.warn("unknown response", update);
       return;
     }
     const transaction = this.transactions.get(id);
@@ -237,7 +241,7 @@ export class YeeAccessory {
     }
     if (transaction) {
       const seconds = (Date.now() - transaction.timestamp) / 1000;
-      this.log(`transaction ${id} took ${seconds}s`, update);
+      this.debug(`transaction ${id} took ${seconds}s`, update);
     }
     this.transactions.delete(id);
     if (result && result.length === 1 && result[0] === "ok") {
@@ -253,7 +257,7 @@ export class YeeAccessory {
         this.warn(`update with unexpected id: ${id}, expected: ${this.lastCommandId}`);
       }
       const seconds = (Date.now() - this.queryTimestamp) / 1000;
-      this.log(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
+      this.debug(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
       if (this.updateResolve) {
         // resolve the promise and delete the resolvers
         this.updateResolve(result);

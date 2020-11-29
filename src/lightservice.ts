@@ -144,7 +144,7 @@ export class LightService {
       const subtypeUid = `${this.light.info.id}#${subtype}`
       this.log(`registering subtype ${subtypeUid}`);
       this.service = this.accessory.getService(subtypeUid) || 
-                      this.accessory.addService(this.platform.Service.Lightbulb, subtype, subtypeUid);
+                      this.accessory.addService(this.platform.Service.Lightbulb, `${this.name} ${subtype}`, subtypeUid);
     } else {
       this.log(`no subtype`);
       this.service = this.accessory.getService(this.platform.Service.Lightbulb) 
