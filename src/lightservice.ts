@@ -136,36 +136,12 @@ export class LightService {
         break;
     }
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
-    // you can create multiple services for each accessory
-    // this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
-
-    // set the service name, this is what is displayed as the default name on the Home app
-    // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    // this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
-
-    // each service must implement at-minimum the "required characteristics" for the given service type
-    // see https://developers.homebridge.io/#/service/Lightbulb
-    /**
-    * Creating multiple services of the same type.
-    *
-    * To avoid "Cannot add a Service with the same UUID another Service without also defining a unique 'subtype' pr
-operty." error,
-    * when creating multiple services of the same type, you need to use the following syntax to specify a name and
-subtype id:
-    * this.accessory.getService('NAME') || this.accessory.addService(this.platform.Service.Lightbulb, 'NAME', 'USER
-_DEFINED_SUBTYPE_ID');
-    *
-    * The USER_DEFINED_SUBTYPE must be unique to the platform accessory (if you platform exposes multiple accessori
-es, each accessory
-    * can use the same sub type id.)
-    */
-
-
+    // we create multiple services for lights that have a subtype set
     if (subtype) {
-      const id = this.light.info.id;
-      this.log(`subtype ${subtype}: ${id}`);
-      this.service = this.accessory.getService(subtype) || 
-                      this.accessory.addService(this.platform.Service.Lightbulb, subtype, `${id}_${subtype}`);
+      const subtypeUid = `${this.light.info.id}#${subtype}`
+      this.debug(`registering subtype ${subtypeUid}`);
+      this.service = this.accessory.getService(subtypeUid) || 
+                      this.accessory.addService(this.platform.Service.Lightbulb, subtype, subtypeUid);
     } else {
       this.log(`no subtype`);
       this.service = this.accessory.getService(this.platform.Service.Lightbulb) 
@@ -174,11 +150,11 @@ es, each accessory
   }
 
   protected log(x: string) {
-    this.platform.log.info(x);
+    this.platform.log.info(`[${this.light.info.id}] ${x}`);
   }
 
   protected debug(x: string) {
-    this.platform.log.debug(x);
+    this.platform.log.debug(`[${this.light.info.id}] ${x}`);
   }
 
   protected get config(): OverrideLightConfiguration {
