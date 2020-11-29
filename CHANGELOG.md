@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.8](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.2.7...v2.2.8) (2020-11-29)
+
+
+### Bug Fixes
+
+* properly pass device into accessory ([6a8a082](https://github.com/cellcortex/homebridge-yeelighter/commit/6a8a082f1501ef1d1dd2aff8c907119f3cbf0db1))
+
 ### [2.2.7](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.2.6...v2.2.7) (2020-11-29)
 
 ### [2.2.6](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.2.5...v2.2.6) (2020-11-29)
