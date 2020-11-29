@@ -1,7 +1,7 @@
 import { PlatformAccessory } from "homebridge";
 import { YeelighterPlatform } from "./platform";
 import { MODEL_SPECS, EMPTY_SPECS, Specs } from "./specs";
-import { Device } from "./yeedevice";
+import { Device, DeviceInfo } from "./yeedevice";
 import { Attributes, EMPTY_ATTRIBUTES, ConcreteLightService } from "./lightservice";
 import { ColorLightService } from "./colorlightservice";
 import { WhiteLightService } from "./whitelightservice";
@@ -81,34 +81,35 @@ export class YeeAccessory {
 
   private static handledAccessories = new Map<string, YeeAccessory>();
 
-  public static instance(id: string, platform: YeelighterPlatform, accessory: PlatformAccessory) {
-    const cache = YeeAccessory.handledAccessories.get(id);
+  public static instance(device: Device, platform: YeelighterPlatform, accessory: PlatformAccessory) {
+    const cache = YeeAccessory.handledAccessories.get(device.info.id);
     if (cache) {
       return cache;
     }
-    const a = new YeeAccessory(platform, accessory);
-    YeeAccessory.handledAccessories.set(id, a);
+    const a = new YeeAccessory(platform, accessory, device);
+    YeeAccessory.handledAccessories.set(device.info.id, a);
     return a;
   }
 
   private constructor(
     private readonly platform: YeelighterPlatform,
     private readonly accessory: PlatformAccessory,
+    public readonly device: Device
   ) {
-    const device: Device = accessory.context.device;
-    const support = device.info.support.split(" ");
-    let specs = MODEL_SPECS[device.info.model];
-    let name = device.info.id;
+    const deviceInfo: DeviceInfo = accessory.context.device;
+    const support = deviceInfo.support.split(" ");
+    let specs = MODEL_SPECS[deviceInfo.model];
+    let name = deviceInfo.id;
     this.connected = false;
     const override: OverrideLightConfiguration[] = platform.config.override as OverrideLightConfiguration[] || [];
   
     if (!specs) {
       specs = { ...EMPTY_SPECS };
       this.warn(
-        `no specs for light ${device.info.id} ${device.info.model}. 
-        It supports: ${device.info.support}. Using fallback. This will not give you nightLight support.`,
+        `no specs for light ${deviceInfo.id} ${deviceInfo.model}. 
+        It supports: ${deviceInfo.support}. Using fallback. This will not give you nightLight support.`,
       );
-      specs.name = device.info.model;
+      specs.name = deviceInfo.model;
       specs.color = support.includes("set_hsv");
       specs.backgroundLight = support.includes("bg_set_hsv");
       specs.nightLight = false;
@@ -119,7 +120,7 @@ export class YeeAccessory {
     
     }
     const overrideConfig: OverrideLightConfiguration | undefined = override?.find(
-      item => item.id === device.info.id,
+      item => item.id === deviceInfo.id,
     );
     if (overrideConfig?.backgroundLight) {
       specs.backgroundLight = overrideConfig.backgroundLight;
@@ -137,7 +138,7 @@ export class YeeAccessory {
     this.specs = specs;
     this.detailedLogging = !!overrideConfig?.log;
 
-    this.connectDevice(device);
+    this.connectDevice(this.device);
 
     let typeString = "UNKNOWN";
     const parameters = {
@@ -170,10 +171,6 @@ export class YeeAccessory {
     this.log(`installed as ${typeString}`);
   }
 
-  get device(): Device {
-    return this.accessory.context.device;
-  }
-
   get info() {
     return this.device.info;
   }
@@ -182,10 +179,10 @@ export class YeeAccessory {
     const override = (this.platform.config.override || []) as OverrideLightConfiguration[];
     const { device } = this.accessory.context;
     const overrideConfig: OverrideLightConfiguration | undefined = override.find(
-      item => item.id === device.info.id,
+      item => item.id === device.id,
     );
 
-    return overrideConfig || { id: device.info.id };
+    return overrideConfig || { id: device.id };
   }
 
   public log = (message?: unknown, ...optionalParameters: unknown[]): void => {
@@ -293,9 +290,7 @@ export class YeeAccessory {
       }
       transaction?.reject(error);
     } else {
-      if (this.detailedLogging) {
-        this.warn(`received unhandled ${id}:`, update);
-      }
+      this.warn(`received unhandled ${id}:`, update);
       transaction?.resolve();
     }
   };
@@ -437,8 +432,9 @@ export class YeeAccessory {
       if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
         this.log(`No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.config?.timeout}+${this.config?.interval}) => switching to unreachable`);
         this.connected = false;
+      } else {
+        this.requestAttributes();
       }
-      this.requestAttributes();
       //
     } else {
       if (this.interval) {

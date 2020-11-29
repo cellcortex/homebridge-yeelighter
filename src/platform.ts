@@ -93,8 +93,8 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
         this.log.info(`Cached ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
 
         // update the accessory.context
-        existingAccessory.context.device = device;
-        YeeAccessory.instance(newDeviceInfo.id, this, existingAccessory);
+        existingAccessory.context.device = newDeviceInfo;
+        YeeAccessory.instance(device, this, existingAccessory);
          
         // update accessory cache with any changes to the accessory details and information
         this.api.updatePlatformAccessories([existingAccessory]);
@@ -114,11 +114,11 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
 
       // store a copy of the device object in the `accessory.context`
       // the `context` property can be used to store any data about the accessory you may need
-      accessory.context.device = device;
+      accessory.context.device = newDeviceInfo;
 
       // create the accessory handler for the newly create accessory
       // this is imported from `platformAccessory.ts`
-      YeeAccessory.instance(newDeviceInfo.id, this, accessory);
+      YeeAccessory.instance(device, this, accessory);
 
       // link the accessory to your platform
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);

@@ -164,7 +164,7 @@ export class LightService {
   }
 
   protected get device(): Device {
-    return this.accessory.context.device;
+    return this.light.device;
   }
 
   public log = (message?: unknown, ...optionalParameters: unknown[]): void => {
@@ -187,10 +187,10 @@ export class LightService {
     const override = (this.platform.config.override || []) as OverrideLightConfiguration[];
     const { device } = this.accessory.context;
     const overrideConfig: OverrideLightConfiguration | undefined = override.find(
-      item => item.id === device.info.id,
+      item => item.id === device.id,
     );
 
-    return overrideConfig || { id: device.info.id };
+    return overrideConfig || { id: device.id };
   }
 
   get specs(): Specs {
