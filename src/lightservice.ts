@@ -3,6 +3,7 @@ import { convertHomeKitColorTemperatureToHomeKitColor } from "./colortools";
 import { YeelighterPlatform } from "./platform";
 import { YeeAccessory, OverrideLightConfiguration } from "./yeeaccessory";
 import { Specs } from "./specs";
+import { Device } from "./yeedevice";
 
 export const POWERMODE_DEFAULT = 0;
 export const POWERMODE_CT = 1;
@@ -112,6 +113,7 @@ export class LightService {
   protected readonly platform: YeelighterPlatform;
   protected readonly accessory: PlatformAccessory;
   protected light: YeeAccessory;
+  protected name: string;
 
 
   constructor(
@@ -135,6 +137,8 @@ export class LightService {
         this.powerMode = POWERMODE_DEFAULT;
         break;
     }
+    this.name = this.config?.name || this.device.info.id;
+
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // we create multiple services for lights that have a subtype set
     if (subtype) {
@@ -149,13 +153,25 @@ export class LightService {
     }
   }
 
-  protected log(x: string) {
-    this.platform.log.info(`[${this.light.info.id}] ${x}`);
+  protected get device(): Device {
+    return this.accessory.context.device;
   }
 
-  protected debug(x: string) {
-    this.platform.log.debug(`[${this.light.info.id}] ${x}`);
-  }
+  public log = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.info(`[${this.name}] ${message}`, optionalParameters);
+  };
+
+  public warn = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.warn(`[${this.name}] ${message}`, optionalParameters);
+  };
+
+  public error = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.error(`[${this.name}] ${message}`, optionalParameters);
+  };
+
+  public debug = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.debug(`[${this.name}] ${message}`, optionalParameters);
+  };
 
   protected get config(): OverrideLightConfiguration {
     const override = (this.platform.config.override || []) as OverrideLightConfiguration[];

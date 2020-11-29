@@ -196,6 +196,14 @@ export class YeeAccessory {
     this.platform.log.info(`[${this.name}] ${message}`, optionalParameters);
   };
 
+  public warn = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.warn(`[${this.name}] ${message}`, optionalParameters);
+  };
+
+  public error = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.error(`[${this.name}] ${message}`, optionalParameters);
+  };
+
   public getAttributes = async (): Promise<Attributes> => {
     if (this.config?.blocking) {
       if (this.updateTimestamp < Date.now() - 1000 && (!this.updatePromise || !this.updatePromisePending)) {
