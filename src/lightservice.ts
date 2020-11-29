@@ -97,6 +97,7 @@ export interface ConcreteLightService {
   service: Service;
   onAttributesUpdated: (newAttributes: Attributes) => void;
   onPowerOff: () => void;
+  updateName(value: string);
 }
 
 export interface LightServiceParameters {
@@ -151,17 +152,22 @@ export class LightService {
                      || this.accessory.addService(this.platform.Service.Lightbulb);
     }
 
-
     // name handling
     this.service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
       this.log("setConfiguredName", value);
       this.service.displayName = value;
       this.name = value;
-      this.service.setCharacteristic(this.platform.Characteristic.Name, this.service.displayName);
+      this.service.setCharacteristic(this.platform.Characteristic.Name, value);
       this.platform.api.updatePlatformAccessories([this.accessory]);
       callback();
     });
   }
+
+  public updateName(value: string) {
+    this.name = value;
+    this.service.setCharacteristic(this.platform.Characteristic.Name, `${value} ${this.subtype}`);
+    this.platform.api.updatePlatformAccessories([this.accessory]);
+}
 
   protected get device(): Device {
     return this.light.device;

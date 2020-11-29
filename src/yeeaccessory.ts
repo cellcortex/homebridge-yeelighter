@@ -1,4 +1,4 @@
-import { PlatformAccessory } from "homebridge";
+import { PlatformAccessory, Service } from "homebridge";
 import { YeelighterPlatform } from "./platform";
 import { MODEL_SPECS, EMPTY_SPECS, Specs } from "./specs";
 import { Device, DeviceInfo } from "./yeedevice";
@@ -63,7 +63,7 @@ export class YeeAccessory {
   private services: ConcreteLightService[] = [];
   private detailedLogging = false;
   public connected: boolean;
-  public readonly name: string;
+  public name: string;
   public readonly specs: Specs;
   public displayName = "unset";
   private support: string[];
@@ -168,6 +168,9 @@ export class YeeAccessory {
     this.updatePromisePending = false;
 
     this.setInfoService(overrideConfig);
+
+
+    // name handling
     this.log(`installed as ${typeString}`);
   }
 
@@ -356,10 +359,25 @@ export class YeeAccessory {
     callback();
   }
 
+  setNameService(service: Service) {
+    service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
+      this.log("setConfiguredName", value);
+      service.displayName = value;
+      // this.name = value;
+      this.displayName = value;
+      service.setCharacteristic(this.platform.Characteristic.Name, value);
+      this.platform.api.updatePlatformAccessories([this.accessory]);
+      for (const service of this.services) {
+        service.updateName(value);
+      }
+      callback();
+    });
+  }
+
   setInfoService(override: OverrideLightConfiguration | undefined) {
     const { accessory, platform } = this;
     // set accessory information
-    const infoService = this.accessory.getService(platform.Service.AccessoryInformation);
+    let infoService = this.accessory.getService(platform.Service.AccessoryInformation);
     let name = override?.name || this.specs.name;
     let count = nameCount.get(name) || 0;
     count = count + 1;
@@ -368,7 +386,7 @@ export class YeeAccessory {
       name = `${name} ${count}`;
     }
     if (!infoService) {
-      const infoService = new platform.Service.AccessoryInformation();
+      infoService = new platform.Service.AccessoryInformation();
       infoService
         .updateCharacteristic(platform.Characteristic.Manufacturer, "Yeelighter")
         .updateCharacteristic(platform.Characteristic.Model, this.specs.name)
@@ -376,7 +394,6 @@ export class YeeAccessory {
         .updateCharacteristic(platform.Characteristic.SerialNumber, this.info.id)
         .updateCharacteristic(platform.Characteristic.FirmwareRevision, this.info.fw_ver);
       accessory.addService(infoService);
-      return infoService;
     } else {
       // re-use service from cache
       infoService
@@ -386,7 +403,8 @@ export class YeeAccessory {
         .updateCharacteristic(platform.Characteristic.SerialNumber, this.info.id)
         .updateCharacteristic(platform.Characteristic.FirmwareRevision, this.info.fw_ver);
     }
-
+    this.setNameService(infoService);
+    
     return infoService;
   }
 
