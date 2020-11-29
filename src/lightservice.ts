@@ -1,15 +1,9 @@
-/* eslint-disable @typescript-eslint/camelcase */
-// import { Service, Characteristic, CharacteristicEventTypes, WithUUID, Accessory } from "hap-nodejs";
-
-import { Light } from "./light";
+import { Service, PlatformAccessory, Characteristic } from "homebridge";
 import { convertHomeKitColorTemperatureToHomeKitColor } from "./colortools";
+import { YeelighterPlatform } from "./platform";
+import { YeeAccessory, OverrideLightConfiguration } from "./yeeaccessory";
 import { Specs } from "./specs";
-import { ConfiguredName } from "hap-nodejs/dist/lib/gen/HomeKit-TV";
-
-// HACK: since importing these types will somehow create a dependency to hap-nodejs
-export type Accessory = any;
-export type Service = any;
-export type Characteristic = any;
+import { Device } from "./yeedevice";
 
 export const POWERMODE_DEFAULT = 0;
 export const POWERMODE_CT = 1;
@@ -62,7 +56,7 @@ export const EMPTY_ATTRIBUTES: Attributes = {
   bg_lmode: 0,
   nl_br: 0,
   active_mode: 0,
-  name: "unknown"
+  name: "unknown",
 };
 
 export function powerModeFromColorModeAndActiveMode(color_mode: number, active_mode: number) {
@@ -95,10 +89,6 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
   }
 }
 
-export interface Configuration {
-  [key: string]: any;
-}
-
 export function convertColorTemperature(value: number): number {
   return Math.round(1000000 / value);
 }
@@ -109,22 +99,32 @@ export interface ConcreteLightService {
   onPowerOff: () => void;
 }
 
+export interface LightServiceParameters {
+  platform: YeelighterPlatform;
+  readonly accessory: PlatformAccessory;
+  light: YeeAccessory;
+}
+
 export class LightService {
   public service: Service;
   protected powerMode: number;
   protected lastHue?: number;
   protected lastSat?: number;
+  protected readonly platform: YeelighterPlatform;
+  protected readonly accessory: PlatformAccessory;
+  protected light: YeeAccessory;
+  protected name: string;
 
   constructor(
-    protected log: (message?: any, ...optionalParams: any[]) => void,
-    protected config: Configuration,
-    protected light: Light,
-    protected homebridge: any,
-    accessory: any,
-    protected subtype?: string
+    parameters: LightServiceParameters,
+    protected subtype?: string,
   ) {
+    this.platform = parameters.platform;
+    this.accessory = parameters.accessory;
+    this.light = parameters.light;
+    
     // we use powerMode to store the currently set mode
-    switch (light.info.color_mode) {
+    switch (this.light.info.color_mode) {
       case 2:
         this.powerMode = POWERMODE_CT;
         break;
@@ -136,16 +136,61 @@ export class LightService {
         this.powerMode = POWERMODE_DEFAULT;
         break;
     }
-    const service = accessory.getServiceByUUIDAndSubType(this.homebridge.hap.Service.Lightbulb, subtype);
-    if (!service) {
-      this.log(`Creating new service of subtype '${subtype}' and adding it`);
-      const newService = new this.homebridge.hap.Service.Lightbulb(this.specs.name || "Main", subtype);
-      accessory.addService(newService);
-      this.service = newService;
+    this.name = this.config?.name || this.device.info.id;
+
+    // get the LightBulb service if it exists, otherwise create a new LightBulb service
+    // we create multiple services for lights that have a subtype set
+    if (subtype) {
+      const subtypeUid = `${this.light.info.id}#${subtype}`
+      this.debug(`registering subtype ${subtypeUid}`);
+      this.service = this.accessory.getService(subtypeUid) || 
+                      this.accessory.addService(this.platform.Service.Lightbulb, subtype, subtypeUid);
     } else {
-      this.log(`Re-using service of subtype '${subtype}'.`);
-      this.service = service;
+      this.log(`no subtype`);
+      this.service = this.accessory.getService(this.platform.Service.Lightbulb) 
+                     || this.accessory.addService(this.platform.Service.Lightbulb);
     }
+
+
+    // name handling
+    this.service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
+      this.debug("setConfiguredName", value);
+      this.service.displayName = value;
+      this.name = value;
+      this.service.setCharacteristic(this.platform.Characteristic.Name, this.service.displayName);
+      this.platform.api.updatePlatformAccessories([this.accessory]);
+      callback();
+    });
+  }
+
+  protected get device(): Device {
+    return this.accessory.context.device;
+  }
+
+  public log = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.info(`[${this.name}] ${message}`, optionalParameters);
+  };
+
+  public warn = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.warn(`[${this.name}] ${message}`, optionalParameters);
+  };
+
+  public error = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.error(`[${this.name}] ${message}`, optionalParameters);
+  };
+
+  public debug = (message?: unknown, ...optionalParameters: unknown[]): void => {
+    this.platform.log.debug(`[${this.name}] ${message}`, optionalParameters);
+  };
+
+  protected get config(): OverrideLightConfiguration {
+    const override = (this.platform.config.override || []) as OverrideLightConfiguration[];
+    const { device } = this.accessory.context;
+    const overrideConfig: OverrideLightConfiguration | undefined = override.find(
+      item => item.id === device.info.id,
+    );
+
+    return overrideConfig || { id: device.info.id };
   }
 
   get specs(): Specs {
@@ -163,7 +208,7 @@ export class LightService {
   protected async handleCharacteristic(
     uuid: any,
     getter: () => Promise<any>,
-    setter: (value: any) => void
+    setter: (value: any) => void,
   ): Promise<Characteristic> {
     const characteristic = this.service.getCharacteristic(uuid);
     if (!characteristic) {
@@ -171,7 +216,7 @@ export class LightService {
     }
     characteristic.on("get", async callback => {
       if (this.light.connected) {
-        callback(null, await getter());
+        callback(undefined, await getter());
       } else {
         callback("light disconnected");
       }
@@ -194,7 +239,7 @@ export class LightService {
   }
 
   public onPowerOff = () => {
-    this.updateCharacteristic(this.homebridge.hap.Characteristic.On, false);
+    this.updateCharacteristic(this.platform.Characteristic.On, false);
   };
 
   protected async sendCommand(method: string, parameters: Array<string | number | boolean>): Promise<void> {
@@ -247,9 +292,17 @@ export class LightService {
 
   protected updateColorFromCT(value: number) {
     const { h, s } = convertHomeKitColorTemperatureToHomeKitColor(value);
-    this.service.getCharacteristic(this.homebridge.hap.Characteristic.Hue).updateValue(h);
-    this.service.getCharacteristic(this.homebridge.hap.Characteristic.Saturation).updateValue(s);
+    this.service.getCharacteristic(this.platform.Characteristic.Hue).updateValue(h);
+    this.service.getCharacteristic(this.platform.Characteristic.Saturation).updateValue(s);
   }
-}
 
-/* eslint-enable @typescript-eslint/camelcase */
+  private setConfiguredName(value, callback) {
+    // debug('this', this.service.displayName);
+    // this.platform.log.debug('setConfiguredName', value, this.service.displayName);
+    this.service.displayName = value;
+    this.service.setCharacteristic(this.platform.Characteristic.Name, this.service.displayName);
+    this.platform.api.updatePlatformAccessories([this.accessory]);
+    callback();
+  }
+
+}
