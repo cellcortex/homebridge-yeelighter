@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.2.12...v2.3.0) (2020-12-06)
+
+
+### Features
+
+* configure ambient light as separate accessory ([9886f07](https://github.com/cellcortex/homebridge-yeelighter/commit/9886f07e591042271deee88c5558470d5a2dbf44))
+
 ### [2.2.12](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.2.11...v2.2.12) (2020-12-06)
 
 
