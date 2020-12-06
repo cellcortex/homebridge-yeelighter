@@ -164,8 +164,9 @@ export class LightService {
   }
 
   public updateName(value: string) {
-    this.name = value;
-    this.service.setCharacteristic(this.platform.Characteristic.Name, `${value} ${this.subtype}`);
+    this.log("Ingoring updateName", value);
+    // this.name = value;
+    // this.service.setCharacteristic(this.platform.Characteristic.Name, `${value} ${this.subtype}`);
     // this.platform.api.updatePlatformAccessories([this.accessory]);
 }
 
@@ -173,20 +174,27 @@ export class LightService {
     return this.light.device;
   }
 
+  private logPrefix(): string {
+    if (this.subtype) {
+      return `[${this.name}#${this.subtype}]`;
+    }
+    return `[${this.name}]`;
+  }
+
   public log = (message?: unknown, ...optionalParameters: unknown[]): void => {
-    this.platform.log.info(`[${this.name}#${this.subtype}] ${message}`, optionalParameters);
+    this.platform.log.info(`${this.logPrefix} ${message}`, optionalParameters);
   };
 
   public warn = (message?: unknown, ...optionalParameters: unknown[]): void => {
-    this.platform.log.warn(`[${this.name}#${this.subtype}] ${message}`, optionalParameters);
+    this.platform.log.warn(`${this.logPrefix} ${message}`, optionalParameters);
   };
 
   public error = (message?: unknown, ...optionalParameters: unknown[]): void => {
-    this.platform.log.error(`[${this.name}#${this.subtype}] ${message}`, optionalParameters);
+    this.platform.log.error(`${this.logPrefix} ${message}`, optionalParameters);
   };
 
   public debug = (message?: unknown, ...optionalParameters: unknown[]): void => {
-    this.platform.log.debug(`[${this.name}#${this.subtype}] ${message}`, optionalParameters);
+    this.platform.log.debug(`${this.logPrefix} ${message}`, optionalParameters);
   };
 
   protected get config(): OverrideLightConfiguration {
