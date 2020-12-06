@@ -146,6 +146,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       this.log.info(`Accessory created with UUID ${uuid}`);
       if (ambientUuid && !ambientAccessory) {
         ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, ambientUuid);
+        ambientAccessory.context.device = newDeviceInfo;
         this.accessories.push(ambientAccessory);
         addedAccessories.push(ambientAccessory);
         this.log.info(`Separate Ambient Accessory created with UUID ${ambientUuid}`);

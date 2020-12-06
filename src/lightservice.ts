@@ -174,7 +174,7 @@ export class LightService {
     return this.light.device;
   }
 
-  private logPrefix(): string {
+  private get logPrefix(): string {
     if (this.subtype) {
       return `[${this.name}#${this.subtype}]`;
     }
@@ -199,12 +199,12 @@ export class LightService {
 
   protected get config(): OverrideLightConfiguration {
     const override = (this.platform.config.override || []) as OverrideLightConfiguration[];
-    const { device } = this.accessory.context;
+    const { info } = this.device
     const overrideConfig: OverrideLightConfiguration | undefined = override.find(
-      item => item.id === device.id,
+      item => item.id === info.id,
     );
 
-    return overrideConfig || { id: device.id };
+    return overrideConfig || { id: info.id };
   }
 
   get specs(): Specs {
