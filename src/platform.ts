@@ -59,20 +59,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     const overrideConfig: OverrideLightConfiguration | undefined = override.find(
       item => item.id === detectedInfo.id,
     );
-    if (overrideConfig) {
-      this.log.info(`Override config for ${detectedInfo.id}: ${JSON.stringify(overrideConfig)}`);
-      if (overrideConfig.ignored) {
-        this.log.info(`Ignoring ${detectedInfo.id} as configured. Removing from cache.`);
-            // see if an accessory with the same uuid has already been registered and restored from
-            // the cached devices we stored in the `configureAccessory` method above
-            const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);            
-            if (existingAccessory) {
-              this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-              this.log.info("Removing accessory from cache:", existingAccessory.displayName);
-            }
-        return;
-      }
-    }
+
     const newDeviceInfo: DeviceInfo = {
       ...detectedInfo,
       trackedAttributes,
@@ -85,6 +72,30 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     // if the device has a secondary (ambient) light and is configured to have
     // this shown as a separate top-level light, generate a separate UUID for it
     const ambientUuid = this.api.hap.uuid.generate(`${newDeviceInfo.id}#ambient`);
+
+    if (overrideConfig) {
+      this.log.info(`Override config for ${detectedInfo.id}: ${JSON.stringify(overrideConfig)}`);
+      if (overrideConfig.ignored) {
+        this.log.info(`Ignoring ${detectedInfo.id} as configured. Removing from cache.`);
+        // see if an accessory with the same uuid has already been registered and restored from
+        // the cached devices we stored in the `configureAccessory` method above
+        const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+        const purgeList: PlatformAccessory[] = [];
+        if (existingAccessory) {
+          this.log.info("Removing accessory from cache:", existingAccessory.displayName);
+          purgeList.push(existingAccessory);
+        }
+        const existingAmbientAccessory = this.accessories.find(accessory => accessory.UUID === uuid);            
+        if (existingAmbientAccessory) {
+          purgeList.push(existingAmbientAccessory);
+          this.log.info("Removing accessory from cache:", existingAmbientAccessory.displayName);
+        }
+        if (purgeList.length > 0) {
+          this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, purgeList);
+        }
+        return;
+      }
+    }
     const device = new Device(newDeviceInfo);
 
     // see if an accessory with the same uuid has already been registered and restored from
