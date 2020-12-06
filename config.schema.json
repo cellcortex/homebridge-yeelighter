@@ -88,7 +88,7 @@
               "required": false
             },
             "backgroundLight": {
-              "title": "Add an extra control for background light",
+              "title": "Add an extra control for ambient light",
               "type": "boolean",
               "required": false
             },
@@ -99,6 +99,11 @@
             },
             "ignored": {
               "title": "Ignore this light",
+              "type": "boolean",
+              "required": false
+            },
+            "separateAmbient": {
+              "title": "Manage the Ambient light as separate Accessory",
               "type": "boolean",
               "required": false
             },

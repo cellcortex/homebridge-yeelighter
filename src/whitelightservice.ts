@@ -2,7 +2,7 @@ import { LightService, LightServiceParameters as LightServiceParameters, Concret
 
 export class WhiteLightService extends LightService implements ConcreteLightService {
   constructor(parameters: LightServiceParameters) {
-    super(parameters, "main");
+    super(parameters);
     this.service.displayName = "White Light";
 
     this.installHandlers();

@@ -11,7 +11,7 @@ import {
 
 export class ColorLightService extends LightService implements ConcreteLightService {
   constructor(parameters: LightServiceParameters) {
-    super(parameters, "main");
+    super(parameters);
     this.service.displayName = "Color Light";
     this.installHandlers();
   }

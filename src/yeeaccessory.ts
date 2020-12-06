@@ -28,6 +28,7 @@ export interface OverrideLightConfiguration {
   log?: boolean;
   offOnDisconnect?: boolean;
   useNameAsId?: boolean;
+  separateAmbient?: boolean;
   [k: string]: any;
 }
 
@@ -81,20 +82,21 @@ export class YeeAccessory {
 
   private static handledAccessories = new Map<string, YeeAccessory>();
 
-  public static instance(device: Device, platform: YeelighterPlatform, accessory: PlatformAccessory) {
+  public static instance(device: Device, platform: YeelighterPlatform, accessory: PlatformAccessory, ambientAccessory?: PlatformAccessory) {
     const cache = YeeAccessory.handledAccessories.get(device.info.id);
     if (cache) {
       return cache;
     }
-    const a = new YeeAccessory(platform, accessory, device);
+    const a = new YeeAccessory(platform, device, accessory, ambientAccessory);
     YeeAccessory.handledAccessories.set(device.info.id, a);
     return a;
   }
 
   private constructor(
     private readonly platform: YeelighterPlatform,
+    public readonly device: Device,
     private readonly accessory: PlatformAccessory,
-    public readonly device: Device
+    private readonly ambientAccessory?: PlatformAccessory
   ) {
     const deviceInfo: DeviceInfo = accessory.context.device;
     const support = deviceInfo.support.split(" ");
@@ -159,7 +161,11 @@ export class YeeAccessory {
       }
     }
     if (support.includes("bg_set_power")) {
-      this.services.push(new BackgroundLightService(parameters));
+      if (this.config.separateAmbient && ambientAccessory) {
+        this.services.push(new BackgroundLightService({...parameters, accessory: ambientAccessory }));
+      } else {
+        this.services.push(new BackgroundLightService(parameters));
+      }
       typeString = `${typeString} with ambience light`;
     }
 

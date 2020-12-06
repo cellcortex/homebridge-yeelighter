@@ -11,7 +11,7 @@ import {
 
 export class TemperatureLightService extends LightService implements ConcreteLightService {
   constructor(parameters: LightServiceParameters) {
-    super(parameters, "main");
+    super(parameters);
     this.service.displayName = "Temperature Light";
 
     this.installHandlers();
