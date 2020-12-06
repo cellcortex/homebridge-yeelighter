@@ -85,7 +85,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
           this.log.info("Removing accessory from cache:", existingAccessory.displayName);
           purgeList.push(existingAccessory);
         }
-        const existingAmbientAccessory = this.accessories.find(accessory => accessory.UUID === uuid);            
+        const existingAmbientAccessory = this.accessories.find(accessory => accessory.UUID === ambientUuid);            
         if (existingAmbientAccessory) {
           purgeList.push(existingAmbientAccessory);
           this.log.info("Removing accessory from cache:", existingAmbientAccessory.displayName);
@@ -118,7 +118,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
         existingAccessory.context.device = newDeviceInfo;
 
         if (!ambientAccessory && overrideConfig?.separateAmbient) {
-          ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, uuid);
+          ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, ambientUuid);
           ambientAccessory.context.device = newDeviceInfo;
           this.log.info(`Separate Ambient Accessory created with UUID ${ambientUuid}`);  
           // link the accessory to your platform
@@ -137,14 +137,17 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
         this.log.info("Removing existing accessory from cache:", existingAccessory.displayName);
       }
     } else {
+      const addedAccessories: PlatformAccessory[] = [];
       // the accessory does not yet exist, so we need to create it
       this.log.info(`New ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
       const accessory = new this.api.platformAccessory(newDeviceInfo.id, uuid);
       this.accessories.push(accessory);
+      addedAccessories.push(accessory);
       this.log.info(`Accessory created with UUID ${uuid}`);
       if (ambientUuid && !ambientAccessory) {
-        ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, uuid);
+        ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, ambientUuid);
         this.accessories.push(ambientAccessory);
+        addedAccessories.push(ambientAccessory);
         this.log.info(`Separate Ambient Accessory created with UUID ${ambientUuid}`);
       }
       // store a copy of the device object in the `accessory.context`
@@ -156,7 +159,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       YeeAccessory.instance(device, this, accessory, ambientAccessory);
 
       // link the accessory to your platform
-      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, addedAccessories);
     }
   };
 }
