@@ -160,7 +160,7 @@ export class YeeAccessory {
     }
     if (support.includes("bg_set_power")) {
       this.services.push(new BackgroundLightService(parameters));
-      typeString = `${typeString} with mood light`;
+      typeString = `${typeString} with ambience light`;
     }
 
     this.support = support;
@@ -361,7 +361,7 @@ export class YeeAccessory {
 
   setNameService(service: Service) {
     service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
-      this.log("setConfiguredName", value);
+      this.log(`setting name to "${value}".`);
       service.displayName = value;
       // this.name = value;
       this.displayName = value;
@@ -470,7 +470,7 @@ export class YeeAccessory {
   async requestAttributes() {
     this.queryTimestamp = Date.now();
     this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
-    this.log(`requesting attributes. Transactions: ${this.transactions.size}`);
+    this.debug(`requesting attributes. Transactions: ${this.transactions.size}`);
   }
 
 

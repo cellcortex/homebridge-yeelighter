@@ -63,6 +63,9 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [2.1.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.5.16...v2.1.0) (2020-11-29)
 
+! Version upgrade. This changes the structure of the accessories. Please reset your homebridge
+  cache to prevent devices to show with duplicate characteristics.
+
 ### [1.5.16](https://github.com/cellcortex/homebridge-yeelighter/compare/v1.5.15...v1.5.16) (2020-11-23)
 
 

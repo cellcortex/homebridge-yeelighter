@@ -90,7 +90,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     if (existingAccessory) {
       // the accessory already exists
       if (device) {
-        this.log.info(`Cached ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
+        this.log.info(`New (cached) ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
 
         // update the accessory.context
         existingAccessory.context.device = newDeviceInfo;
