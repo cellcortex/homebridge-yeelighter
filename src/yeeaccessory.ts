@@ -98,7 +98,7 @@ export class YeeAccessory {
     private readonly accessory: PlatformAccessory,
     private readonly ambientAccessory?: PlatformAccessory
   ) {
-    const deviceInfo: DeviceInfo = accessory.context.device;
+    const deviceInfo: DeviceInfo = device.info;
     const support = deviceInfo.support.split(" ");
     let specs = MODEL_SPECS[deviceInfo.model];
     let name = deviceInfo.id;

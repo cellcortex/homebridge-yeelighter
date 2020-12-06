@@ -45,7 +45,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
    * It should be used to setup event handlers for characteristics and update respective values.
    */
   configureAccessory(accessory: PlatformAccessory) {
-    this.log.info(`Loading accessory from cache: ${accessory.displayName} (${accessory.context.device.model})`);
+    this.log.info(`Loading accessory from cache: ${accessory.displayName} (${accessory.context?.device?.model || "unknown"})`);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.push(accessory);
