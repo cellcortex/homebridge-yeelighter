@@ -173,8 +173,10 @@ export class YeeAccessory {
     this.updateTimestamp = 0;
     this.updatePromisePending = false;
 
-    this.setInfoService(overrideConfig);
-
+    this.setInfoService(overrideConfig, accessory);
+    if (ambientAccessory) {
+      this.setInfoService(overrideConfig, ambientAccessory);
+    }
 
     // name handling
     this.log(`installed as ${typeString}`);
@@ -369,7 +371,6 @@ export class YeeAccessory {
     service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
       this.log(`setting name to "${value}".`);
       service.displayName = value;
-      // this.name = value;
       this.displayName = value;
       service.setCharacteristic(this.platform.Characteristic.Name, value);
       for (const service of this.services) {
@@ -380,10 +381,10 @@ export class YeeAccessory {
     });
   }
 
-  setInfoService(override: OverrideLightConfiguration | undefined) {
-    const { accessory, platform } = this;
+  setInfoService(override: OverrideLightConfiguration | undefined, accessory: PlatformAccessory) {
+    const { platform } = this;
     // set accessory information
-    let infoService = this.accessory.getService(platform.Service.AccessoryInformation);
+    let infoService = accessory.getService(platform.Service.AccessoryInformation);
     let name = override?.name || this.specs.name;
     let count = nameCount.get(name) || 0;
     count = count + 1;

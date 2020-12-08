@@ -113,9 +113,9 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       // the accessory already exists
       if (device) {
         this.log.info(`New (cached) ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
-
         // update the accessory.context
         existingAccessory.context.device = newDeviceInfo;
+        const updateAccessories = [existingAccessory];
 
         if (!ambientAccessory && overrideConfig?.separateAmbient) {
           ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, ambientUuid);
@@ -123,12 +123,11 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
           this.log.info(`Separate Ambient Accessory created with UUID ${ambientUuid}`);  
           // link the accessory to your platform
           this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [ambientAccessory]);
+          updateAccessories.push(ambientAccessory);
         }
-
         YeeAccessory.instance(device, this, existingAccessory, ambientAccessory);
-         
         // update accessory cache with any changes to the accessory details and information
-        this.api.updatePlatformAccessories([existingAccessory]);
+        this.api.updatePlatformAccessories(updateAccessories);
 
       } else {
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
