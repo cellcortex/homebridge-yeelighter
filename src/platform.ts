@@ -92,7 +92,11 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
           this.log.info("Removing accessory from cache:", existingAmbientAccessory.displayName);
         }
         if (purgeList.length > 0) {
-          this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, purgeList);
+          try {
+            this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, purgeList);
+          } catch (error) {
+            this.log.warn("Failed to unregister", purgeList, error);          
+          }
         }
         return;
       }
@@ -105,8 +109,12 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     let ambientAccessory = this.accessories.find(accessory => accessory.UUID === ambientUuid);
 
     if (ambientAccessory && !separateAmbient) {
-      this.log.info(`Separate Ambient Accessory not wanted anymore. Unregistering`);  
-      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [ambientAccessory]);
+      this.log.info(`Separate Ambient Accessory not wanted anymore. Unregistering`);
+      try {
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [ambientAccessory]);
+      } catch (error) {
+        this.log.warn("failed to unregister", ambientAccessory, error);
+      }
       ambientAccessory = undefined;
     }
     
@@ -133,8 +141,12 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       } else {
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
         // remove platform accessories when no longer present
-        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-        this.log.info("Removing existing accessory from cache:", existingAccessory.displayName);
+        try {
+          this.log.info("Removing existing accessory from cache:", existingAccessory.displayName);
+          this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+        } catch (error) {
+          this.log.warn("Failed to remove accessory", existingAccessory, error);
+        }
       }
     } else {
       const addedAccessories: PlatformAccessory[] = [];
