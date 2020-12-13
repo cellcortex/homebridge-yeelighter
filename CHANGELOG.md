@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.7](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.3.6...v2.3.7) (2020-12-13)
+
+
+### Bug Fixes
+
+* catch unregistration errors ([3aaff51](https://github.com/cellcortex/homebridge-yeelighter/commit/3aaff5191a03cbf23b1d66dfa9c4831671d1fc8a))
+* handle global 'split' property properly ([e575ced](https://github.com/cellcortex/homebridge-yeelighter/commit/e575cedc52ed71dba3d56f2c480b3eebae95bf1a))
+* set device info also for separate ambient light ([de32b46](https://github.com/cellcortex/homebridge-yeelighter/commit/de32b463a4f53822a20d51e6923be10ff04860c7))
+
 ### [2.3.6](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.3.5...v2.3.6) (2020-12-06)
 
 
