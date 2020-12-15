@@ -63,7 +63,9 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     const overrideConfig: OverrideLightConfiguration | undefined = override.find(
       item => item.id === detectedInfo.id,
     );
-    const separateAmbient = (!!this.config?.split || !!overrideConfig?.separateAmbient) 
+    const separateAmbient = ((this.config?.split && overrideConfig?.separateAmbient !== false) || overrideConfig?.separateAmbient === true);
+    
+    (!!this.config?.split || !!overrideConfig?.separateAmbient) 
           && (detectedInfo.support.includes("bg_set_power") || !!overrideConfig?.backgroundLight);
 
     const newDeviceInfo: DeviceInfo = {
@@ -158,13 +160,13 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       // the accessory does not yet exist, so we need to create it
       this.log.info(`New ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
       const accessory = new this.api.platformAccessory(newDeviceInfo.id, uuid);
-      // this.accessories.push(accessory);
+      this.accessories.push(accessory);
       addedAccessories.push(accessory);
       this.log.info(`Accessory created with UUID ${uuid}`);
       if (ambientUuid && !ambientAccessory) {
         ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, ambientUuid);
         ambientAccessory.context.device = newDeviceInfo;
-        // this.accessories.push(ambientAccessory);
+        this.accessories.push(ambientAccessory);
         addedAccessories.push(ambientAccessory);
         this.log.info(`Separate Ambient Accessory created with UUID ${ambientUuid}`);
       }
