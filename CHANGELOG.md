@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.12](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.3.11...v2.3.12) (2020-12-16)
+
+
+### Bug Fixes
+
+* duplicate removing of accessories ([3766d38](https://github.com/cellcortex/homebridge-yeelighter/commit/3766d382454db3c1ed38c6b97a512dba8d8a1402))
+
 ### [2.3.11](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.3.10...v2.3.11) (2020-12-16)
 
 
