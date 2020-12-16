@@ -1,9 +1,20 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from "homebridge";
 import { PLATFORM_NAME, PLUGIN_NAME } from "./settings";
-import { DeviceInfo, Device } from "./yeedevice";
+import { DeviceInfo, Device, EMPTY_DEVICEINFO } from "./yeedevice";
 import { YeeAccessory} from "./yeeaccessory";
 import { Discovery } from "./discovery";
 import { TRACKED_ATTRIBUTES, OverrideLightConfiguration } from "./yeeaccessory";
+
+interface ManualOverride {
+  id: string;
+  address: string;
+  name?: string;
+  log?: boolean;
+  color: boolean;
+  backgroundLight: boolean;
+  nightLight: boolean;
+  separateAmbient?: boolean;
+}
 
 /**
  * HomebridgePlatform
@@ -36,6 +47,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     this.api.on("didFinishLaunching", () => {
       this.log.debug("Executed didFinishLaunching callback");
       this.agent.listen();
+      this.addHardCodedAccessories();
     });
   }
 
@@ -100,7 +112,13 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
           }
           if (purgeList.length > 0) {
             try {
-              this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, purgeList);
+              purgeList.forEach(item => {
+                const index = this.accessories.indexOf(item);
+                if (index >= 0) {
+                  this.accessories.splice(index, 1);
+                }
+                this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, purgeList);
+              })
             } catch (error) {
               this.log.warn("Failed to unregister", purgeList, error);          
             }
@@ -117,10 +135,15 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
 
       if (ambientAccessory && !separateAmbient) {
         try {
-          this.log.info(`Separate Ambient Accessory not wanted anymore. Unregistering`, ambientAccessory);
+          this.log.info(`Separate Ambient Accessory not wanted anymore. Unregistering`, ambientAccessory.UUID);
+          const index = this.accessories.indexOf(ambientAccessory);
+          if (index >= 0) {
+            this.accessories.splice(index, 1);
+          }
           this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [ambientAccessory]);
+          // TODO: remove from this.accessories
         } catch (error) {
-          this.log.warn("failed to unregister", ambientAccessory, error);
+          this.log.warn("failed to unregister", ambientAccessory.UUID, error);
         }
         ambientAccessory = undefined;
       }
@@ -151,6 +174,10 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
           try {
             this.log.info("Removing existing accessory from cache:", existingAccessory.displayName);
             this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+            const index = this.accessories.indexOf(existingAccessory);
+            if (index >= 0) {
+              this.accessories.splice(index, 1);
+            }
           } catch (error) {
             this.log.warn("Failed to remove accessory", existingAccessory, error);
           }
@@ -160,22 +187,21 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
         // the accessory does not yet exist, so we need to create it
         this.log.info(`New ${newDeviceInfo.model} [${newDeviceInfo.id}] found at ${newDeviceInfo.location}`);
         const accessory = new this.api.platformAccessory(newDeviceInfo.id, uuid);
-        this.accessories.push(accessory);
-        addedAccessories.push(accessory);
-        this.log.info(`Accessory created with UUID ${uuid}`);
-        if (ambientUuid && !ambientAccessory) {
-          ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, ambientUuid);
-          ambientAccessory.context.device = newDeviceInfo;
-          this.accessories.push(ambientAccessory);
-          addedAccessories.push(ambientAccessory);
-          this.log.info(`Separate Ambient Accessory created with UUID ${ambientUuid}`);
-        }
         // store a copy of the device object in the `accessory.context`
         // the `context` property can be used to store any data about the accessory you may need
         accessory.context.device = newDeviceInfo;
+        this.configureAccessory(accessory);
+        addedAccessories.push(accessory);
+        this.log.info(`Accessory created with UUID ${uuid}`);
+        if (separateAmbient && !ambientAccessory) {
+          ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, ambientUuid);
+          ambientAccessory.context.device = newDeviceInfo;
+          this.configureAccessory(ambientAccessory);
+          addedAccessories.push(ambientAccessory);
+          this.log.info(`Separate Ambient Accessory created with UUID ${ambientUuid}`);
+        }
 
         // create the accessory handler for the newly create accessory
-        // this is imported from `platformAccessory.ts`
         YeeAccessory.instance(device, this, accessory, ambientAccessory);
 
         // link the accessory to your platform
@@ -185,4 +211,15 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       this.log.error("Device discovery handling failed", error);
     }
   };
+
+  private addHardCodedAccessories() {
+    const manualAccessories: ManualOverride[] = this.config?.manual as ManualOverride[] || [];
+    this.log.info(`adding ${manualAccessories.length} nanual accessories`);
+    for (const manualAccessory of manualAccessories) {
+      const deviceInfo: DeviceInfo = { ...EMPTY_DEVICEINFO };
+      deviceInfo.location = `yeelight://${manualAccessory.address}`;
+      deviceInfo.id = manualAccessory.id;
+      this.onDeviceDiscovery(deviceInfo);
+    }
+  }
 }

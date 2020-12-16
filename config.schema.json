@@ -3,7 +3,6 @@
   "pluginType": "platform",
   "singular": true,
   "headerDisplay": "You must enable LAN control for the lights.",
-  "footerDisplay": "For help look at https://github.com/cellcortex/homebridge-yeelighter",
   "schema": {
     "type": "object",
     "properties": {
@@ -70,13 +69,6 @@
               "required": false,
               "description": "This name will be displayed in the logs instead if the id"
             },
-            "useNameAsId": {
-              "title": "Override of id to be displayed (dangerous)",
-              "type": "boolean",
-              "required": false,
-              "default": false,
-              "description": "instead of using the ID, use the name defined above as the Id that the light reports. The id needs to be unique."
-            },
             "log": {
               "title": "Detailed logging of this light",
               "type": "boolean",
@@ -109,6 +101,87 @@
             },
             "offOnDisconnect": {
               "title": "Switch light off in homekit when disconnected",
+              "type": "boolean",
+              "required": false
+            },
+            "colorTemperature": {
+              "title": "Override Light Configuration",
+              "type": "object",
+              "required": false,
+              "properties": {
+                "min": {
+                  "title": "Minimal color temperature (in Kelvin)",
+                  "type": "integer",
+                  "required": true,
+                  "minimum": 0,
+                  "maximum": 10000
+                },
+                "max": {
+                  "title": "Maximum color temperature (in Kelvin)",
+                  "type": "integer",
+                  "required": true,
+                  "minimum": 0,
+                  "maximum": 10000
+                }
+              }
+            },
+            
+            "address": {
+              "title": "Force IP Address",
+              "type": "string",
+              "required": false,
+              "description": "Create a light with this IP address even though it may not be detected"
+            }
+          }
+        }
+      },
+      "manual": {
+        "type": "array",
+        "items": {
+          "title": "Manual Lights",
+          "description": "This is to manually add lights if detection doesn't work",
+          "type": "object",
+          "properties": {
+            "id": {
+              "title": "Identifier of the light (from Yeelight app)",
+              "type": "string",
+              "pattern": "^0x[0-9a-fA-F]{16}",
+              "required": true
+            },
+            "address": {
+              "title": "IP Address of the light",
+              "type": "string",
+              "required": true,
+              "description": "Create a light with this IP address even though it may not be detected"
+            },
+            "name": {
+              "title": "Name of the light",
+              "type": "string",
+              "required": false,
+              "description": "This name will be displayed in the logs instead if the id"
+            },
+            "log": {
+              "title": "Detailed logging of this light",
+              "type": "boolean",
+              "required": false
+            },
+            "color": {
+              "title": "Treat this as an HSV color light",
+              "type": "boolean",
+              "required": true
+            },
+            "backgroundLight": {
+              "title": "Add an extra control for ambient light",
+              "type": "boolean",
+              "required": true
+            },
+            "nightLight": {
+              "title": "Add an extra range for moonlight mode",
+              "type": "boolean",
+              "required": true
+            },
+            "separateAmbient": {
+              "title": "Manage the Ambient light as separate Accessory",
               "type": "boolean",
               "required": false
             },
