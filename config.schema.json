@@ -45,7 +45,7 @@
         "description": "If enabled, instead of regularly pulling updates from the lights, this will query updates only when homekit requests them. This has proven to be problematic since it freezes the homekit UI while waiting for updates."
       },
       "split": {
-        "title": "split lighs with multiple services into separate homekit lights",
+        "title": "split lights with multiple services into separate homekit lights",
         "type": "boolean",
         "required": false,
         "default": false,
