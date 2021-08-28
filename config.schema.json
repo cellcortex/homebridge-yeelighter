@@ -160,6 +160,18 @@
               "required": false,
               "description": "This name will be displayed in the logs instead if the id"
             },
+            "model": {
+              "title": "Model of the light",
+              "type": "string",
+              "required": false,
+              "description": "This should be the model name"
+            },
+            "support": {
+              "title": "Supported properties (space separated)",
+              "type": "string",
+              "required": false,
+              "description": "This describes the properties that can be set on the light"
+            },
             "log": {
               "title": "Detailed logging of this light",
               "type": "boolean",

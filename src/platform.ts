@@ -8,12 +8,14 @@ import { TRACKED_ATTRIBUTES, OverrideLightConfiguration } from "./yeeaccessory";
 interface ManualOverride {
   id: string;
   address: string;
+  model: string;
   name?: string;
   log?: boolean;
   color: boolean;
   backgroundLight: boolean;
   nightLight: boolean;
   separateAmbient?: boolean;
+  support: string;
 }
 
 /**
@@ -217,6 +219,8 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       const deviceInfo: DeviceInfo = { ...EMPTY_DEVICEINFO };
       deviceInfo.location = `yeelight://${manualAccessory.address}`;
       deviceInfo.id = manualAccessory.id;
+      deviceInfo.model = manualAccessory.model;
+      deviceInfo.support = manualAccessory.support;
       this.onDeviceDiscovery(deviceInfo);
     }
   }

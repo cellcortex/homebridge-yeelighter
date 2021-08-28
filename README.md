@@ -89,6 +89,17 @@ You can use the override array to override the automatic configuration of the li
 - `offOnDisconnect?: boolean` (optional) - switch the light off in homekit when it disconnects (this is for people with old-school wall switches)
 - `colorTemperature?: { min: number, max: number }` (optional) - colorTemperature limits in kelvin
 
+### Forcing a light to be shown (for network configs that don't support multicast)
+
+Since the yeelights respond with their configuration to the discovery request, this information
+needs to be manually entered into the config. Use at your own risk - this may be screwing with
+your config since there's no way for Yeelighter to tell if the light is really there.
+
+- `id: string` - the id of the light (you have to find this from the app)
+- `address: string` - the IP address of the light
+- `model: string` - model (name of the light)
+- `supports: string` - whitespace separated list of commands that the light supports.
+
 ## Setting up the lights
 
 Make sure to enable "LAN control" for the lights you want to control. This is done in the Yeelight app either when setting up the light or in the lights settings which hide behind the ⏏ - button.
