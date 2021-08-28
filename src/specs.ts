@@ -148,7 +148,7 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
   ceiling15: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
-    backgroundLight: false,
+    backgroundLight: true,
     name: "Ceiling Light (YLXD42YL)",
     color: false
   },

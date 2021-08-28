@@ -37,6 +37,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
       },
       async value => {
         await this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || POWERMODE_CT]);
+        this.powerMode ||= POWERMODE_CT;
         this.setAttributes({ power: value });
         // this.updateCharacteristic(this.platform.Characteristic.On, value);
       },
