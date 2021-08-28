@@ -370,11 +370,11 @@ export class YeeAccessory {
   setNameService(service: Service) {
     service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
       this.log(`setting name to "${value}".`);
-      service.displayName = value;
-      this.displayName = value;
+      service.displayName = value.toString();
+      this.displayName = value.toString();
       service.setCharacteristic(this.platform.Characteristic.Name, value);
       for (const service of this.services) {
-        service.updateName(value);
+        service.updateName(value.toString());
       }
       this.platform.api.updatePlatformAccessories([this.accessory]);
       callback();

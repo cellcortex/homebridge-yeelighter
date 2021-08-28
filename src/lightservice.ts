@@ -155,8 +155,9 @@ export class LightService {
     // name handling
     this.service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
       this.log("setConfiguredName", value);
-      this.service.displayName = value;
-      this.name = value;
+      const name = value.toString()
+      this.service.displayName = name;
+      this.name = name;
       this.service.setCharacteristic(this.platform.Characteristic.Name, value);
       this.platform.api.updatePlatformAccessories([this.accessory]);
       callback();
@@ -232,7 +233,7 @@ export class LightService {
       if (this.light.connected) {
         callback(undefined, await getter());
       } else {
-        callback("light disconnected");
+        callback(undefined, "light disconnected");
       }
     });
     characteristic.on("set", async (value, callback) => {

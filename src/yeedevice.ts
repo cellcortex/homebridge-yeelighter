@@ -78,7 +78,7 @@ export class Device extends EventEmitter {
         this.didConnect();
         this.emit("connected");
       });
-    } catch (error) {
+    } catch (error: any) {
       this.socketClosed(error);
     }
   }
@@ -168,7 +168,7 @@ export class Device extends EventEmitter {
     if (this.connected && this.socket) {
       try {
         this.socket.write(cmd + "\r\n");
-      } catch (error) {
+      } catch (error: any) {
         this.socketClosed(error);
       }
     }
