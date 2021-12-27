@@ -332,7 +332,7 @@ export class YeeAccessory {
     if (this.connected) {
       this.connected = false;
       this.log("Disconnected");
-      if (this.overrideConfig?.offOnDisconnect) {
+      if (this.config?.offOnDisconnect) {
         this.attributes.power = false;
         this.attributes.bg_power = false;
         this.log("configured to mark as powered-off when disconnected");
