@@ -21,12 +21,12 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
   private async installHandlers() {
     this.handleCharacteristic(
       this.platform.Characteristic.On,
-      async () => (await this.attributes()).bg_power,
+      async () => this.getAttribute("bg_power"),
       value => this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, POWERMODE_HSV]),
     );
     this.handleCharacteristic(
       this.platform.Characteristic.Brightness,
-      async () => (await this.attributes()).bg_bright,
+      async () => this.getAttribute("bg_bright"),
       async value => {
         this.log("set brightness", value);
         await this.sendSuddenCommand("bg_set_bright", value);
@@ -39,7 +39,8 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
       const characteristic = await this.handleCharacteristic(
         this.platform.Characteristic.ColorTemperature,
         async () => {
-          return convertColorTemperature((await this.attributes()).bg_ct);
+          const ct = await this.getAttribute("bg_ct");
+          return convertColorTemperature(ct);
         },
         async value => {
           await this.ensurePowerMode(POWERMODE_CT, "bg_");
@@ -57,7 +58,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
     }
     this.handleCharacteristic(
       this.platform.Characteristic.Hue,
-      async () => (await this.attributes()).bg_hue,
+      async () => this.getAttribute("bg_hue"),
       async value => {
         this.lastHue = value;
         await this.setHSV("bg_");
@@ -65,7 +66,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
     );
     this.handleCharacteristic(
       this.platform.Characteristic.Saturation,
-      async () => (await this.attributes()).bg_sat,
+      async () => this.getAttribute("bg_sat"),
       async value => {
         this.lastSat = value;
         await this.setHSV("bg_");

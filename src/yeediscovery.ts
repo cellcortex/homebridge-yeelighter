@@ -1,6 +1,6 @@
-import { EventEmitter } from "events";
-import dgram from "dgram";
-import url from "url";
+import { EventEmitter } from "node:events";
+import dgram from "node:dgram";
+import url from "node:url";
 import { DeviceInfo, EMPTY_DEVICEINFO } from "./yeedevice";
 import httpHeaders from "http-headers";
 
@@ -34,15 +34,11 @@ export class Discovery extends EventEmitter {
 
     this.socket.on("message", this.onMessage);
 
-    try {
-      this.socket.bind(options.port, () => {
-        this.socket.setBroadcast(true);
-        this.socket.setMulticastTTL(128);
-        this.socket.addMembership(options.multicastAddr);
-      });
-    } catch (error) {
-      throw error;
-    }
+    this.socket.bind(options.port, () => {
+      this.socket.setBroadcast(true);
+      this.socket.setMulticastTTL(128);
+      this.socket.addMembership(options.multicastAddr);
+    });
   }
 
   onMessage = response => {

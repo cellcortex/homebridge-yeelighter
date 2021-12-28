@@ -90,7 +90,7 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
 }
 
 export function convertColorTemperature(value: number): number {
-  return Math.round(1000000 / value);
+  return Math.round(1_000_000 / value);
 }
 
 export interface ConcreteLightService {
@@ -214,6 +214,11 @@ export class LightService {
 
   public async attributes() {
     return this.light.getAttributes();
+  }
+
+  public async getAttribute<U extends keyof Attributes>(attribute: U) {
+    const a = await this.attributes();
+    return a[attribute];
   }
 
   public setAttributes(attributes: Partial<Attributes>) {

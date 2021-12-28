@@ -58,7 +58,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
    * It should be used to setup event handlers for characteristics and update respective values.
    */
   configureAccessory(accessory: PlatformAccessory) {
-    if (this.accessories.find(a => a.UUID === accessory.UUID)) {
+    if (this.accessories.some(a => a.UUID === accessory.UUID)) {
       this.log.warn(`Ingnoring duplicate accessory from cache: ${accessory.displayName} (${accessory.context?.device?.model || "unknown"})`);
       return;
     }
@@ -112,12 +112,12 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
           }
           if (purgeList.length > 0) {
             try {
-              purgeList.forEach(item => {
+              for (const item of purgeList) {
                 const index = this.accessories.indexOf(item);
                 if (index >= 0) {
                   this.accessories.splice(index, 1);
                 }
-              })
+              }
               this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, purgeList);
             } catch (error) {
               this.log.warn("Failed to unregister", purgeList, error);          

@@ -313,7 +313,9 @@ export class YeeAccessory {
   private onUpdateAttributes = (newAttributes: Attributes) => {
     if (JSON.stringify(this.attributes) !== JSON.stringify(newAttributes)) {
       if (!this.config?.blocking) {
-        this.services.forEach(service => service.onAttributesUpdated(newAttributes));
+        for (const service of this.services) {
+          service.onAttributesUpdated(newAttributes);
+        }
       }
       this.attributes = { ...newAttributes };
     }
@@ -324,7 +326,7 @@ export class YeeAccessory {
     this.log(`${this.info.model} Connected`);
     this.requestAttributes();
     if (this.config.interval !== 0) {
-      this.interval = setInterval(this.onInterval, this.config.interval || 60000);
+      this.interval = setInterval(this.onInterval, this.config.interval || 60_000);
     }
   };
 
@@ -336,7 +338,7 @@ export class YeeAccessory {
         this.attributes.power = false;
         this.attributes.bg_power = false;
         this.log("configured to mark as powered-off when disconnected");
-        this.services.forEach(service => service.onPowerOff());
+        for (const service of this.services)  service.onPowerOff();
       }
       if (this.updateReject) {
         this.updateReject();
@@ -382,10 +384,10 @@ export class YeeAccessory {
   }
 
   setInfoService(override: OverrideLightConfiguration | undefined, accessory: PlatformAccessory) {
-    const { platform } = this;
+    const { platform, specs, info } = this;
     // set accessory information
     let infoService = accessory.getService(platform.Service.AccessoryInformation);
-    let name = override?.name || this.specs.name;
+    let name = override?.name || specs.name;
     let count = nameCount.get(name) || 0;
     count = count + 1;
     nameCount.set(name, count);
@@ -396,19 +398,19 @@ export class YeeAccessory {
       infoService = new platform.Service.AccessoryInformation();
       infoService
         .updateCharacteristic(platform.Characteristic.Manufacturer, "Yeelighter")
-        .updateCharacteristic(platform.Characteristic.Model, this.specs.name)
+        .updateCharacteristic(platform.Characteristic.Model, specs.name)
         .updateCharacteristic(platform.Characteristic.Name, name)
-        .updateCharacteristic(platform.Characteristic.SerialNumber, this.info.id)
-        .updateCharacteristic(platform.Characteristic.FirmwareRevision, this.info.fw_ver);
+        .updateCharacteristic(platform.Characteristic.SerialNumber, info.id)
+        .updateCharacteristic(platform.Characteristic.FirmwareRevision, info.fw_ver);
       accessory.addService(infoService);
     } else {
       // re-use service from cache
       infoService
         .updateCharacteristic(platform.Characteristic.Manufacturer, "Yeelighter")
-        .updateCharacteristic(platform.Characteristic.Model, this.specs.name)
+        .updateCharacteristic(platform.Characteristic.Model, specs.name)
         .updateCharacteristic(platform.Characteristic.Name, name)
-        .updateCharacteristic(platform.Characteristic.SerialNumber, this.info.id)
-        .updateCharacteristic(platform.Characteristic.FirmwareRevision, this.info.fw_ver);
+        .updateCharacteristic(platform.Characteristic.SerialNumber, info.id)
+        .updateCharacteristic(platform.Characteristic.FirmwareRevision, info.fw_ver);
     }
     this.setNameService(infoService);
     
@@ -444,20 +446,20 @@ export class YeeAccessory {
   }
 
   private clearOldTransactions() {
-    this.transactions.forEach((item, key) => {
+    for (const [key, item] of this.transactions.entries()) {
       // clear transactions older than 60s
-      if (item.timestamp > Date.now() + 60000) {
+      if (item.timestamp > Date.now() + 60_000) {
         this.log(`error: timeout for request ${key}`);
         item.reject(new Error("timeout"));
         this.transactions.delete(key);
       }
-    });
+    }
   }
 
   private onInterval = () => {
     if (this.connected) {
       const updateSince = (Date.now() - this.updateTimestamp) / 1000;
-      const updateThreshold = (this.config?.timeout || 5000) + (this.config?.interval || 60000) / 1000;
+      const updateThreshold = (this.config?.timeout || 5000) + (this.config?.interval || 60_000) / 1000;
       if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
         this.log(`No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.config?.timeout}+${this.config?.interval}) => switching to unreachable`);
         this.connected = false;

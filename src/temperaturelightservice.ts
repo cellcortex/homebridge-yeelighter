@@ -75,7 +75,10 @@ export class TemperatureLightService extends LightService implements ConcreteLig
     );
     const characteristic = await this.handleCharacteristic(
       this.platform.Characteristic.ColorTemperature,
-      async () => convertColorTemperature((await this.attributes()).ct),
+      async () => {
+        const attributes = await this.attributes();
+        return convertColorTemperature(attributes.ct);
+      },
       async value => {
         await this.ensurePowerMode(POWERMODE_CT);
         await this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));

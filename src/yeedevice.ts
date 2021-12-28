@@ -2,8 +2,8 @@
  * Yeelight Device Handling.
  */
 
-import { EventEmitter } from "events";
-import net from "net";
+import { EventEmitter } from "node:events";
+import net from "node:net";
 
 export interface DeviceInfo {
   location: string;
@@ -146,9 +146,9 @@ export class Device extends EventEmitter {
     const combined = this.rest + data.toString("utf8");
     const dataArray = combined.split("\r\n");
     this.rest = dataArray.pop() || "";
-    dataArray.forEach(dataString => {
+    for (const dataString of dataArray) {
       if (dataString.length === 0) {
-        return;
+        continue;
       }
       try {
         const response = JSON.parse(dataString);
@@ -160,7 +160,7 @@ export class Device extends EventEmitter {
       } catch (error) {
         console.error(error, dataString);
       }
-    });
+    }
   }
 
   sendCommand(data) {

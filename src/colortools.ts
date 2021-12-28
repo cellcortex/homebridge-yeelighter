@@ -5,17 +5,17 @@
  */
 
 export function convertHomeKitColorTemperatureToHomeKitColor(value) {
-  const dKelvin = 10000 / value;
+  const dKelvin = 10_000 / value;
   const rgb = [
     dKelvin > 66
-      ? 351.97690566805693 + 0.114206453784165 * (dKelvin - 55) - 40.25366309332127 * Math.log(dKelvin - 55)
+      ? 351.976_905_668_056_93 + 0.114_206_453_784_165 * (dKelvin - 55) - 40.253_663_093_321_27 * Math.log(dKelvin - 55)
       : 255,
     dKelvin > 66
-      ? 325.4494125711974 + 0.07943456536662342 * (dKelvin - 50) - 28.0852963507957 * Math.log(dKelvin - 55)
-      : 104.49216199393888 * Math.log(dKelvin - 2) - 0.44596950469579133 * (dKelvin - 2) - 155.25485562709179,
+      ? 325.449_412_571_197_4 + 0.079_434_565_366_623_42 * (dKelvin - 50) - 28.085_296_350_795_7 * Math.log(dKelvin - 55)
+      : 104.492_161_993_938_88 * Math.log(dKelvin - 2) - 0.445_969_504_695_791_33 * (dKelvin - 2) - 155.254_855_627_091_79,
     dKelvin > 66
       ? 255
-      : 115.67994401066147 * Math.log(dKelvin - 10) + 0.8274096064007395 * (dKelvin - 10) - 254.76935184120902
+      : 115.679_944_010_661_47 * Math.log(dKelvin - 10) + 0.827_409_606_400_739_5 * (dKelvin - 10) - 254.769_351_841_209_02
   ].map(v => Math.max(0, Math.min(255, v)) / 255);
   const max = Math.max(...rgb);
   const min = Math.min(...rgb);
