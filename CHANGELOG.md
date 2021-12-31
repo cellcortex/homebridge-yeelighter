@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0-beta.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.3.18...v2.4.0-beta.0) (2021-12-31)
+
+
+### Features
+
+* beta rxjs integration ([b100694](https://github.com/cellcortex/homebridge-yeelighter/commit/b100694626083c26e84172dd40b154a734076dda))
+
 ### [2.3.18](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.3.17...v2.3.18) (2021-12-29)
 
 
