@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.8](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.7...v2.4.8) (2022-01-26)
+
+
+### Bug Fixes
+
+* power off when brightness set to 0 ([8c672fe](https://github.com/cellcortex/homebridge-yeelighter/commit/8c672fee1a48a5bc683c18c6d3f0452781f568ba))
+
 ### [2.4.7](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.6...v2.4.7) (2022-01-26)
 
 
