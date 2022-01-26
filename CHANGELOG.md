@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.2](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.1...v2.4.2) (2022-01-26)
+
+
+### Features
+
+* added support for A2001 ([43ba941](https://github.com/cellcortex/homebridge-yeelighter/commit/43ba941f6b47c5ed147db24c53a7c10e98071c5d))
+
+
+### Bug Fixes
+
+* set power off instead of brightness 0 ([b7c0398](https://github.com/cellcortex/homebridge-yeelighter/commit/b7c0398626a9c8e07e47adbd3070d208a6997cdc))
+
 ### [2.4.1](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.0...v2.4.1) (2022-01-26)
 
 
