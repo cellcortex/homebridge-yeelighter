@@ -439,7 +439,8 @@ export class YeeAccessory {
       const timestamp = Date.now();
       const id = this.sendCommand(method, parameters);
       if (this.detailedLogging) {
-        this.log(`sent command ${id}: ${method}`);
+        this.log(`sent command ${id}: ${method}`, parameters
+        );
       }
       this.transactions.set(id, { resolve, reject, timestamp });
     });
