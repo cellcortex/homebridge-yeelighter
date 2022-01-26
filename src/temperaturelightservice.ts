@@ -48,28 +48,32 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         return this.getBrightness(await this.attributes());
       },
       async value => {
-        let valueToSet = value;
-        if (this.specs.nightLight) {
-          if (value < 50) {
-            if (this.powerMode !== 5) {
-              await this.ensurePowerMode(POWERMODE_MOON);
-              this.debug("Moonlight on");
-              
+        if (value > 0) {
+          let valueToSet = value;
+          if (this.specs.nightLight) {
+            if (value < 50) {
+              if (this.powerMode !== 5) {
+                await this.ensurePowerMode(POWERMODE_MOON);
+                this.debug("Moonlight on");
+                
+              }
+              valueToSet = value * 2;
+            } else {
+              if (this.powerMode !== 1) {
+                await this.ensurePowerMode(POWERMODE_CT);
+                this.debug("Moonlight off");
+                
+              }
+              valueToSet = (value - 50) * 2;
             }
-            valueToSet = value * 2;
-          } else {
-            if (this.powerMode !== 1) {
-              await this.ensurePowerMode(POWERMODE_CT);
-              this.debug("Moonlight off");
-              
-            }
-            valueToSet = (value - 50) * 2;
           }
+          this.log("set brightness", value);
+          await this.sendSuddenCommand("set_bright", valueToSet);
+          this.setAttributes({ bright: valueToSet });
+          // this.updateCharacteristic(this.platform.Characteristic.Brightness, this.getBrightness(valueToSet));
+        } else {
+          await this.sendSuddenCommand("set_power", "off");
         }
-        this.log("set brightness", value);
-        await this.sendSuddenCommand("set_bright", valueToSet);
-        this.setAttributes({ bright: valueToSet });
-        // this.updateCharacteristic(this.platform.Characteristic.Brightness, this.getBrightness(valueToSet));
         this.saveDefaultIfNeeded();
       },
     );
