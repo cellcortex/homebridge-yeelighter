@@ -50,6 +50,7 @@ export interface Command {
   method: string;
   params: Array<number | string | boolean>;
 }
+
 /**
  * Handles the connection to a concrete Yee light.
  */

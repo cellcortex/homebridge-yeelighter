@@ -14,6 +14,9 @@ const options = {
   discoveryMsg: 'M-SEARCH * HTTP/1.1\r\nMAN: "ssdp:discover"\r\nST: wifi_bulb\r\n'
 };
 
+/**
+ * Handles discovery of yeelight devices using their SSDP multicast protocol
+ */
 export class Discovery extends EventEmitter {
   socket: dgram.Socket;
   constructor() {

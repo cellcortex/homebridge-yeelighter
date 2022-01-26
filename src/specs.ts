@@ -173,11 +173,25 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     name: "color2",
     color: true
   },
+  color4: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "color4",
+    color: true
+  },
   lamp1: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: false,
     backgroundLight: false,
     name: "Color Temperature bulb",
+    color: false
+  },
+  lamp9: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "Staria Bedside Lamp Pro",
     color: false
   },
   desklamp: {
