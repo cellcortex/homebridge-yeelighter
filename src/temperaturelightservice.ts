@@ -36,10 +36,14 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         return attributes.power;
       },
       async value => {
-        this.debug("Manual power setting", value);
-        await this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || POWERMODE_CT]);
-        this.powerMode ||= POWERMODE_CT;
-        this.setAttributes({ power: value });
+        if (this.config.ignorePower) {
+          this.log(`Ignoring explicit power on`);
+        } else {
+          this.debug("Manual power setting", value);
+          await this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || POWERMODE_CT]);
+          this.powerMode ||= POWERMODE_CT;
+          this.setAttributes({ power: value });
+      }
         // this.updateCharacteristic(this.platform.Characteristic.On, value);
       },
     );

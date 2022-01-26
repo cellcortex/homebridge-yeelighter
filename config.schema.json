@@ -217,6 +217,13 @@
                   "maximum": 10000
                 }
               }
+            },
+            "ignorePower": {
+              "title": "Ignore the power setting from Homekit and rely on brightness only",
+              "type": "boolean",
+              "required": false,
+              "default": false,
+              "description": "Homekit sends a power on before brightness changes. This will tamper with moonlight settings."
             }
           }
         }
