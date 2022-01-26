@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.7](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.6...v2.4.7) (2022-01-26)
+
+
+### Features
+
+* added 'ignorePower' setting to allow to ignore Homekits explicit power on message. This helps with the brightness settings of temperature lights with moonlight support. ([d5e3c09](https://github.com/cellcortex/homebridge-yeelighter/commit/d5e3c09898756eb130963968331a6101f6a1ac66))
+
 ### [2.4.6](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.5...v2.4.6) (2022-01-26)
 
 ### [2.4.5](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.4...v2.4.5) (2022-01-26)
