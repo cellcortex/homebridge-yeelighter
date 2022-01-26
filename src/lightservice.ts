@@ -115,6 +115,7 @@ export class LightService {
   protected readonly accessory: PlatformAccessory;
   protected light: YeeAccessory;
   protected name: string;
+  
 
   constructor(
     parameters: LightServiceParameters,
@@ -164,6 +165,10 @@ export class LightService {
     });
   }
 
+  public get detailedLogging() {
+    return this.light.detailedLogging;
+  }
+
   public updateName(value: string) {
     this.log("Ingoring updateName", value);
     // this.name = value;
@@ -195,7 +200,11 @@ export class LightService {
   };
 
   public debug = (message?: unknown, ...optionalParameters: unknown[]): void => {
-    this.platform.log.debug(`${this.logPrefix} ${message}`, optionalParameters);
+    if (this.light.detailedLogging) {
+      this.platform.log.info(`${this.logPrefix} ${message}`, optionalParameters);
+    } else {
+      this.platform.log.debug(`${this.logPrefix} ${message}`, optionalParameters);
+    }
   };
 
   protected get config(): OverrideLightConfiguration {
@@ -297,7 +306,7 @@ export class LightService {
       if (prefix == "bg") {
         this.setAttributes({ bg_power: true });
       } else {
-        this.setAttributes({ power: true });
+        this.setAttributes({ power: true, active_mode: mode == POWERMODE_MOON ? 1 : 0 });
       }
     }
   }

@@ -62,7 +62,7 @@ interface Deferred<T> {
  */
 export class YeeAccessory {
   private services: ConcreteLightService[] = [];
-  private detailedLogging = false;
+  private _detailedLogging = false;
   public connected: boolean;
   public name: string;
   public readonly specs: Specs;
@@ -90,6 +90,10 @@ export class YeeAccessory {
     const a = new YeeAccessory(platform, device, accessory, ambientAccessory);
     YeeAccessory.handledAccessories.set(device.info.id, a);
     return a;
+  }
+
+  public get detailedLogging() {
+    return this._detailedLogging;
   }
 
   private constructor(
@@ -138,7 +142,7 @@ export class YeeAccessory {
       specs.nightLight = overrideConfig.nightLight;
     }
     this.specs = specs;
-    this.detailedLogging = !!overrideConfig?.log;
+    this._detailedLogging = !!overrideConfig?.log;
 
     this.connectDevice(this.device);
 
@@ -257,9 +261,7 @@ export class YeeAccessory {
     this.transactions.delete(id);
     if (result && result.length === 1 && result[0] === "ok") {
       this.connected = true;
-      if (this.detailedLogging) {
-        this.log(`received ${id}: OK`);
-      }
+      this.debug(`received ${id}: OK`);
       transaction?.resolve();
       // simple ok
     } else if (result && result.length > 3) {
@@ -426,9 +428,7 @@ export class YeeAccessory {
       this.warn(`sending ${method} although unsupported.`);
     }
     const id = this.lastCommandId + 1;
-    if (this.detailedLogging) {
-      this.log(`sendCommand(${id}, ${method}, ${JSON.stringify(parameters)})`);
-    }
+    this.debug(`sendCommand(${id}, ${method}, ${JSON.stringify(parameters)})`);
     this.device.sendCommand({ id, method, params: parameters });
     this.lastCommandId = id;
     return id;
@@ -438,10 +438,7 @@ export class YeeAccessory {
     return new Promise((resolve, reject) => {
       const timestamp = Date.now();
       const id = this.sendCommand(method, parameters);
-      if (this.detailedLogging) {
-        this.log(`sent command ${id}: ${method}`, parameters
-        );
-      }
+      this.debug(`sent command ${id}: ${method}`, parameters);
       this.transactions.set(id, { resolve, reject, timestamp });
     });
   }
