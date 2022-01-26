@@ -263,16 +263,25 @@ export class LightService {
     this.updateCharacteristic(this.platform.Characteristic.On, false);
   };
 
+  protected async sendCommandPromiseWithErrorHandling(method: string, parameters: Array<string | number | boolean>): Promise<void> {
+    try {
+      await this.light.sendCommandPromise(method, parameters);
+    } catch (error) {
+      // catch all errors so Homebridge doesn't crash
+      this.warn("Command failed", error);
+    }
+  }
+
   protected async sendCommand(method: string, parameters: Array<string | number | boolean>): Promise<void> {
-    return this.light.sendCommandPromise(method, parameters);
+    return this.sendCommandPromiseWithErrorHandling(method, parameters);
   }
 
   protected async sendSuddenCommand(method: string, parameter: string | number | boolean) {
-    return this.light.sendCommandPromise(method, [parameter, "sudden", 0]);
+    return this.sendCommandPromiseWithErrorHandling(method, [parameter, "sudden", 0]);
   }
 
   protected async sendSmoothCommand(method: string, parameter: string | number | boolean) {
-    return this.light.sendCommandPromise(method, [parameter, "smooth", 500]);
+    return this.sendCommandPromiseWithErrorHandling(method, [parameter, "smooth", 500]);
   }
 
   protected saveDefaultIfNeeded() {
