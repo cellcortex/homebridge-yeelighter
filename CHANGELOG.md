@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.1](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.0...v2.4.1) (2022-01-26)
+
+
+### Features
+
+* add support for color4 and lamp9 ([3f7e4ce](https://github.com/cellcortex/homebridge-yeelighter/commit/3f7e4cead95032211a3a0fc22a229932ee7333b7)), closes [#93](https://github.com/cellcortex/homebridge-yeelighter/issues/93) [#96](https://github.com/cellcortex/homebridge-yeelighter/issues/96)
+
 ## [2.4.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.0-beta.0...v2.4.0) (2022-01-26)
 
 ## [2.4.0-beta.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.3.18...v2.4.0-beta.0) (2021-12-31)
