@@ -30,7 +30,7 @@ export class WhiteLightService extends LightService implements ConcreteLightServ
           this.setAttributes({ power: true, bright: value });
           this.saveDefaultIfNeeded();
         } else {
-          await this.sendSmoothCommand("set_power", "off");
+          await this.sendSuddenCommand("set_power", "off");
           this.setAttributes({ power: false, bright: 0 });
         }
       },
