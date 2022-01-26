@@ -478,6 +478,7 @@ export class YeeAccessory {
 
   async requestAttributes() {
     this.queryTimestamp = Date.now();
+    // do not await. We handle the resolve/reject in onDeviceUpdate
     this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
     this.debug(`requesting attributes. Transactions: ${this.transactions.size}`);
   }

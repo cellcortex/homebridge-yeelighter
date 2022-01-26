@@ -217,6 +217,7 @@ export class LightService {
   }
 
   public async getAttribute<U extends keyof Attributes>(attribute: U) {
+    // this should never throw
     const a = await this.attributes();
     return a[attribute];
   }

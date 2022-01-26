@@ -200,5 +200,12 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     backgroundLight: false,
     name: "Desk Lamp",
     color: false
+  },
+  ceila: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "A2001 Ceiling Light",
+    color: false    
   }
 };
