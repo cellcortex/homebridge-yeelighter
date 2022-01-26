@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.3](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.2...v2.4.3) (2022-01-26)
+
+
+### Bug Fixes
+
+* catch errors so Hoembridge doesn't carash with: UnhandledPromiseRejection ([de120dc](https://github.com/cellcortex/homebridge-yeelighter/commit/de120dcf5c34d5fb805d5bcc0b1a393897eafa84))
+
 ### [2.4.2](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.1...v2.4.2) (2022-01-26)
 
 
