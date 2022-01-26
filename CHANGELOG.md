@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.4](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.3...v2.4.4) (2022-01-26)
+
+
+### Bug Fixes
+
+* properly store moonlight brightness when set ([eba6e0e](https://github.com/cellcortex/homebridge-yeelighter/commit/eba6e0e295c14e0a6c14722247c8e98c75b160b2))
+
 ### [2.4.3](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.2...v2.4.3) (2022-01-26)
 
 
