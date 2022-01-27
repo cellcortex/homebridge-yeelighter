@@ -283,7 +283,9 @@ export class YeeAccessory {
         const index = TRACKED_ATTRIBUTES.indexOf(key);
         switch (typeof EMPTY_ATTRIBUTES[key]) {
           case "number":
-            newAttributes[key] = Number(result[index]);
+            if (!Number.isNaN(Number(result[index]))) {
+              newAttributes[key] = Number(result[index]);
+            }
             break;
           case "boolean":
             newAttributes[key] = result[index] === "on";

@@ -36,7 +36,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         return attributes.power;
       },
       async value => {
-        if (this.config.ignorePower) {
+        if (this.config.ignorePower && value) {
           this.log(`Ignoring explicit power on`);
         } else {
           this.debug("Manual power setting", value);
