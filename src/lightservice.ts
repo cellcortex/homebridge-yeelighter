@@ -265,6 +265,14 @@ export class LightService {
     if (!characteristic) {
       return Promise.reject();
     }
+    if (Number.isNaN(value)) {
+      this.error("updateCharacteristic value is NaN");
+      return Promise.reject();
+    }
+    if (value === undefined) {
+      this.error("updateCharacteristic value is undefined");
+      return Promise.reject();
+    }
     characteristic.updateValue(value);
   }
 
