@@ -36,15 +36,16 @@ export interface ColorTemperatureConfiguration {
   min: number;
   max: number;
 }
-
-function timeout(ms: number): Promise<void> {
-  return new Promise((resolve, reject) => {
+/*
+function timeout(ms: number): Promise<string> {
+  return new Promise((_resolve, reject) => {
     const id = setTimeout(() => {
       clearTimeout(id);
       reject("timeout");
     }, ms);
   });
 }
+*/
 
 const nameCount = new Map<string, number>();
 
@@ -229,10 +230,17 @@ export class YeeAccessory {
       }
       // this promise will be awaited for by everybody entering here while a request is still in the air
       if (this.updatePromise && this.connected) {
+        const timeout = (prom: Promise<string[]>, time: number) => {
+          let timer: ReturnType<typeof setTimeout>;
+          return Promise.race([
+            prom,
+            new Promise((_resolve, reject) => timer = setTimeout(reject, time))
+          ]).finally(() => clearTimeout(timer));
+        }
         try {
-          await Promise.race([this.updatePromise, timeout(this.config?.timeout)]);
+          await timeout(this.updatePromise, this.config?.timeout || 60_000);
         } catch (error) {
-          this.log("retrieving attributes failed. Using last attributes.", error);
+          this.warn("retrieving attributes failed. Using last attributes.", error);
         }
       }
     }
