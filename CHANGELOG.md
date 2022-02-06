@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.10](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.9...v2.4.10) (2022-02-06)
+
+
+### Bug Fixes
+
+* clear timeout to reduce load ([d15b898](https://github.com/cellcortex/homebridge-yeelighter/commit/d15b898052b6e62032e08a84c328de9e7cc7bca6))
+* do not set NaN values ([856b185](https://github.com/cellcortex/homebridge-yeelighter/commit/856b185572ce54616a84123709a8ef3e804a0aa1))
+
 ### [2.4.9](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.8...v2.4.9) (2022-01-27)
 
 
