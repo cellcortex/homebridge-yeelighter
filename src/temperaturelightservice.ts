@@ -69,7 +69,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
                 this.debug("Moonlight off");
                 
               }
-              valueToSet = (value - 50) * 2;
+              valueToSet = value == 50 ? 1 : (value - 50) * 2;
             }
           }
           this.log(`set brightness ${value} (translated to ${valueToSet})`);
