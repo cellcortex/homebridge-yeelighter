@@ -39,8 +39,14 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         if (this.config.ignorePower && value) {
           this.log(`Ignoring explicit power on`);
         } else {
-          this.debug("Manual power setting", value);
-          await this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, this.powerMode || POWERMODE_CT]);
+          this.debug(`Manual power setting with powerMode: ${this.powerMode}`, value);
+          // eslint-disable-next-line unicorn/prefer-ternary
+          if (value) {
+            await this.sendCommand("set_power", ["on", "sudden", 0, this.powerMode || POWERMODE_CT]);
+          } else {
+            await this.sendCommand("set_power", ["off", "smooth", 500]);
+          }
+        
           this.powerMode ||= POWERMODE_CT;
           this.setAttributes({ power: value });
       }
@@ -59,17 +65,17 @@ export class TemperatureLightService extends LightService implements ConcreteLig
             if (value < 50) {
               if (this.powerMode !== 5) {
                 await this.ensurePowerMode(POWERMODE_MOON);
-                this.debug("Moonlight on");
+                this.debug("Moonlight", "on");
                 
               }
               valueToSet = value * 2;
             } else {
               if (this.powerMode !== 1) {
                 await this.ensurePowerMode(POWERMODE_CT);
-                this.debug("Moonlight off");
+                this.debug("Moonlight", "off");
                 
               }
-              valueToSet = value == 50 ? 1 : (value - 50) * 2;
+              valueToSet = Math.max(1, (value - 50) * 2);
             }
           }
           this.log(`set brightness ${value} (translated to ${valueToSet})`);
