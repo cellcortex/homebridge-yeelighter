@@ -252,7 +252,7 @@ export class LightService {
       }
     });
     characteristic.on("set", async (value, callback) => {
-      if (this.light.connected) {
+      if (this.light.connected && Number.isFinite(value)) {
         await setter(value);
       }
       callback();
