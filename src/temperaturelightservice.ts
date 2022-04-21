@@ -29,11 +29,16 @@ export class TemperatureLightService extends LightService implements ConcreteLig
   }
 
   private timer?: NodeJS.Timeout;
+  private blocker = false;
 
   protected async sendDebouncedPower(mode?: number) {
     if (this.timer) {
       this.debug("aborting prior power command");
       clearTimeout(this.timer);
+    }
+    if (this.blocker) {
+      this.debug("found blocker when setting manual power");
+      return;
     }
     this.timer = setTimeout(() => {
       this.debug("sending power command", mode);
@@ -58,8 +63,10 @@ export class TemperatureLightService extends LightService implements ConcreteLig
     if (mode === undefined) {
       await this.sendCommand("set_power", ["off", "smooth", 500]);
     } else {
+      this.powerMode = mode;
       await this.sendCommand("set_power", ["on", "sudden", 0, mode]);
-      this.powerMode = mode;    
+      this.blocker = true;
+      setTimeout(() => {this.blocker = false;}, 1000);
     }
   }
 
