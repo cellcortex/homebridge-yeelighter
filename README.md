@@ -3,8 +3,8 @@
   <a href="https://www.npmjs.com/package/homebridge-yeelighter" target="_blank">
     <img alt="Version" src="https://img.shields.io/npm/v/homebridge-yeelighter.svg">
   </a>
-  <img src="https://img.shields.io/badge/node-%3E%3D10.0.0-blue.svg" />
-  <img src="https://img.shields.io/badge/homebridge-%3E%3D0.2.0-blue.svg" />
+  <img src="https://img.shields.io/badge/node-%3E%3D16.0.0-blue.svg" />
+  <img src="https://img.shields.io/badge/homebridge-%3E%3D1.4.0-blue.svg" />
   <a href="#" target="_blank">
     <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
   </a>
