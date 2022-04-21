@@ -36,16 +36,7 @@ export interface ColorTemperatureConfiguration {
   min: number;
   max: number;
 }
-/*
-function timeout(ms: number): Promise<string> {
-  return new Promise((_resolve, reject) => {
-    const id = setTimeout(() => {
-      clearTimeout(id);
-      reject("timeout");
-    }, ms);
-  });
-}
-*/
+
 
 const nameCount = new Map<string, number>();
 
