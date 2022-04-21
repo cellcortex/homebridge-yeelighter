@@ -206,6 +206,13 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     nightLight: true,
     backgroundLight: false,
     name: "A2001 Ceiling Light",
-    color: false    
+    color: false
+  },
+  ceilc: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: true,
+    name: "Arwen Ceiling Light 550C",
+    color: false
   }
 };
