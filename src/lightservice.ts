@@ -93,6 +93,19 @@ export function convertColorTemperature(value: number): number {
   return Math.round(1_000_000 / value);
 }
 
+export function isValidValue(value: unknown) {
+  switch (typeof value) {
+    case "boolean":
+      return true;
+    case "number":
+      return Number.isFinite(value);
+    case "string":
+      return true;
+    default:
+      return false;
+  }
+}
+
 export interface ConcreteLightService {
   service: Service;
   onAttributesUpdated: (newAttributes: Attributes) => void;
@@ -252,8 +265,10 @@ export class LightService {
       }
     });
     characteristic.on("set", async (value, callback) => {
-      if (this.light.connected && Number.isFinite(value)) {
+      if (this.light.connected && isValidValue(value)) {
         await setter(value);
+      } else {
+        this.log(`failed to set to value`, value)
       }
       callback();
     });
@@ -265,15 +280,11 @@ export class LightService {
     if (!characteristic) {
       return Promise.reject();
     }
-    if (Number.isNaN(value)) {
-      this.error("updateCharacteristic value is NaN");
-      return Promise.reject();
+    if (isValidValue(value)) {
+      characteristic.updateValue(value);
+    } else {
+      this.error("updateCharacteristic value is not finite", value);
     }
-    if (value === undefined) {
-      this.error("updateCharacteristic value is undefined");
-      return Promise.reject();
-    }
-    characteristic.updateValue(value);
   }
 
   public onPowerOff = () => {
