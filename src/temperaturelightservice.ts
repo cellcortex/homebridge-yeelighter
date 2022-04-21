@@ -28,6 +28,41 @@ export class TemperatureLightService extends LightService implements ConcreteLig
     }
   }
 
+  private timer?: NodeJS.Timeout;
+
+  protected async sendDebouncedPower(mode?: number) {
+    if (this.timer) {
+      this.debug("aborting prior power command");
+      clearTimeout(this.timer);
+    }
+    this.timer = setTimeout(() => {
+      this.debug("sending power command", mode);
+      if (mode === undefined) {
+        this.sendCommand("set_power", ["off", "smooth", 500]);
+      } else {
+        this.sendCommand("set_power", ["on", "sudden", 0, mode]);
+        this.powerMode = mode;
+      }
+      delete this.timer;
+    }, 500)
+  }
+
+  protected async sendDebouncedPowerOverride(mode?: number) {
+    if (this.timer) {
+      this.debug("aborting prior power command");
+      clearTimeout(this.timer);
+    }
+    delete this.timer;
+    this.debug("sending override power command", mode);
+    // eslint-disable-next-line unicorn/prefer-ternary
+    if (mode === undefined) {
+      await this.sendCommand("set_power", ["off", "smooth", 500]);
+    } else {
+      await this.sendCommand("set_power", ["on", "sudden", 0, mode]);
+      this.powerMode = mode;    
+    }
+  }
+
   private async installHandlers() {
     this.handleCharacteristic(
       this.platform.Characteristic.On,
@@ -48,7 +83,6 @@ export class TemperatureLightService extends LightService implements ConcreteLig
             this.sendDebouncedPower();
           }
         
-          this.powerMode ||= POWERMODE_CT;
           this.setAttributes({ power: value });
       }
         // this.updateCharacteristic(this.platform.Characteristic.On, value);
@@ -64,15 +98,15 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           let valueToSet = value;
           if (this.specs.nightLight) {
             if (value < 50) {
-              if (this.powerMode !== 5) {
-                this.sendDebouncedPowerOverride(POWERMODE_MOON);
+              if (this.powerMode !== POWERMODE_MOON) {
+                await this.sendDebouncedPowerOverride(POWERMODE_MOON);
                 this.debug("Moonlight", "on");
                 
               }
               valueToSet = value * 2;
             } else {
-              if (this.powerMode !== 1) {
-                this.sendDebouncedPowerOverride(POWERMODE_CT);
+              if (this.powerMode !== POWERMODE_CT) {
+                await this.sendDebouncedPowerOverride(POWERMODE_CT);
                 this.debug("Moonlight", "off");
                 
               }
