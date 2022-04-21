@@ -9,6 +9,16 @@ import {
   ConcreteLightService,
 } from "./lightservice";
 
+
+
+function timeout(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+}
+
 export class TemperatureLightService extends LightService implements ConcreteLightService {
   constructor(parameters: LightServiceParameters) {
     super(parameters);
@@ -65,14 +75,14 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           if (this.specs.nightLight) {
             if (value < 50) {
               if (this.powerMode !== 5) {
-                this.sendDebouncedPower(POWERMODE_MOON);
+                this.sendDebouncedPowerOverride(POWERMODE_MOON);
                 this.debug("Moonlight", "on");
                 
               }
               valueToSet = value * 2;
             } else {
               if (this.powerMode !== 1) {
-                this.sendDebouncedPower(POWERMODE_CT);
+                this.sendDebouncedPowerOverride(POWERMODE_CT);
                 this.debug("Moonlight", "off");
                 
               }
@@ -89,7 +99,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           // this.updateCharacteristic(this.platform.Characteristic.Brightness, this.getBrightness(valueToSet));
         } else {
           this.log(`set brightness to 0, power off`);
-          await this.sendDebouncedPower();
+          await this.sendDebouncedPowerOverride();
         }
         this.saveDefaultIfNeeded();
       },

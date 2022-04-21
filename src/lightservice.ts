@@ -304,9 +304,11 @@ export class LightService {
 
   protected async sendDebouncedPower(mode?: number) {
     if (this.timer) {
+      this.debug("aborting prior power command");
       clearTimeout(this.timer);
     }
     this.timer = setTimeout(() => {
+      this.debug("sending power command", mode);
       if (mode === undefined) {
         this.sendCommand("set_power", ["off", "smooth", 500]);
       } else {
@@ -314,6 +316,21 @@ export class LightService {
       }
       delete this.timer;
     }, 500)
+  }
+
+  protected async sendDebouncedPowerOverride(mode?: number) {
+    if (this.timer) {
+      this.debug("aborting prior power command");
+      clearTimeout(this.timer);
+    }
+    delete this.timer;
+    this.debug("sending power command", mode);
+    // eslint-disable-next-line unicorn/prefer-ternary
+    if (mode === undefined) {
+      await this.sendCommand("set_power", ["off", "smooth", 500]);
+    } else {
+      await this.sendCommand("set_power", ["on", "sudden", 0, mode]);
+    }
   }
 
   protected async sendCommand(method: string, parameters: Array<string | number | boolean>): Promise<void> {
