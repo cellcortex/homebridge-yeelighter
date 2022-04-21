@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.18](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.17...v2.4.18) (2022-04-21)
+
+
+### Bug Fixes
+
+* temperaturelight power mode was not awaited ([d733bd3](https://github.com/cellcortex/homebridge-yeelighter/commit/d733bd318c5ff53cedf23ece80cefc20e42fe347))
+
 ### [2.4.17](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.16...v2.4.17) (2022-04-21)
 
 
