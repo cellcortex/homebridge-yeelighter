@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.22](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.21...v2.4.22) (2022-04-21)
+
+
+### Features
+
+* added support for Monitor Hanging Light ([05332fd](https://github.com/cellcortex/homebridge-yeelighter/commit/05332fdc11ae591ae3a69dac9a211b9a6f0004c1))
+
 ### [2.4.21](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.20...v2.4.21) (2022-04-21)
 
 
