@@ -9,16 +9,6 @@ import {
   ConcreteLightService,
 } from "./lightservice";
 
-
-
-function timeout(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, ms);
-  });
-}
-
 export class TemperatureLightService extends LightService implements ConcreteLightService {
   constructor(parameters: LightServiceParameters) {
     super(parameters);
