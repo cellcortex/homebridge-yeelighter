@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.17](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.16...v2.4.17) (2022-04-21)
+
+
+### Bug Fixes
+
+* debounce temperature light ([14a5bc3](https://github.com/cellcortex/homebridge-yeelighter/commit/14a5bc325f882605cd9204f3bb4611406f7e0095))
+* debounce temperature light ([f47d215](https://github.com/cellcortex/homebridge-yeelighter/commit/f47d215feed9628e211dd8aa2de4797dec243faf))
+
 ### [2.4.16](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.15...v2.4.16) (2022-04-21)
 
 
