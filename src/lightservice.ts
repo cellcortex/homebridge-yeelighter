@@ -261,16 +261,17 @@ export class LightService {
       if (this.light.connected) {
         callback(undefined, await getter());
       } else {
-        callback(undefined, "light disconnected");
+        callback(new Error("light disconnected"));
       }
     });
     characteristic.on("set", async (value, callback) => {
       if (this.light.connected && isValidValue(value)) {
         await setter(value);
+        callback();
       } else {
-        this.log(`failed to set to value`, value)
+        this.log(`failed to set to value`, value, this.light.connected);
+        callback(new Error("light disconnected or invalid value"));
       }
-      callback();
     });
     return characteristic;
   }
