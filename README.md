@@ -24,8 +24,8 @@ If a light supports a background light, it will show up as a secondary service i
 
 ## Prerequisites
 
-- node >=16.6.0
-- homebridge >=1.0.0
+- node ^16.14.2
+- homebridge ^1.4.0
 
 ## Installation
 
