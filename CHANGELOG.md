@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.20](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.19...v2.4.20) (2022-04-21)
+
+
+### Bug Fixes
+
+* [#99](https://github.com/cellcortex/homebridge-yeelighter/issues/99) characteristics are reported with NaN when disconnected ([9ef967e](https://github.com/cellcortex/homebridge-yeelighter/commit/9ef967efd3090eca116e18b2b10d42037a485b61))
+
 ### [2.4.19](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.18...v2.4.19) (2022-04-21)
 
 

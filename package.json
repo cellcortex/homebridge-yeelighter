@@ -1,7 +1,7 @@
 {
   "name": "homebridge-yeelighter",
   "displayName": "Yeelighter",
-  "version": "2.4.19",
+  "version": "2.4.20",
   "description": "Yeelight support for Homebridge with particular support of ceiling lights",
   "license": "MIT",
   "keywords": [
