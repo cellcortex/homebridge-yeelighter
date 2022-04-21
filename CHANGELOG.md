@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.19](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.18...v2.4.19) (2022-04-21)
+
+
+### Bug Fixes
+
+* add blocking of manual power when moonlight mode ([ccab07f](https://github.com/cellcortex/homebridge-yeelighter/commit/ccab07f925f94a03e1f2a0b781cd8a7e16e6fc72))
+
 ### [2.4.18](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.17...v2.4.18) (2022-04-21)
 
 
