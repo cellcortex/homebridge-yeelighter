@@ -42,9 +42,10 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           this.debug(`Manual power setting with powerMode: ${this.powerMode}`, value);
           // eslint-disable-next-line unicorn/prefer-ternary
           if (value) {
-            await this.sendCommand("set_power", ["on", "sudden", 0, this.powerMode || POWERMODE_CT]);
+            this.sendDebouncedPower(this.powerMode || POWERMODE_CT);
+            // await this.sendCommand("set_power", ["on", "sudden", 0, this.powerMode || POWERMODE_CT]);
           } else {
-            await this.sendCommand("set_power", ["off", "smooth", 500]);
+            this.sendDebouncedPower();
           }
         
           this.powerMode ||= POWERMODE_CT;
@@ -64,14 +65,14 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           if (this.specs.nightLight) {
             if (value < 50) {
               if (this.powerMode !== 5) {
-                await this.ensurePowerMode(POWERMODE_MOON);
+                this.sendDebouncedPower(POWERMODE_MOON);
                 this.debug("Moonlight", "on");
                 
               }
               valueToSet = value * 2;
             } else {
               if (this.powerMode !== 1) {
-                await this.ensurePowerMode(POWERMODE_CT);
+                this.sendDebouncedPower(POWERMODE_CT);
                 this.debug("Moonlight", "off");
                 
               }
@@ -88,7 +89,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           // this.updateCharacteristic(this.platform.Characteristic.Brightness, this.getBrightness(valueToSet));
         } else {
           this.log(`set brightness to 0, power off`);
-          await this.sendSuddenCommand("set_power", "off");
+          await this.sendDebouncedPower();
         }
         this.saveDefaultIfNeeded();
       },

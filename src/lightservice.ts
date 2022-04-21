@@ -300,6 +300,22 @@ export class LightService {
     }
   }
 
+  private timer?: NodeJS.Timeout;
+
+  protected async sendDebouncedPower(mode?: number) {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+    this.timer = setTimeout(() => {
+      if (mode === undefined) {
+        this.sendCommand("set_power", ["off", "smooth", 500]);
+      } else {
+        this.sendCommand("set_power", ["on", "sudden", 0, mode]);
+      }
+      delete this.timer;
+    }, 500)
+  }
+
   protected async sendCommand(method: string, parameters: Array<string | number | boolean>): Promise<void> {
     return this.sendCommandPromiseWithErrorHandling(method, parameters);
   }
