@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.5.0-beta.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.24...v2.5.0-beta.0) (2022-04-22)
+
+
+### Features
+
+* Adaptive Lightning for TemperatureLights ([f280883](https://github.com/cellcortex/homebridge-yeelighter/commit/f28088347c98ca40de3c5e9e26aadcb0821bae8d))
+
 ### [2.4.24](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.23...v2.4.24) (2022-04-22)
 
 
