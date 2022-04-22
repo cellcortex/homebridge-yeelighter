@@ -328,8 +328,8 @@ export class YeeAccessory {
     this.connected = true;
     this.log(`${this.info.model} Connected`);
     this.requestAttributes();
-    if (this.config.interval !== 0) {
-      this.interval = setInterval(this.onInterval, this.config.interval || 60_000);
+    if (this.platform.config.interval !== 0) {
+      this.interval = setInterval(this.onInterval, this.platform.config.interval || 60_000);
     }
   };
 
