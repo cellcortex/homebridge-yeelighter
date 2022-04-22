@@ -341,7 +341,7 @@ export class YeeAccessory {
         this.attributes.power = false;
         this.attributes.bg_power = false;
         this.log("configured to mark as powered-off when disconnected");
-        for (const service of this.services)  service.onPowerOff();
+        for (const service of this.services) service.onPowerOff();
       }
       if (this.updateReject) {
         this.updateReject();
@@ -461,7 +461,7 @@ export class YeeAccessory {
       const updateThreshold = (this.config?.timeout || 5000) + (this.config?.interval || 60_000) / 1000;
       if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
         this.log(`No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.config?.timeout}+${this.config?.interval}) => switching to unreachable`);
-        this.connected = false;
+        this.onDeviceDisconnected();  
       } else {
         this.requestAttributes();
       }
