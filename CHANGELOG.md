@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.23](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.22...v2.4.23) (2022-04-22)
+
+
+### Bug Fixes
+
+* uuid error message at start ([910b0f7](https://github.com/cellcortex/homebridge-yeelighter/commit/910b0f7ac282dfaaf7b8dbb720e958a59138e2d5))
+
 ### [2.4.22](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.21...v2.4.22) (2022-04-21)
 
 
