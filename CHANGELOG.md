@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.24](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.23...v2.4.24) (2022-04-22)
+
+
+### Bug Fixes
+
+* [#89](https://github.com/cellcortex/homebridge-yeelighter/issues/89) Interval setting ignored, still polling for updates every 1 minute ([91d97b7](https://github.com/cellcortex/homebridge-yeelighter/commit/91d97b7e03ed8081ed5a9c0f1af525d787d35eed))
+
 ### [2.4.23](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.4.22...v2.4.23) (2022-04-22)
 
 
