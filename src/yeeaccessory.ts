@@ -229,7 +229,7 @@ export class YeeAccessory {
           ]).finally(() => clearTimeout(timer));
         }
         try {
-          await timeout(this.updatePromise, this.config?.timeout || 60_000);
+          await timeout(this.updatePromise, this.platform.config.timeout || 60_000);
         } catch (error) {
           this.warn("retrieving attributes failed. Using last attributes.", error);
         }
@@ -456,11 +456,12 @@ export class YeeAccessory {
   }
 
   private onInterval = () => {
+    this.log("Interval Update")
     if (this.connected) {
       const updateSince = (Date.now() - this.updateTimestamp) / 1000;
-      const updateThreshold = ((this.config?.timeout || 5000) + (this.config?.interval || 60_000)) / 1000;
+      const updateThreshold = ((this.platform.config.timeout || 5000) + (this.platform.config.interval || 60_000)) / 1000;
       if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
-        this.log(`No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.config?.timeout}+${this.config?.interval}) => switching to unreachable`);
+        this.log(`No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.platform.config.timeout}+${this.platform.config.interval}) => switching to unreachable`);
         this.onDeviceDisconnected();
       } else {
         this.requestAttributes();

@@ -40,7 +40,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
         this.saveDefaultIfNeeded();
       },
       );
-    if (this.config.ctforcolor === undefined || this.config.ctforcolor) {
+    if (this.platform.config.ctforcolor === undefined || this.platform.config.ctforcolor) {
       const characteristic = this.handleCharacteristic(
         this.platform.Characteristic.ColorTemperature,
         async () => {
