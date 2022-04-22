@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.5.2](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.1...v2.5.2) (2022-04-22)
+
+
+### Bug Fixes
+
+* ColorTemperature was not initialized before enabling Adaptive Lighting ([5bde5cf](https://github.com/cellcortex/homebridge-yeelighter/commit/5bde5cf3b716d9febf7a69e2c4eb4ea8db02bb31))
+
 ### [2.5.1](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.0...v2.5.1) (2022-04-22)
 
 
