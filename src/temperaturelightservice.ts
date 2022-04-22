@@ -16,10 +16,11 @@ export class TemperatureLightService extends LightService implements ConcreteLig
   constructor(parameters: LightServiceParameters) {
     super(parameters);
     this.service.displayName = "Temperature Light";
+    this.installHandlers();
     this.adaptiveLightingController = new this.platform.AdaptiveLightingController(this.service, {
       controllerMode: AdaptiveLightingControllerMode.AUTOMATIC 
     });
-    this.installHandlers();
+    this.accessory.configureController(this.adaptiveLightingController);
   }
 
   private getBrightness(attributes): number {
@@ -163,7 +164,6 @@ export class TemperatureLightService extends LightService implements ConcreteLig
       maxValue: convertColorTemperature(this.specs.colorTemperature.min),
       minValue: convertColorTemperature(this.specs.colorTemperature.max),
     });
-    this.accessory.configureController(this.adaptiveLightingController);
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
