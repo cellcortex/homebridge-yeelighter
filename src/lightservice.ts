@@ -248,14 +248,14 @@ export class LightService {
     this.light.setAttributes(attributes);
   }
 
-  protected async handleCharacteristic(
+  protected handleCharacteristic(
     uuid: any,
     getter: () => Promise<any>,
     setter: (value: any) => void,
-  ): Promise<Characteristic> {
+  ): Characteristic {
     const characteristic = this.service.getCharacteristic(uuid);
     if (!characteristic) {
-      return Promise.reject();
+      throw new Error("Could not get Characteristic");
     }
     characteristic.on("get", async callback => {
       if (this.light.connected) {

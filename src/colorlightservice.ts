@@ -37,7 +37,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
       },
     );
     if (this.config.ctforcolor) {
-      const characteristic = await this.handleCharacteristic(
+      const characteristic = this.handleCharacteristic(
         this.platform.Characteristic.ColorTemperature,
         async () => {
           const attributes = await this.attributes();

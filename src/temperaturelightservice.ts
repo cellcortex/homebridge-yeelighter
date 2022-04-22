@@ -20,7 +20,6 @@ export class TemperatureLightService extends LightService implements ConcreteLig
       controllerMode: AdaptiveLightingControllerMode.AUTOMATIC 
     });
     this.installHandlers();
-    this.accessory.configureController(this.adaptiveLightingController);
   }
 
   private getBrightness(attributes): number {
@@ -141,7 +140,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         this.saveDefaultIfNeeded();
       },
     );
-    const characteristic = await this.handleCharacteristic(
+    const characteristic = this.handleCharacteristic(
       this.platform.Characteristic.ColorTemperature,
       async () => {
         const attributes = await this.attributes();
@@ -164,6 +163,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
       maxValue: convertColorTemperature(this.specs.colorTemperature.min),
       minValue: convertColorTemperature(this.specs.colorTemperature.max),
     });
+    this.accessory.configureController(this.adaptiveLightingController);
   }
 
   public onAttributesUpdated = (newAttributes: Attributes) => {
