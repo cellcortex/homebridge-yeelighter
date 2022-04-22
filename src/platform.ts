@@ -71,6 +71,11 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   // called when a Yeelight has responded to the discovery query
   private onDeviceDiscovery = (detectedInfo: DeviceInfo) => {
     try {
+      if (!detectedInfo.id) {
+        this.log.error("Discovered Device with corrupt DeviceInfo", detectedInfo);
+        return;
+      }
+
       const trackedAttributes = TRACKED_ATTRIBUTES; // .filter(attribute => supportedAttributes.includes(attribute));
 
       const override: OverrideLightConfiguration[] = this.config.override as OverrideLightConfiguration[] || [];
