@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.5.4](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.3...v2.5.4) (2022-04-22)
+
+
+### Bug Fixes
+
+* [#37](https://github.com/cellcortex/homebridge-yeelighter/issues/37) offOnDisconnect not working ([9bc0236](https://github.com/cellcortex/homebridge-yeelighter/commit/9bc023613bdc99ef6d5acbcdbfe9cf4760e7c025))
+
 ### [2.5.3](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.2...v2.5.3) (2022-04-22)
 
 
