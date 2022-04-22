@@ -73,7 +73,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   private onDeviceDiscovery = (detectedInfo: DeviceInfo) => {
     try {
       if (!detectedInfo.id) {
-        this.log.error("Discovered Device with corrupt DeviceInfo", detectedInfo);
+        this.log.warn("ingoring device with corrupt DeviceInfo", detectedInfo);
         return;
       }
 

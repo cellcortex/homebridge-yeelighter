@@ -19,9 +19,8 @@ export class TemperatureLightService extends LightService implements ConcreteLig
     this.adaptiveLightingController = new this.platform.AdaptiveLightingController(this.service, {
       controllerMode: AdaptiveLightingControllerMode.AUTOMATIC 
     });
-    this.accessory.configureController(this.adaptiveLightingController);
-
     this.installHandlers();
+    this.accessory.configureController(this.adaptiveLightingController);
   }
 
   private getBrightness(attributes): number {
