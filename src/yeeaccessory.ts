@@ -458,10 +458,10 @@ export class YeeAccessory {
   private onInterval = () => {
     if (this.connected) {
       const updateSince = (Date.now() - this.updateTimestamp) / 1000;
-      const updateThreshold = (this.config?.timeout || 5000) + (this.config?.interval || 60_000) / 1000;
+      const updateThreshold = ((this.config?.timeout || 5000) + (this.config?.interval || 60_000)) / 1000;
       if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
         this.log(`No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.config?.timeout}+${this.config?.interval}) => switching to unreachable`);
-        this.onDeviceDisconnected();  
+        this.onDeviceDisconnected();
       } else {
         this.requestAttributes();
       }
