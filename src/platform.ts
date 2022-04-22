@@ -26,6 +26,7 @@ interface ManualOverride {
 export class YeelighterPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+  public readonly AdaptiveLightingController = this.api.hap.AdaptiveLightingController;
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];

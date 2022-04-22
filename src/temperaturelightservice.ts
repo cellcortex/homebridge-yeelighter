@@ -1,5 +1,7 @@
+
+import { AdaptiveLightingController, AdaptiveLightingControllerMode } from "homebridge";
 import {
-  LightServiceParameters as LightServiceParameters,
+  LightServiceParameters,
   LightService,
   POWERMODE_CT,
   POWERMODE_MOON,
@@ -10,9 +12,14 @@ import {
 } from "./lightservice";
 
 export class TemperatureLightService extends LightService implements ConcreteLightService {
+  private adaptiveLightingController: AdaptiveLightingController;
   constructor(parameters: LightServiceParameters) {
     super(parameters);
     this.service.displayName = "Temperature Light";
+    this.adaptiveLightingController = new this.platform.AdaptiveLightingController(this.service, {
+      controllerMode: AdaptiveLightingControllerMode.AUTOMATIC 
+    });
+    this.accessory.configureController(this.adaptiveLightingController);
 
     this.installHandlers();
   }
