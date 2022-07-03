@@ -456,7 +456,6 @@ export class YeeAccessory {
   }
 
   private onInterval = () => {
-    this.log("Interval Update")
     if (this.connected) {
       const updateSince = (Date.now() - this.updateTimestamp) / 1000;
       const updateThreshold = ((this.platform.config.timeout || 5000) + (this.platform.config.interval || 60_000)) / 1000;
