@@ -1,7 +1,6 @@
 import {
   LightServiceParameters,
   LightService,
-  POWERMODE_HSV,
   POWERMODE_CT,
   convertColorTemperature,
   powerModeFromColorModeAndActiveMode,
@@ -22,7 +21,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
     this.handleCharacteristic(
       this.platform.Characteristic.On,
       async () => this.getAttribute("bg_power"),
-      value => this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, POWERMODE_HSV]),
+      value => this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, -1]),
     );
     this.handleCharacteristic(
       this.platform.Characteristic.Brightness,
