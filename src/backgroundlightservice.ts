@@ -21,7 +21,20 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
     this.handleCharacteristic(
       this.platform.Characteristic.On,
       async () => this.getAttribute("bg_power"),
-      value => this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, -1]),
+      async (value) => {
+        if(value) {
+          if(!this.lastSat) {
+            this.lastSat = await this.getAttribute("bg_sat");
+          }
+          if(!this.lastHue) {
+            this.lastHue = await this.getAttribute("bg_hue");
+          }
+          await this.sendCommand("bg_set_scene", ["color", 9_055_202, -1])
+          await this.setHSV("bg_");
+        } else {
+          await this.sendCommand("bg_set_power", ["off", "smooth", 500, -1])
+        }
+      },
     );
     this.handleCharacteristic(
       this.platform.Characteristic.Brightness,
