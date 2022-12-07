@@ -1,5 +1,5 @@
 {
-  "name": "homebridge-yeelighter",
+  "name": "@hernas/homebridge-yeelighter",
   "displayName": "Yeelighter",
   "version": "2.5.6",
   "description": "Yeelight support for Homebridge with particular support of ceiling lights",
