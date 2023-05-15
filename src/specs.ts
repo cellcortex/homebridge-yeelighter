@@ -215,6 +215,13 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     name: "Arwen Ceiling Light 550C",
     color: false
   },
+  panel3: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Haobai Panel Light",
+    color: false
+  },
   lamp15: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
