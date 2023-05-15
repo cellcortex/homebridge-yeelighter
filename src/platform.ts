@@ -1,3 +1,4 @@
+import url from "node:url";
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from "homebridge";
 import { PLATFORM_NAME, PLUGIN_NAME } from "./settings";
 import { DeviceInfo, Device, EMPTY_DEVICEINFO } from "./yeedevice";
@@ -224,6 +225,9 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
     for (const manualAccessory of manualAccessories) {
       const deviceInfo: DeviceInfo = { ...EMPTY_DEVICEINFO };
       deviceInfo.location = `yeelight://${manualAccessory.address}`;
+      const parsedUrl = url.parse(deviceInfo.location);
+      deviceInfo.host = parsedUrl.hostname || "";
+      deviceInfo.port = Number(parsedUrl.port || "55443");
       deviceInfo.id = manualAccessory.id;
       deviceInfo.model = manualAccessory.model;
       deviceInfo.support = manualAccessory.support;
