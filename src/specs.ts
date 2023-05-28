@@ -187,6 +187,13 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     name: "color4",
     color: true
   },
+  colorc: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "W1 Color Lightbulb",
+    color: true
+  },
   lamp1: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: false,
@@ -213,6 +220,13 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     nightLight: true,
     backgroundLight: false,
     name: "A2001 Ceiling Light",
+    color: false
+  },
+  ceilb: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: true,
+    name: "Arwen Ceiling Light 550S",
     color: false
   },
   ceilc: {
