@@ -135,6 +135,7 @@ export class Device extends EventEmitter {
         clearTimeout(this.retryTimer);
         delete this.retryTimer;
       }
+      console.log("retry in 5s");
       this.retryTimer = setTimeout(this.connect.bind(this), 5000);
     }
   }

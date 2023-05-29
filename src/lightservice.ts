@@ -90,7 +90,11 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
 }
 
 export function convertColorTemperature(value: number): number {
-  return Math.round(1_000_000 / value);
+  // check if value is valid
+  if (Number.isFinite(value) && value > 0) { 
+    return Math.round(1_000_000 / value);
+  } 
+  return 1000;
 }
 
 export function isValidValue(value: unknown) {
