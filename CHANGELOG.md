@@ -2,9 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.5.12](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.11...v2.5.12) (2023-05-29)
+
 ### [2.5.11](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.10...v2.5.11) (2023-05-29)
+* Added Arwen Light 550S and W1 Color support to specs (#139)
+* add model specs ceiling17 (#126)
+* add panel3 (#138)
+
 
 ### [2.5.10](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.8...v2.5.10) (2023-05-28)
+* Updated dependencies
+
 
 ### [2.5.9](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.7...v2.5.9) (2023-05-28)
 
