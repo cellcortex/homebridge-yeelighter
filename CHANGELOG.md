@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.5.15](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.14...v2.5.15) (2023-05-29)
+
+
+### Bug Fixes
+
+* initialization still happens with corrupt deviceInfo ([b1f207b](https://github.com/cellcortex/homebridge-yeelighter/commit/b1f207b5e7da0f5d8caf0af00b64db47fe44e6e3))
+
 ### [2.5.14](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.13...v2.5.14) (2023-05-29)
 
 ### [2.5.13](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.12...v2.5.13) (2023-05-29)

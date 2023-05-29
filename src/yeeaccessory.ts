@@ -95,7 +95,7 @@ export class YeeAccessory {
     private readonly ambientAccessory?: PlatformAccessory
   ) {
     const deviceInfo: DeviceInfo = device.info;
-    if (!deviceInfo || !deviceInfo.support || deviceInfo.model) {
+    if (!deviceInfo || !deviceInfo.support || !deviceInfo.model) {
       this.error(`deviceInfo is corrupt or emtpy: ${JSON.stringify(deviceInfo)}`);
     }
     const support = deviceInfo.support.split(" ");

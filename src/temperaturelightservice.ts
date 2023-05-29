@@ -95,9 +95,8 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           } else {
             this.sendDebouncedPower();
           }
-        
           this.setAttributes({ power: value });
-      }
+        }
         // this.updateCharacteristic(this.platform.Characteristic.On, value);
       },
     );
