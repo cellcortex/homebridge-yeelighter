@@ -85,8 +85,8 @@
     "debug": "DEBUG=* /usr/local/bin/homebridge -D -P ../homebridge-yeelighter",
     "postversion": "git push --tags && yarn publish . --tag $npm_package_version && git push && echo \"Successfully released version $npm_package_version!\"",
     "release-commit": "standard-version -a",
-    "release": "standard-version -r minor && git push --follow-tags origin master && yarn npm publish --non-interactive",
-    "release-patch": "standard-version -r patch && git push --follow-tags origin master && yarn npm publish --non-interactive",
+    "release": "standard-version -r minor && git push --follow-tags origin master && yarn npm publish",
+    "release-patch": "standard-version -r patch && git push --follow-tags origin master && yarn npm publish",
     "release-beta": "standard-version -p beta && git push --follow-tags origin master && yarn npm publish --tag=beta"
   },
   "packageManager": "yarn@3.6.1"
