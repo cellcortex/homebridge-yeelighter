@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.5.17-beta.2](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.17-beta.0...v2.5.17-beta.2) (2023-08-06)
+
 ### [2.5.17-beta.1](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.16...v2.5.17-beta.1) (2023-08-06)
 
 ### [2.5.17-beta.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.16...v2.5.17-beta.0) (2023-08-06)
