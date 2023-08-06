@@ -1,4 +1,9 @@
-import { LightService, LightServiceParameters as LightServiceParameters, ConcreteLightService, Attributes } from "./lightservice";
+import {
+  LightService,
+  LightServiceParameters as LightServiceParameters,
+  ConcreteLightService,
+  Attributes
+} from "./lightservice";
 
 export class WhiteLightService extends LightService implements ConcreteLightService {
   constructor(parameters: LightServiceParameters) {
@@ -15,7 +20,7 @@ export class WhiteLightService extends LightService implements ConcreteLightServ
         const attributes = await this.attributes();
         return attributes.power;
       },
-      value => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 0]),
+      (value) => this.sendCommand("set_power", [value ? "on" : "off", "smooth", 500, 0])
     );
     this.handleCharacteristic(
       this.platform.Characteristic.Brightness,
@@ -23,7 +28,7 @@ export class WhiteLightService extends LightService implements ConcreteLightServ
         const attributes = await this.attributes();
         return attributes.bright;
       },
-      async value => {
+      async (value) => {
         if (value > 0) {
           await this.ensurePowerMode(0);
           await this.sendSuddenCommand("set_bright", value);
@@ -33,7 +38,7 @@ export class WhiteLightService extends LightService implements ConcreteLightServ
           await this.sendSuddenCommand("set_power", "off");
           this.setAttributes({ power: false, bright: 0 });
         }
-      },
+      }
     );
   }
 

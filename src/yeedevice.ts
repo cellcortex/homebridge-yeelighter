@@ -42,7 +42,7 @@ export const EMPTY_DEVICEINFO: DeviceInfo = {
   debug: false,
   trackedAttributes: [],
   fw_ver: "0,0.0",
-  name: "string",
+  name: "string"
 };
 
 export interface Command {
@@ -97,11 +97,11 @@ export class Device extends EventEmitter {
   }
 
   bindSocket() {
-    this.socket?.on("data", data => {
+    this.socket?.on("data", (data) => {
       this.didReceiveResponse(data);
     });
 
-    this.socket?.on("error", error => {
+    this.socket?.on("error", (error) => {
       this.emit("socketError", error);
       this.socketClosed(error);
     });
@@ -129,7 +129,7 @@ export class Device extends EventEmitter {
     } else {
       this.disconnect(false);
     }
-    
+
     if (error) {
       if (this.retryTimer) {
         clearTimeout(this.retryTimer);

@@ -1,8 +1,16 @@
 import url from "node:url";
-import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from "homebridge";
+import {
+  API,
+  DynamicPlatformPlugin,
+  Logger,
+  PlatformAccessory,
+  PlatformConfig,
+  Service,
+  Characteristic
+} from "homebridge";
 import { PLATFORM_NAME, PLUGIN_NAME } from "./settings";
 import { DeviceInfo, Device, EMPTY_DEVICEINFO } from "./yeedevice";
-import { YeeAccessory} from "./yeeaccessory";
+import { YeeAccessory } from "./yeeaccessory";
 import { Discovery } from "./discovery";
 import { TRACKED_ATTRIBUTES, OverrideLightConfiguration } from "./yeeaccessory";
 
@@ -36,7 +44,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   constructor(
     public readonly log: Logger,
     public readonly config: PlatformConfig,
-    public readonly api: API,
+    public readonly api: API
   ) {
     this.log.debug("Finished initializing platform:", this.config.name);
     this.agent = new Discovery();
@@ -60,11 +68,17 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
    * It should be used to setup event handlers for characteristics and update respective values.
    */
   configureAccessory(accessory: PlatformAccessory) {
-    if (this.accessories.some(a => a.UUID === accessory.UUID)) {
-      this.log.warn(`Ingnoring duplicate accessory from cache: ${accessory.displayName} (${accessory.context?.device?.model || "unknown"})`);
+    if (this.accessories.some((a) => a.UUID === accessory.UUID)) {
+      this.log.warn(
+        `Ingnoring duplicate accessory from cache: ${accessory.displayName} (${
+          accessory.context?.device?.model || "unknown"
+        })`
+      );
       return;
     }
-    this.log.info(`Loading accessory from cache: ${accessory.displayName} (${accessory.context?.device?.model || "unknown"})`);
+    this.log.info(
+      `Loading accessory from cache: ${accessory.displayName} (${accessory.context?.device?.model || "unknown"})`
+    );
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.push(accessory);
@@ -80,16 +94,18 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
 
       const trackedAttributes = TRACKED_ATTRIBUTES; // .filter(attribute => supportedAttributes.includes(attribute));
 
-      const override: OverrideLightConfiguration[] = this.config.override as OverrideLightConfiguration[] || [];
+      const override: OverrideLightConfiguration[] = (this.config.override as OverrideLightConfiguration[]) || [];
       const overrideConfig: OverrideLightConfiguration | undefined = override.find(
-        item => item.id === detectedInfo.id,
+        (item) => item.id === detectedInfo.id
       );
-      const separateAmbient = ((this.config?.split && overrideConfig?.separateAmbient !== false) || overrideConfig?.separateAmbient === true) 
-        && (detectedInfo.support.includes("bg_set_power") || !!overrideConfig?.backgroundLight);
-      
+      const separateAmbient =
+        ((this.config?.split && overrideConfig?.separateAmbient !== false) ||
+          overrideConfig?.separateAmbient === true) &&
+        (detectedInfo.support.includes("bg_set_power") || !!overrideConfig?.backgroundLight);
+
       const newDeviceInfo: DeviceInfo = {
         ...detectedInfo,
-        trackedAttributes,
+        trackedAttributes
       };
 
       // generate a unique id for the accessory this should be generated from
@@ -106,13 +122,13 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
           this.log.info(`Ignoring ${detectedInfo.id} as configured.`);
           // see if an accessory with the same uuid has already been registered and restored from
           // the cached devices we stored in the `configureAccessory` method above
-          const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+          const existingAccessory = this.accessories.find((accessory) => accessory.UUID === uuid);
           const purgeList: PlatformAccessory[] = [];
           if (existingAccessory) {
             this.log.info("Removing ignored accessory from cache:", existingAccessory.displayName);
             purgeList.push(existingAccessory);
           }
-          const existingAmbientAccessory = this.accessories.find(accessory => accessory.UUID === ambientUuid);            
+          const existingAmbientAccessory = this.accessories.find((accessory) => accessory.UUID === ambientUuid);
           if (existingAmbientAccessory) {
             purgeList.push(existingAmbientAccessory);
             this.log.info("Removing ignored ambient accessory from cache:", existingAmbientAccessory.displayName);
@@ -127,7 +143,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
               }
               this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, purgeList);
             } catch (error) {
-              this.log.warn("Failed to unregister", purgeList, error);          
+              this.log.warn("Failed to unregister", purgeList, error);
             }
           }
           return;
@@ -137,8 +153,8 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
 
       // see if an accessory with the same uuid has already been registered and restored from
       // the cached devices we stored in the `configureAccessory` method above
-      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-      let ambientAccessory = this.accessories.find(accessory => accessory.UUID === ambientUuid);
+      const existingAccessory = this.accessories.find((accessory) => accessory.UUID === uuid);
+      let ambientAccessory = this.accessories.find((accessory) => accessory.UUID === ambientUuid);
 
       if (ambientAccessory && !separateAmbient) {
         try {
@@ -154,7 +170,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
         }
         ambientAccessory = undefined;
       }
-      
+
       if (existingAccessory) {
         // the accessory already exists
         if (device) {
@@ -166,7 +182,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
           if (!ambientAccessory && separateAmbient) {
             ambientAccessory = new this.api.platformAccessory(newDeviceInfo.id, ambientUuid);
             ambientAccessory.context.device = newDeviceInfo;
-            this.log.info(`Separate Ambient Accessory created with UUID ${ambientUuid}`);  
+            this.log.info(`Separate Ambient Accessory created with UUID ${ambientUuid}`);
             // link the accessory to your platform
             this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [ambientAccessory]);
             updateAccessories.push(ambientAccessory);
@@ -174,7 +190,6 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
           YeeAccessory.instance(device, this, existingAccessory, ambientAccessory);
           // update accessory cache with any changes to the accessory details and information
           this.api.updatePlatformAccessories(updateAccessories);
-
         } else {
           // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
           // remove platform accessories when no longer present
@@ -220,7 +235,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   };
 
   private addHardCodedAccessories() {
-    const manualAccessories: ManualOverride[] = this.config?.manual as ManualOverride[] || [];
+    const manualAccessories: ManualOverride[] = (this.config?.manual as ManualOverride[]) || [];
     this.log.info(`adding ${manualAccessories.length} manual accessories`);
     for (const manualAccessory of manualAccessories) {
       const deviceInfo: DeviceInfo = { ...EMPTY_DEVICEINFO };
