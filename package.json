@@ -1,7 +1,7 @@
 {
   "name": "homebridge-yeelighter",
   "displayName": "Yeelighter",
-  "version": "2.5.16",
+  "version": "2.5.17-beta.0",
   "description": "Yeelight support for Homebridge with particular support of ceiling lights",
   "license": "MIT",
   "keywords": [
@@ -85,9 +85,9 @@
     "debug": "DEBUG=* /usr/local/bin/homebridge -D -P ../homebridge-yeelighter",
     "postversion": "git push --tags && yarn publish . --tag $npm_package_version && git push && echo \"Successfully released version $npm_package_version!\"",
     "release-commit": "standard-version -a",
-    "release": "standard-version -r minor && git push --follow-tags origin master && yarn publish --non-interactive",
-    "release-patch": "standard-version -r patch && git push --follow-tags origin master && yarn publish --non-interactive",
-    "release-beta": "standard-version -p beta && git push --follow-tags origin master && yarn publish --non-interactive --tag=beta"
+    "release": "standard-version -r minor && git push --follow-tags origin master && yarn npm publish --non-interactive",
+    "release-patch": "standard-version -r patch && git push --follow-tags origin master && yarn npm publish --non-interactive",
+    "release-beta": "standard-version -p beta && git push --follow-tags origin master && yarn npm publish --non-interactive --tag=beta"
   },
   "packageManager": "yarn@3.6.1"
 }
