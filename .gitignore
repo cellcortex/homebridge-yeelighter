@@ -6,3 +6,10 @@ package-lock.json
 /build/compiled
 /homebridge-yeelighter.d.ts
 /homebridge-yeelighter.min.js
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
