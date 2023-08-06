@@ -26,7 +26,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
       this.platform.Characteristic.Brightness,
       async () => this.getAttribute("bright"),
       async value => {
-        this.log("set brightness", value);
+        this.log(`set brightness to ${value}`);
         if (value > 0) { 
           await this.sendSuddenCommand("set_bright", value);
         } else {

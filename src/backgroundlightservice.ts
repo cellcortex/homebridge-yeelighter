@@ -29,7 +29,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
       async () => this.getAttribute("bg_bright"),
       async value => {
         if (value > 0) {
-          this.log("set brightness", value);
+          this.log(`set bg brightness to ${value}`);
           await this.sendSuddenCommand("bg_set_bright", value);
           this.setAttributes({ bg_bright: value });
           // this.updateCharacteristic(this.platform.Characteristic.Brightness, value);
