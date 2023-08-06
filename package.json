@@ -66,7 +66,7 @@
     "lint-staged": "^12.1.4",
     "nodemon": "^2.0.15",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "rimraf": "^3.0.2",
     "standard-changelog": "^2.0.27",
     "standard-version": "^9.5.0",
@@ -90,5 +90,6 @@
     "release": "standard-version -r minor && git push --follow-tags origin master && yarn publish --non-interactive",
     "release-patch": "standard-version -r patch && git push --follow-tags origin master && yarn publish --non-interactive",
     "release-beta": "standard-version -p beta && git push --follow-tags origin master && yarn publish --non-interactive --tag=beta"
-  }
+  },
+  "packageManager": "yarn@3.6.1"
 }
