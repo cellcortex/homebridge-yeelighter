@@ -3256,7 +3256,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"figures@npm:^3.0.0, figures@npm:^3.1.0":
+"figures@npm:^3.1.0":
   version: 3.2.0
   resolution: "figures@npm:3.2.0"
   dependencies:
@@ -3361,15 +3361,6 @@ __metadata:
   version: 0.1.7
   resolution: "from@npm:0.1.7"
   checksum: b85125b7890489656eb2e4f208f7654a93ec26e3aefaf3bbbcc0d496fc1941e4405834fcc9fe7333192aa2187905510ace70417bbf9ac6f6f4784a731d986939
-  languageName: node
-  linkType: hard
-
-"fs-access@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "fs-access@npm:1.0.1"
-  dependencies:
-    null-check: ^1.0.0
-  checksum: 6792b115a5fc5095b3dbc42ea329afff372e0056fde8214a5b0c9c7559806378db9316660bac1682b295cc576bab3c19571f50f8a39ab4605c3d194bee0087c9
   languageName: node
   linkType: hard
 
@@ -3837,7 +3828,6 @@ __metadata:
     npm-run-all: ^4.1.5
     prettier: ^3.0.0
     rimraf: ^3.0.2
-    standard-changelog: ^2.0.27
     standard-version: ^9.5.0
     ts-jest: ^29.1.1
     ts-node: ^10.9.1
@@ -5708,13 +5698,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"null-check@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "null-check@npm:1.0.0"
-  checksum: 6569fb2d74399e436eb4b05c7fdd341f22e87f3e0598a97309681073a364d6684997100cd329f2107d149663c506b2bfa47a0afdff23739ac1ba6ca5c4c6aa19
-  languageName: node
-  linkType: hard
-
 "object-inspect@npm:^1.12.2, object-inspect@npm:^1.12.3, object-inspect@npm:^1.9.0":
   version: 1.12.3
   resolution: "object-inspect@npm:1.12.3"
@@ -6368,7 +6351,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^3.0.0, rimraf@npm:^3.0.2":
+"rimraf@npm:^3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
   dependencies:
@@ -6736,13 +6719,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sprintf-js@npm:^1.1.1":
-  version: 1.1.2
-  resolution: "sprintf-js@npm:1.1.2"
-  checksum: d4bb46464632b335e5faed381bd331157e0af64915a98ede833452663bc672823db49d7531c32d58798e85236581fb7342fd0270531ffc8f914e186187bf1c90
-  languageName: node
-  linkType: hard
-
 "sprintf-js@npm:~1.0.2":
   version: 1.0.3
   resolution: "sprintf-js@npm:1.0.3"
@@ -6765,27 +6741,6 @@ __metadata:
   dependencies:
     escape-string-regexp: ^2.0.0
   checksum: 052bf4d25bbf5f78e06c1d5e67de2e088b06871fa04107ca8d3f0e9d9263326e2942c8bedee3545795fc77d787d443a538345eef74db2f8e35db3558c6f91ff7
-  languageName: node
-  linkType: hard
-
-"standard-changelog@npm:^2.0.27":
-  version: 2.0.27
-  resolution: "standard-changelog@npm:2.0.27"
-  dependencies:
-    add-stream: ^1.0.0
-    chalk: ^4.0.0
-    conventional-changelog-angular: ^5.0.12
-    conventional-changelog-core: ^4.2.1
-    figures: ^3.0.0
-    fs-access: ^1.0.0
-    lodash: ^4.17.15
-    meow: ^8.0.0
-    rimraf: ^3.0.0
-    sprintf-js: ^1.1.1
-    tempfile: ^3.0.0
-  bin:
-    standard-changelog: cli.js
-  checksum: ad38d208d599dfb77d55f555a5625728f65c503842c9da05938b5689a264c4134f3cac8b12a427adba26ef00bac4d09aac811d9ddb95876938abce085e8c95bc
   languageName: node
   linkType: hard
 
@@ -7047,23 +7002,6 @@ __metadata:
     mkdirp: ^1.0.3
     yallist: ^4.0.0
   checksum: f23832fceeba7578bf31907aac744ae21e74a66f4a17a9e94507acf460e48f6db598c7023882db33bab75b80e027c21f276d405e4a0322d58f51c7088d428268
-  languageName: node
-  linkType: hard
-
-"temp-dir@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "temp-dir@npm:2.0.0"
-  checksum: cc4f0404bf8d6ae1a166e0e64f3f409b423f4d1274d8c02814a59a5529f07db6cd070a749664141b992b2c1af337fa9bb451a460a43bb9bcddc49f235d3115aa
-  languageName: node
-  linkType: hard
-
-"tempfile@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "tempfile@npm:3.0.0"
-  dependencies:
-    temp-dir: ^2.0.0
-    uuid: ^3.3.2
-  checksum: ebf07b7e580ab0a0673093d84007783f3d3bef9f82108e463c353974382296ba2d3309c8ac9574efba0dec8c99c27c5392f11b3de85d3f3a88a22850e9f782ef
   languageName: node
   linkType: hard
 
@@ -7429,15 +7367,6 @@ __metadata:
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
   checksum: 474acf1146cb2701fe3b074892217553dfcf9a031280919ba1b8d651a068c9b15d863b7303cb15bd00a862b498e6cf4ad7b4a08fb134edd5a6f7641681cb54a2
-  languageName: node
-  linkType: hard
-
-"uuid@npm:^3.3.2":
-  version: 3.4.0
-  resolution: "uuid@npm:3.4.0"
-  bin:
-    uuid: ./bin/uuid
-  checksum: 58de2feed61c59060b40f8203c0e4ed7fd6f99d42534a499f1741218a1dd0c129f4aa1de797bcf822c8ea5da7e4137aa3673431a96dae729047f7aca7b27866f
   languageName: node
   linkType: hard
 
