@@ -23,14 +23,17 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
       this.platform.Characteristic.On,
       async () => this.getAttribute("bg_power"),
       async (value) => {
-        if(value) {
+        if(this.platform.config.faultyYeelightBackgroundToggling && value) {
+          // We have to set lastSat & lastHue as it is used by setHSV command
           if(!this.lastSat) {
             this.lastSat = await this.getAttribute("bg_sat");
           }
           if(!this.lastHue) {
             this.lastHue = await this.getAttribute("bg_hue");
           }
+          // Then to workaround issue with turning the light ON, we send set_scene command with built-in scene id 9_055_202
           await this.sendCommand("bg_set_scene", ["color", 9_055_202, -1])
+          // And to get the colors we wanted, not the one from the scene, we send set_hsv command
           await this.setHSV("bg_");
         } else {
           await this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, POWERMODE_HSV])
