@@ -1,12 +1,12 @@
 import {
   LightServiceParameters,
   LightService,
+  POWERMODE_HSV,
   POWERMODE_CT,
   convertColorTemperature,
   powerModeFromColorModeAndActiveMode,
   Attributes,
-  ConcreteLightService,
-  POWERMODE_HSV
+  ConcreteLightService
 } from "./lightservice";
 
 export class BackgroundLightService extends LightService implements ConcreteLightService {
