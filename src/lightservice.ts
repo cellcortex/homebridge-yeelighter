@@ -56,7 +56,7 @@ export const EMPTY_ATTRIBUTES: Attributes = {
   bg_lmode: 0,
   nl_br: 0,
   active_mode: 0,
-  name: "unknown",
+  name: "unknown"
 };
 
 export function powerModeFromColorModeAndActiveMode(color_mode: number, active_mode: number) {
@@ -90,7 +90,11 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
 }
 
 export function convertColorTemperature(value: number): number {
-  return Math.round(1_000_000 / value);
+  // check if value is valid
+  if (Number.isFinite(value) && value > 0) {
+    return Math.round(1_000_000 / value);
+  }
+  return 1000;
 }
 
 export function isValidValue(value: unknown) {
@@ -128,16 +132,15 @@ export class LightService {
   protected readonly accessory: PlatformAccessory;
   protected light: YeeAccessory;
   protected name: string;
-  
 
   constructor(
     parameters: LightServiceParameters,
-    protected subtype?: string,
+    protected subtype?: string
   ) {
     this.platform = parameters.platform;
     this.accessory = parameters.accessory;
     this.light = parameters.light;
-    
+
     // we use powerMode to store the currently set mode
     switch (this.light.info.color_mode) {
       case 2:
@@ -156,20 +159,22 @@ export class LightService {
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // we create multiple services for lights that have a subtype set
     if (subtype) {
-      const subtypeUid = `${this.light.info.id}#${subtype}`
+      const subtypeUid = `${this.light.info.id}#${subtype}`;
       this.log(`registering subtype ${subtypeUid}`);
-      this.service = this.accessory.getService(subtypeUid) || 
-                      this.accessory.addService(this.platform.Service.Lightbulb, `${this.name} ${subtype}`, subtypeUid);
+      this.service =
+        this.accessory.getService(subtypeUid) ||
+        this.accessory.addService(this.platform.Service.Lightbulb, `${this.name} ${subtype}`, subtypeUid);
     } else {
       this.log(`no subtype`);
-      this.service = this.accessory.getService(this.platform.Service.Lightbulb) 
-                     || this.accessory.addService(this.platform.Service.Lightbulb);
+      this.service =
+        this.accessory.getService(this.platform.Service.Lightbulb) ||
+        this.accessory.addService(this.platform.Service.Lightbulb);
     }
 
     // name handling
     this.service.getCharacteristic(this.platform.Characteristic.ConfiguredName).on("set", (value, callback) => {
       this.log("setConfiguredName", value);
-      const name = value.toString()
+      const name = value.toString();
       this.service.displayName = name;
       this.name = name;
       this.service.setCharacteristic(this.platform.Characteristic.Name, value);
@@ -187,7 +192,7 @@ export class LightService {
     // this.name = value;
     // this.service.setCharacteristic(this.platform.Characteristic.Name, `${value} ${this.subtype}`);
     // this.platform.api.updatePlatformAccessories([this.accessory]);
-}
+  }
 
   protected get device(): Device {
     return this.light.device;
@@ -222,10 +227,8 @@ export class LightService {
 
   protected get config(): OverrideLightConfiguration {
     const override = (this.platform.config.override || []) as OverrideLightConfiguration[];
-    const { info } = this.device
-    const overrideConfig: OverrideLightConfiguration | undefined = override.find(
-      item => item.id === info.id,
-    );
+    const { info } = this.device;
+    const overrideConfig: OverrideLightConfiguration | undefined = override.find((item) => item.id === info.id);
 
     return overrideConfig || { id: info.id };
   }
@@ -248,16 +251,12 @@ export class LightService {
     this.light.setAttributes(attributes);
   }
 
-  protected handleCharacteristic(
-    uuid: any,
-    getter: () => Promise<any>,
-    setter: (value: any) => void,
-  ): Characteristic {
+  protected handleCharacteristic(uuid: any, getter: () => Promise<any>, setter: (value: any) => void): Characteristic {
     const characteristic = this.service.getCharacteristic(uuid);
     if (!characteristic) {
       throw new Error("Could not get Characteristic");
     }
-    characteristic.on("get", async callback => {
+    characteristic.on("get", async (callback) => {
       if (this.light.connected) {
         callback(undefined, await getter());
       } else {
@@ -292,7 +291,10 @@ export class LightService {
     this.updateCharacteristic(this.platform.Characteristic.On, false);
   };
 
-  protected async sendCommandPromiseWithErrorHandling(method: string, parameters: Array<string | number | boolean>): Promise<void> {
+  protected async sendCommandPromiseWithErrorHandling(
+    method: string,
+    parameters: Array<string | number | boolean>
+  ): Promise<void> {
     try {
       await this.light.sendCommandPromise(method, parameters);
     } catch (error) {

@@ -2,6 +2,61 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.6.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.17-beta.5...v2.6.0) (2023-08-06)
+
+
+### Bug Fixes
+
+* [#140](https://github.com/cellcortex/homebridge-yeelighter/issues/140) retry only when host is reachable ([8e1aefe](https://github.com/cellcortex/homebridge-yeelighter/commit/8e1aefe383aefdcd3f8e0f85ddbdb07415ea982b))
+
+### [2.5.17-beta.5](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.17-beta.4...v2.5.17-beta.5) (2023-08-06)
+
+### [2.5.17-beta.4](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.17-beta.3...v2.5.17-beta.4) (2023-08-06)
+
+### [2.5.17-beta.3](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.17-beta.2...v2.5.17-beta.3) (2023-08-06)
+
+### [2.5.17-beta.2](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.17-beta.0...v2.5.17-beta.2) (2023-08-06)
+
+### [2.5.17-beta.1](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.16...v2.5.17-beta.1) (2023-08-06)
+
+### [2.5.17-beta.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.16...v2.5.17-beta.0) (2023-08-06)
+
+### [2.5.16](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.14...v2.5.16) (2023-05-29)
+
+
+### Bug Fixes
+
+* initialization still happens with corrupt deviceInfo ([b1f207b](https://github.com/cellcortex/homebridge-yeelighter/commit/b1f207b5e7da0f5d8caf0af00b64db47fe44e6e3))
+
+### [2.5.15](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.14...v2.5.15) (2023-05-29)
+
+
+### Bug Fixes
+
+* initialization still happens with corrupt deviceInfo ([b1f207b](https://github.com/cellcortex/homebridge-yeelighter/commit/b1f207b5e7da0f5d8caf0af00b64db47fe44e6e3))
+
+### [2.5.14](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.13...v2.5.14) (2023-05-29)
+
+### [2.5.13](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.12...v2.5.13) (2023-05-29)
+
+### [2.5.12](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.11...v2.5.12) (2023-05-29)
+
+### [2.5.11](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.10...v2.5.11) (2023-05-29)
+* Added Arwen Light 550S and W1 Color support to specs (#139)
+* add model specs ceiling17 (#126)
+* add panel3 (#138)
+
+
+### [2.5.10](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.8...v2.5.10) (2023-05-28)
+* Updated dependencies
+
+
+### [2.5.9](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.7...v2.5.9) (2023-05-28)
+
+### [2.5.8](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.7...v2.5.8) (2023-05-28)
+
+### [2.5.7](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.6...v2.5.7) (2023-05-28)
+
 ### [2.5.6](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.5...v2.5.6) (2022-07-03)
 
 ### [2.5.5](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.5.4...v2.5.5) (2022-04-22)

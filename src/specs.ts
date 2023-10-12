@@ -152,6 +152,13 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     name: "Ceiling Light (YLXD42YL)",
     color: false
   },
+  ceiling17: {
+    colorTemperature: { min: 3000, max: 5700 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Ceiling Light (YLXD60YL)",
+    color: false
+  },
   ceiling18: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
@@ -178,6 +185,13 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     nightLight: false,
     backgroundLight: false,
     name: "color4",
+    color: true
+  },
+  colorc: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: false,
+    backgroundLight: false,
+    name: "W1 Color Lightbulb",
     color: true
   },
   lamp1: {
@@ -208,11 +222,25 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     name: "A2001 Ceiling Light",
     color: false
   },
+  ceilb: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: true,
+    name: "Arwen Ceiling Light 550S",
+    color: false
+  },
   ceilc: {
     colorTemperature: { min: 2700, max: 6500 },
     nightLight: true,
     backgroundLight: true,
     name: "Arwen Ceiling Light 550C",
+    color: false
+  },
+  panel3: {
+    colorTemperature: { min: 2700, max: 6500 },
+    nightLight: true,
+    backgroundLight: false,
+    name: "Haobai Panel Light",
     color: false
   },
   lamp15: {

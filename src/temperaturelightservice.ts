@@ -1,4 +1,3 @@
-
 import { AdaptiveLightingController, AdaptiveLightingControllerMode } from "homebridge";
 import {
   LightServiceParameters,
@@ -8,7 +7,7 @@ import {
   convertColorTemperature,
   Attributes,
   powerModeFromColorModeAndActiveMode,
-  ConcreteLightService,
+  ConcreteLightService
 } from "./lightservice";
 
 export class TemperatureLightService extends LightService implements ConcreteLightService {
@@ -18,7 +17,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
     this.service.displayName = "Temperature Light";
     this.installHandlers();
     this.adaptiveLightingController = new this.platform.AdaptiveLightingController(this.service, {
-      controllerMode: AdaptiveLightingControllerMode.AUTOMATIC 
+      controllerMode: AdaptiveLightingControllerMode.AUTOMATIC
     });
     this.accessory.configureController(this.adaptiveLightingController);
   }
@@ -55,7 +54,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         this.powerMode = mode;
       }
       delete this.timer;
-    }, 500)
+    }, 500);
   }
 
   protected async sendDebouncedPowerOverride(mode?: number) {
@@ -72,7 +71,9 @@ export class TemperatureLightService extends LightService implements ConcreteLig
       this.powerMode = mode;
       await this.sendCommand("set_power", ["on", "sudden", 0, mode]);
       this.blocker = true;
-      setTimeout(() => {this.blocker = false;}, 1000);
+      setTimeout(() => {
+        this.blocker = false;
+      }, 1000);
     }
   }
 
@@ -83,7 +84,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         const attributes = await this.attributes();
         return attributes.power;
       },
-      async value => {
+      async (value) => {
         if (this.config.ignorePower && value) {
           this.log(`Ignoring explicit power on`);
         } else {
@@ -95,18 +96,17 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           } else {
             this.sendDebouncedPower();
           }
-        
           this.setAttributes({ power: value });
-      }
+        }
         // this.updateCharacteristic(this.platform.Characteristic.On, value);
-      },
+      }
     );
     this.handleCharacteristic(
       this.platform.Characteristic.Brightness,
       async () => {
         return this.getBrightness(await this.attributes());
       },
-      async value => {
+      async (value) => {
         if (value > 0) {
           let valueToSet = value;
           if (this.specs.nightLight) {
@@ -114,14 +114,12 @@ export class TemperatureLightService extends LightService implements ConcreteLig
               if (this.powerMode !== POWERMODE_MOON) {
                 await this.sendDebouncedPowerOverride(POWERMODE_MOON);
                 this.debug("Moonlight", "on");
-                
               }
               valueToSet = value * 2;
             } else {
               if (this.powerMode !== POWERMODE_CT) {
                 await this.sendDebouncedPowerOverride(POWERMODE_CT);
                 this.debug("Moonlight", "off");
-                
               }
               valueToSet = Math.max(1, (value - 50) * 2);
             }
@@ -139,7 +137,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           await this.sendDebouncedPowerOverride();
         }
         this.saveDefaultIfNeeded();
-      },
+      }
     );
     const characteristic = this.handleCharacteristic(
       this.platform.Characteristic.ColorTemperature,
@@ -147,7 +145,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         const attributes = await this.attributes();
         return convertColorTemperature(attributes.ct);
       },
-      async value => {
+      async (value) => {
         await this.ensurePowerMode(POWERMODE_CT);
         await this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
         this.setAttributes({ ct: convertColorTemperature(value) });
@@ -157,12 +155,12 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         );\*/
 
         this.saveDefaultIfNeeded();
-      },
+      }
     );
     characteristic.setProps({
       ...characteristic.props,
       maxValue: convertColorTemperature(this.specs.colorTemperature.min),
-      minValue: convertColorTemperature(this.specs.colorTemperature.max),
+      minValue: convertColorTemperature(this.specs.colorTemperature.max)
     });
   }
 
@@ -171,9 +169,6 @@ export class TemperatureLightService extends LightService implements ConcreteLig
     this.powerMode = powerModeFromColorModeAndActiveMode(newAttributes.color_mode, newAttributes.active_mode);
     this.updateCharacteristic(this.platform.Characteristic.On, newAttributes.power);
     this.updateCharacteristic(this.platform.Characteristic.Brightness, this.getBrightness(newAttributes));
-    this.updateCharacteristic(
-      this.platform.Characteristic.ColorTemperature,
-      convertColorTemperature(newAttributes.ct),
-    );
+    this.updateCharacteristic(this.platform.Characteristic.ColorTemperature, convertColorTemperature(newAttributes.ct));
   };
 }

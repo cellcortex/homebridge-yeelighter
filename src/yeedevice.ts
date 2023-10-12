@@ -42,7 +42,7 @@ export const EMPTY_DEVICEINFO: DeviceInfo = {
   debug: false,
   trackedAttributes: [],
   fw_ver: "0,0.0",
-  name: "string",
+  name: "string"
 };
 
 export interface Command {
@@ -97,11 +97,11 @@ export class Device extends EventEmitter {
   }
 
   bindSocket() {
-    this.socket?.on("data", data => {
+    this.socket?.on("data", (data) => {
       this.didReceiveResponse(data);
     });
 
-    this.socket?.on("error", error => {
+    this.socket?.on("error", (error) => {
       this.emit("socketError", error);
       this.socketClosed(error);
     });
@@ -113,7 +113,6 @@ export class Device extends EventEmitter {
   }
 
   socketClosed(error?: Error) {
-    // console.log("Socket Closed", this.forceDisconnect);
     if (this.forceDisconnect) {
       return;
     }
@@ -123,19 +122,17 @@ export class Device extends EventEmitter {
         // unreachable, no need to retry
         this.disconnect(true);
       } else {
-        console.log(`Socket Closed with error "${error.name}"`, error.message);
+        console.log(`Socket Closed with error "${error.name}, retrying to connect in 5s"`, error.message);
         this.disconnect(false);
+        if (this.retryTimer) {
+          clearTimeout(this.retryTimer);
+          delete this.retryTimer;
+        }
+        this.retryTimer = setTimeout(this.connect.bind(this), 5000);
+  
       }
     } else {
       this.disconnect(false);
-    }
-    
-    if (error) {
-      if (this.retryTimer) {
-        clearTimeout(this.retryTimer);
-        delete this.retryTimer;
-      }
-      this.retryTimer = setTimeout(this.connect.bind(this), 5000);
     }
   }
 

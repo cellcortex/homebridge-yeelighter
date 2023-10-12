@@ -44,7 +44,7 @@ export class Discovery extends EventEmitter {
     });
   }
 
-  onMessage = response => {
+  onMessage = (response) => {
     const headers: MyHeaders = httpHeaders(response, true) as MyHeaders;
     const device: DeviceInfo = { ...EMPTY_DEVICEINFO };
 

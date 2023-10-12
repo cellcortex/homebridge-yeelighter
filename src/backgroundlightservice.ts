@@ -6,6 +6,7 @@ import {
   powerModeFromColorModeAndActiveMode,
   Attributes,
   ConcreteLightService,
+  POWERMODE_HSV
 } from "./lightservice";
 
 export class BackgroundLightService extends LightService implements ConcreteLightService {
@@ -32,16 +33,16 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
           await this.sendCommand("bg_set_scene", ["color", 9_055_202, -1])
           await this.setHSV("bg_");
         } else {
-          await this.sendCommand("bg_set_power", ["off", "smooth", 500, -1])
+          await this.sendCommand("bg_set_power", [value ? "on" : "off", "smooth", 500, POWERMODE_HSV])
         }
       },
     );
     this.handleCharacteristic(
       this.platform.Characteristic.Brightness,
       async () => this.getAttribute("bg_bright"),
-      async value => {
+      async (value) => {
         if (value > 0) {
-          this.log("set brightness", value);
+          this.log(`set bg brightness to ${value}`);
           await this.sendSuddenCommand("bg_set_bright", value);
           this.setAttributes({ bg_bright: value });
           // this.updateCharacteristic(this.platform.Characteristic.Brightness, value);
@@ -50,8 +51,8 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
           await this.sendSuddenCommand("bg_set_power", "off");
         }
         this.saveDefaultIfNeeded();
-      },
-      );
+      }
+    );
     if (this.platform.config.ctforcolor === undefined || this.platform.config.ctforcolor) {
       const characteristic = this.handleCharacteristic(
         this.platform.Characteristic.ColorTemperature,
@@ -59,35 +60,35 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
           const ct = await this.getAttribute("bg_ct");
           return convertColorTemperature(ct);
         },
-        async value => {
+        async (value) => {
           await this.ensurePowerMode(POWERMODE_CT, "bg_");
           this.debug(`setCT ${convertColorTemperature(value)}`);
           await this.sendSuddenCommand("bg_set_ct_abx", convertColorTemperature(value));
           this.updateColorFromCT(value);
           this.saveDefaultIfNeeded();
-        },
+        }
       );
       characteristic.setProps({
         ...characteristic.props,
         maxValue: convertColorTemperature(this.specs.colorTemperature.min),
-        minValue: convertColorTemperature(this.specs.colorTemperature.max),
+        minValue: convertColorTemperature(this.specs.colorTemperature.max)
       });
     }
     this.handleCharacteristic(
       this.platform.Characteristic.Hue,
       async () => this.getAttribute("bg_hue"),
-      async value => {
+      async (value) => {
         this.lastHue = value;
         await this.setHSV("bg_");
-      },
+      }
     );
     this.handleCharacteristic(
       this.platform.Characteristic.Saturation,
       async () => this.getAttribute("bg_sat"),
-      async value => {
+      async (value) => {
         this.lastSat = value;
         await this.setHSV("bg_");
-      },
+      }
     );
   }
 

@@ -11,7 +11,7 @@ interface MyHeaders {
 const options = {
   port: 1982,
   multicastAddr: "239.255.255.250",
-  discoveryMsg: "M-SEARCH * HTTP/1.1\r\nMAN: \"ssdp:discover\"\r\nST: wifi_bulb\r\n",
+  discoveryMsg: 'M-SEARCH * HTTP/1.1\r\nMAN: "ssdp:discover"\r\nST: wifi_bulb\r\n'
 };
 
 export class Discovery extends EventEmitter {

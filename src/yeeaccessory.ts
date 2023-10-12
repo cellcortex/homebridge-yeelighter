@@ -6,8 +6,7 @@ import { Attributes, EMPTY_ATTRIBUTES, ConcreteLightService } from "./lightservi
 import { ColorLightService } from "./colorlightservice";
 import { WhiteLightService } from "./whitelightservice";
 import { TemperatureLightService } from "./temperaturelightservice";
-import { BackgroundLightService} from "./backgroundlightservice";
-
+import { BackgroundLightService } from "./backgroundlightservice";
 
 export const TRACKED_ATTRIBUTES = Object.keys(EMPTY_ATTRIBUTES);
 
@@ -37,7 +36,6 @@ export interface ColorTemperatureConfiguration {
   max: number;
 }
 
-
 const nameCount = new Map<string, number>();
 
 interface Deferred<T> {
@@ -45,7 +43,6 @@ interface Deferred<T> {
   reject: (error: Error) => void;
   timestamp: number;
 }
-
 
 /**
  * Platform Accessory
@@ -74,7 +71,12 @@ export class YeeAccessory {
 
   private static handledAccessories = new Map<string, YeeAccessory>();
 
-  public static instance(device: Device, platform: YeelighterPlatform, accessory: PlatformAccessory, ambientAccessory?: PlatformAccessory) {
+  public static instance(
+    device: Device,
+    platform: YeelighterPlatform,
+    accessory: PlatformAccessory,
+    ambientAccessory?: PlatformAccessory
+  ) {
     const cache = YeeAccessory.handledAccessories.get(device.info.id);
     if (cache) {
       return cache;
@@ -95,17 +97,20 @@ export class YeeAccessory {
     private readonly ambientAccessory?: PlatformAccessory
   ) {
     const deviceInfo: DeviceInfo = device.info;
+    if (!deviceInfo || !deviceInfo.support || !deviceInfo.model) {
+      this.error(`deviceInfo is corrupt or emtpy: ${JSON.stringify(deviceInfo)}`);
+    }
     const support = deviceInfo.support.split(" ");
     let specs = MODEL_SPECS[deviceInfo.model];
     let name = deviceInfo.id;
     this.connected = false;
-    const override: OverrideLightConfiguration[] = platform.config.override as OverrideLightConfiguration[] || [];
-  
+    const override: OverrideLightConfiguration[] = (platform.config.override as OverrideLightConfiguration[]) || [];
+
     if (!specs) {
       specs = { ...EMPTY_SPECS };
       this.warn(
         `no specs for light ${deviceInfo.id} ${deviceInfo.model}. 
-        It supports: ${deviceInfo.support}. Using fallback. This will not give you nightLight support.`,
+        It supports: ${deviceInfo.support}. Using fallback. This will not give you nightLight support.`
       );
       specs.name = deviceInfo.model;
       specs.color = support.includes("set_hsv");
@@ -115,11 +120,8 @@ export class YeeAccessory {
         specs.colorTemperature.min = 0;
         specs.colorTemperature.max = 0;
       }
-    
     }
-    const overrideConfig: OverrideLightConfiguration | undefined = override?.find(
-      item => item.id === deviceInfo.id,
-    );
+    const overrideConfig: OverrideLightConfiguration | undefined = override?.find((item) => item.id === deviceInfo.id);
     if (overrideConfig?.backgroundLight) {
       specs.backgroundLight = overrideConfig.backgroundLight;
     }
@@ -142,7 +144,7 @@ export class YeeAccessory {
     const parameters = {
       accessory,
       platform,
-      light: this,
+      light: this
     };
     if (specs.color) {
       this.services.push(new ColorLightService(parameters));
@@ -158,7 +160,7 @@ export class YeeAccessory {
     }
     if (support.includes("bg_set_power")) {
       if (this.config.separateAmbient && ambientAccessory) {
-        this.services.push(new BackgroundLightService({...parameters, accessory: ambientAccessory }));
+        this.services.push(new BackgroundLightService({ ...parameters, accessory: ambientAccessory }));
       } else {
         this.services.push(new BackgroundLightService(parameters));
       }
@@ -185,9 +187,7 @@ export class YeeAccessory {
   protected get config(): OverrideLightConfiguration {
     const override = (this.platform.config.override || []) as OverrideLightConfiguration[];
     const { device } = this.accessory.context;
-    const overrideConfig: OverrideLightConfiguration | undefined = override.find(
-      item => item.id === device.id,
-    );
+    const overrideConfig: OverrideLightConfiguration | undefined = override.find((item) => item.id === device.id);
 
     return overrideConfig || { id: device.id };
   }
@@ -223,11 +223,10 @@ export class YeeAccessory {
       if (this.updatePromise && this.connected) {
         const timeout = (prom: Promise<string[]>, time: number) => {
           let timer: ReturnType<typeof setTimeout>;
-          return Promise.race([
-            prom,
-            new Promise((_resolve, reject) => timer = setTimeout(reject, time))
-          ]).finally(() => clearTimeout(timer));
-        }
+          return Promise.race([prom, new Promise((_resolve, reject) => (timer = setTimeout(reject, time)))]).finally(
+            () => clearTimeout(timer)
+          );
+        };
         try {
           await timeout(this.updatePromise, this.platform.config.timeout || 60_000);
         } catch (error) {
@@ -354,7 +353,7 @@ export class YeeAccessory {
     }
   };
 
-  private onDeviceError = error => {
+  private onDeviceError = (error) => {
     this.log("Device Error", error);
   };
 
@@ -416,7 +415,7 @@ export class YeeAccessory {
         .updateCharacteristic(platform.Characteristic.FirmwareRevision, info.fw_ver);
     }
     this.setNameService(infoService);
-    
+
     return infoService;
   }
 
@@ -458,9 +457,12 @@ export class YeeAccessory {
   private onInterval = () => {
     if (this.connected) {
       const updateSince = (Date.now() - this.updateTimestamp) / 1000;
-      const updateThreshold = ((this.platform.config.timeout || 5000) + (this.platform.config.interval || 60_000)) / 1000;
+      const updateThreshold =
+        ((this.platform.config.timeout || 5000) + (this.platform.config.interval || 60_000)) / 1000;
       if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
-        this.log(`No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.platform.config.timeout}+${this.platform.config.interval}) => switching to unreachable`);
+        this.log(
+          `No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.platform.config.timeout}+${this.platform.config.interval}) => switching to unreachable`
+        );
         this.onDeviceDisconnected();
       } else {
         this.requestAttributes();
@@ -481,6 +483,4 @@ export class YeeAccessory {
     this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
     this.debug(`requesting attributes. Transactions: ${this.transactions.size}`);
   }
-
-
 }
