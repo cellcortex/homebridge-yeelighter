@@ -112,7 +112,6 @@ the configuration can be added for future users.
 
 👤 **Thomas Kroeber**
 
-- Twitter: [@cellcortex](https://twitter.com/cellcortex)
 - Github: [@cellcortex](https://github.com/cellcortex)
 
 ## 🤝 Contributing
