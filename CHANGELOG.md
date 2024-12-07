@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.9.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.8.0...v2.9.0) (2024-12-07)
+
+
+### Features
+
+* handle quota ([a3d82dd](https://github.com/cellcortex/homebridge-yeelighter/commit/a3d82ddb052ab65ae2a2f05c9afc9ef3df4fb482))
+
 ## [2.8.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.8.0-beta.0...v2.8.0) (2024-12-07)
 
 
