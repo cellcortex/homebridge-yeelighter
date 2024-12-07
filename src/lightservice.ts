@@ -200,7 +200,7 @@ export class LightService {
   }
 
   public updateName(value: string) {
-    this.log("Ingoring updateName", value);
+    this.debug("Ignoring updateName", value);
     // this.name = value;
     // this.service.setCharacteristic(this.platform.Characteristic.Name, `${value} ${this.subtype}`);
     // this.platform.api.updatePlatformAccessories([this.accessory]);
