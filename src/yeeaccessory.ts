@@ -79,6 +79,8 @@ export class YeeAccessory {
   ) {
     const cache = YeeAccessory.handledAccessories.get(device.info.id);
     if (cache) {
+      cache.debug("cache hit");
+      cache.device.reconnect();
       return cache;
     }
     const a = new YeeAccessory(platform, device, accessory, ambientAccessory);

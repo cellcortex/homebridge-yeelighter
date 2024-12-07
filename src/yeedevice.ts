@@ -70,6 +70,23 @@ export class Device extends EventEmitter {
     this.forceDisconnect = false;
   }
 
+  reconnect() {
+    try {
+      this.forceDisconnect = false;
+      if (this.socket && this.socket.errored) {
+        this.socket.destroy();
+      }
+      this.socket = new net.Socket({ allowHalfOpen: false });
+      this.bindSocket();
+      this.socket.connect({ host: this.info.host, port: this.info.port }, () => {
+        this.didConnect();
+        this.emit("connected");
+      });
+    } catch (error: any) {
+      this.socketClosed(error);
+    }
+  }
+
   connect() {
     try {
       this.forceDisconnect = false;
@@ -129,7 +146,6 @@ export class Device extends EventEmitter {
           delete this.retryTimer;
         }
         this.retryTimer = setTimeout(this.connect.bind(this), 5000);
-  
       }
     } else {
       this.disconnect(false);

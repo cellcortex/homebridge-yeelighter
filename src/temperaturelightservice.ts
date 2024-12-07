@@ -115,13 +115,13 @@ export class TemperatureLightService extends LightService implements ConcreteLig
                 await this.sendDebouncedPowerOverride(POWERMODE_MOON);
                 this.debug("Moonlight", "on");
               }
-              valueToSet = value * 2;
+              valueToSet = value * 2 - 1;
             } else {
               if (this.powerMode !== POWERMODE_CT) {
                 await this.sendDebouncedPowerOverride(POWERMODE_CT);
                 this.debug("Moonlight", "off");
               }
-              valueToSet = Math.max(1, (value - 50) * 2 + 1);
+              valueToSet = Math.max(1, (value - 50) * 2);
             }
           }
           this.log(`set brightness ${value} (translated to ${valueToSet})`);
