@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.7.2-beta.26](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.7.2-beta.25...v2.7.2-beta.26) (2024-12-07)
+
+
+### Bug Fixes
+
+* rewrite getAttributes ([6087c79](https://github.com/cellcortex/homebridge-yeelighter/commit/6087c7988f902ac4d3b8ab694771d968a1eb184c))
+
 ### [2.7.2-beta.25](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.7.2-beta.24...v2.7.2-beta.25) (2024-12-07)
 
 ### [2.7.2-beta.24](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.7.2-beta.23...v2.7.2-beta.24) (2024-12-07)
