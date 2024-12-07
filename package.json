@@ -1,7 +1,7 @@
 {
   "name": "homebridge-yeelighter",
   "displayName": "Yeelighter",
-  "version": "2.7.2-beta.6",
+  "version": "2.7.2-beta.7",
   "description": "Yeelight support for Homebridge with particular support of ceiling lights",
   "license": "MIT",
   "keywords": [
@@ -52,6 +52,7 @@
   "devDependencies": {
     "@types/node": "^22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.16.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-promise": "^7.2.1",
