@@ -253,7 +253,7 @@ export class YeeAccessory {
     // the the promise for the transaction
     const transaction = this.transactions.get(id);
     if (!transaction) {
-      this.warn(`no transactions found for ${id}`, update);
+      this.warn(`no transactions found for ${id}`);
     }
     if (transaction) {
       const seconds = (Date.now() - transaction.timestamp) / 1000;
