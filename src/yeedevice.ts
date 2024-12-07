@@ -75,13 +75,16 @@ export class Device extends EventEmitter {
       this.forceDisconnect = false;
       if (this.socket && this.socket.errored) {
         this.socket.destroy();
+        this.socket = undefined;
       }
-      this.socket = new net.Socket({ allowHalfOpen: false });
-      this.bindSocket();
-      this.socket.connect({ host: this.info.host, port: this.info.port }, () => {
-        this.didConnect();
-        this.emit("connected");
-      });
+      if (!this.socket || this.socket.destroyed || this.socket.closed || this.socket.errored) {
+        this.socket = new net.Socket({ allowHalfOpen: false });
+        this.bindSocket();
+        this.socket.connect({ host: this.info.host, port: this.info.port }, () => {
+          this.didConnect();
+          this.emit("connected");
+        });
+      }
     } catch (error: any) {
       this.socketClosed(error);
     }

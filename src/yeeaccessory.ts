@@ -266,42 +266,43 @@ export class YeeAccessory {
       // simple ok
     } else if (result && result.length > 3) {
       this.connected = true;
-      if (this.lastCommandId == id) {
-        const seconds = (Date.now() - this.queryTimestamp) / 1000;
-        this.debug(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
-        if (this.updateResolve) {
-          // resolve the promise and delete the resolvers
-          this.updateResolve(result);
-          this.updatePromisePending = false;
-          delete this.updateResolve;
-          delete this.updateReject;
-        }
-        const newAttributes = { ...EMPTY_ATTRIBUTES };
-        for (const key of Object.keys(this.attributes)) {
-          const index = TRACKED_ATTRIBUTES.indexOf(key);
-          switch (typeof EMPTY_ATTRIBUTES[key]) {
-            case "number": {
-              if (!Number.isNaN(Number(result[index]))) {
-                newAttributes[key] = Number(result[index]);
-              }
-              break;
+      if (this.lastCommandId != id) {
+        this.warn(`update with unexpected id: ${id}, expected: ${this.lastCommandId}`);
+        this.lastCommandId = id;
+      }
+
+      const seconds = (Date.now() - this.queryTimestamp) / 1000;
+      this.debug(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
+      if (this.updateResolve) {
+        // resolve the promise and delete the resolvers
+        this.updateResolve(result);
+        this.updatePromisePending = false;
+        delete this.updateResolve;
+        delete this.updateReject;
+      }
+      const newAttributes = { ...EMPTY_ATTRIBUTES };
+      for (const key of Object.keys(this.attributes)) {
+        const index = TRACKED_ATTRIBUTES.indexOf(key);
+        switch (typeof EMPTY_ATTRIBUTES[key]) {
+          case "number": {
+            if (!Number.isNaN(Number(result[index]))) {
+              newAttributes[key] = Number(result[index]);
             }
-            case "boolean": {
-              newAttributes[key] = result[index] === "on";
-              break;
-            }
-            default: {
-              newAttributes[key] = result[index];
-              break;
-            }
+            break;
+          }
+          case "boolean": {
+            newAttributes[key] = result[index] === "on";
+            break;
+          }
+          default: {
+            newAttributes[key] = result[index];
+            break;
           }
         }
-        this.updateTimestamp = Date.now();
-        this.onUpdateAttributes(newAttributes);
-        transaction?.resolve();
-      } else {
-        this.warn(`update with unexpected id: ${id}, expected: ${this.lastCommandId}`);
       }
+      this.updateTimestamp = Date.now();
+      this.onUpdateAttributes(newAttributes);
+      transaction?.resolve();
     } else if (error) {
       this.error(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
       // reject any pending waits
