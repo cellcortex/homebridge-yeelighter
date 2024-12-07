@@ -338,7 +338,11 @@ export class YeeAccessory {
     this.log(`${this.info.model} Connected`);
 
     // await here
-    await this.requestAttributes();
+    try {
+      await this.requestAttributes();
+    } catch (error) {
+      this.error("Failed to retrieve attributes", error);
+    }
 
     if (this.platform.config.interval !== 0) {
       this.interval = setInterval(this.onInterval, this.platform.config.interval || 60_000);
