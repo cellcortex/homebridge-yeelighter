@@ -223,11 +223,13 @@ export class YeeAccessory {
       }
       // this promise will be awaited for by everybody entering here while a request is still in the air
       if (this.updatePromise && this.connected) {
-        const timeout = (prom: Promise<string[]>, time: number) => {
-          let timer: ReturnType<typeof setTimeout>;
-          return Promise.race([prom, new Promise((_resolve, reject) => (timer = setTimeout(reject, time)))]).finally(
-            () => clearTimeout(timer)
-          );
+        let timer: ReturnType<typeof setTimeout>;
+        const timeout = async (prom: Promise<string[]>, time: number) => {
+          try {
+            return await Promise.race([prom, new Promise((_resolve, reject) => (timer = setTimeout(reject, time)))]);
+          } finally {
+            return clearTimeout(timer);
+          }
         };
         try {
           await timeout(this.updatePromise, this.platform.config.timeout || 60_000);
@@ -250,6 +252,7 @@ export class YeeAccessory {
       this.warn("unknown response", update);
       return;
     }
+    // the the promise for the transaction
     const transaction = this.transactions.get(id);
     if (!transaction) {
       this.warn(`no transactions found for ${id}`, update);
