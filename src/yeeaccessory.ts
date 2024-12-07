@@ -44,7 +44,7 @@ interface Deferred<T> {
   timestamp: number;
 }
 
-function withTimeout<T>(promise: Promise<T>, ms: number, timeoutError = new Error("Promise timed out")): Promise<T> {
+function withTimeout<T>(promise: Promise<T>, ms: number, timeoutError = new Error("__timeout__")): Promise<T> {
   // create a promise that rejects in milliseconds
   const timeout = new Promise<never>((_resolve, reject) => {
     setTimeout(() => {
@@ -244,7 +244,17 @@ export class YeeAccessory {
         // Cache the response with the current timestamp
         this.lastFetchTime = now;
         return this.attributes;
-      } catch (error) {
+      } catch (error: unknown) {
+        if (error instanceof Error && error.message === "__timeout__") {
+          if (this.attributes.name == "unknown") {
+            this.warn("Retrieving attributes timed out. Using last attributes.");
+          } else {
+            this.error("Retrieving attributes timed out. Returning EMPTY attributes.");
+            throw new Error("timeout");
+          }
+          // If the request times out, return the cached response
+          return this.attributes;
+        }
         this.warn("Retrieving attributes failed. Using last attributes.", error);
         // If there's an error and we have a cached response, return it
         return this.attributes;
