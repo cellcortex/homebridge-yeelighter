@@ -58,10 +58,6 @@ export class YeeAccessory {
   public displayName = "unset";
   private support: string[];
   private updateTimestamp: number;
-  private updateResolve?: (update: string[]) => void;
-  private updateReject?: () => void;
-  private updatePromise?: Promise<string[]>;
-  private updatePromisePending: boolean;
   private attributes: Attributes = { ...EMPTY_ATTRIBUTES };
   private lastCommandId = 1;
   private queryTimestamp = 0;
@@ -171,7 +167,6 @@ export class YeeAccessory {
 
     this.support = support;
     this.updateTimestamp = 0;
-    this.updatePromisePending = false;
 
     this.setInfoService(overrideConfig, accessory);
     if (ambientAccessory) {
@@ -211,6 +206,7 @@ export class YeeAccessory {
   };
 
   private lastFetchTime?: number;
+  private fetchInProgress?: Promise<Attributes>;
 
   public getAttributes = async (): Promise<Attributes> => {
     const now = Date.now();
@@ -220,59 +216,26 @@ export class YeeAccessory {
       return this.attributes;
     }
 
-    try {
-      await this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
-      // Cache the response with the current timestamp
-      this.lastFetchTime = now;
-      return this.attributes;
-    } catch (error) {
-      this.warn("Retrieving attributes failed. Using last attributes.", error);
-      // If there's an error and we have a cached response, return it
-      if (this.attributes) {
-        return this.attributes;
-      }
-      // throw error; // If no cached response, rethrow the error
+    if (this.fetchInProgress) {
+      return this.fetchInProgress;
     }
-    return this.attributes;
-  };
 
-  public getAttributes_old = async (): Promise<Attributes> => {
-    if (this.updateTimestamp < Date.now() - 1000 && !this.updatePromisePending) {
-      /*
-        // make sure we don't query in parallel and not more often than every second
-        this.updatePromise = new Promise<string[]>((resolve, reject) => {
-          this.updatePromisePending = true;
-          this.updateResolve = resolve;
-          this.updateReject = reject;
-          this.requestAttributes(); // do not await here since we use the transactions array and want to trigger the next
-        });
-        */
-      this.updatePromisePending = true; // will be set to false in onDeviceUpdate
+    // Start a new fetch
+    this.fetchInProgress = (async () => {
       try {
         await this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
+        // Cache the response with the current timestamp
+        this.lastFetchTime = now;
+        return this.attributes;
       } catch (error) {
         this.warn("Retrieving attributes failed. Using last attributes.", error);
+        // If there's an error and we have a cached response, return it
+        return this.attributes;
+      } finally {
+        // Clear the fetchInProgress flag
+        this.fetchInProgress = undefined;
       }
-    }
-    /*
-      // this promise will be awaited for by everybody entering here while a request is still in the air
-      if (this.updatePromise && this.connected) {
-        const requestOrtimeout = (prom: Promise<string[]>, time: number) => {
-          let timer: ReturnType<typeof setTimeout>;
-          const timeoutPromise = new Promise((_resolve, reject) => {
-            timer = setTimeout(() => reject(new Error("Operation timed out")), time);
-          });
-          return Promise.race([prom, timeoutPromise]).finally(() => clearTimeout(timer)) as Promise<void>;
-        };
-
-        try {
-          await requestOrtimeout(this.updatePromise, this.platform.config.timeout || 60_000);
-        } catch (error) {
-          this.warn("Retrieving attributes failed. Using last attributes.", error);
-        }
-      }
-      */
-
+    })();
     return this.attributes;
   };
 
@@ -295,8 +258,8 @@ export class YeeAccessory {
     if (transaction) {
       const seconds = (Date.now() - transaction.timestamp) / 1000;
       this.debug(`transaction ${id} took ${seconds}s`, update);
+      this.transactions.delete(id);
     }
-    this.transactions.delete(id);
     if (result && result.length === 1 && result[0] === "ok") {
       this.connected = true;
       this.debug(`received ${id}: OK`);
@@ -311,13 +274,6 @@ export class YeeAccessory {
 
       const seconds = (Date.now() - this.queryTimestamp) / 1000;
       this.debug(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
-      if (this.updateResolve) {
-        // resolve the promise and delete the resolvers
-        this.updateResolve(result);
-        this.updatePromisePending = false;
-        delete this.updateResolve;
-        delete this.updateReject;
-      }
       const newAttributes = { ...EMPTY_ATTRIBUTES };
       for (const key of Object.keys(this.attributes)) {
         const index = TRACKED_ATTRIBUTES.indexOf(key);
@@ -343,13 +299,6 @@ export class YeeAccessory {
       transaction?.resolve();
     } else if (error) {
       this.error(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
-      // reject any pending waits
-      if (this.updateReject) {
-        this.updateReject();
-        this.updatePromisePending = false;
-        delete this.updateResolve;
-        delete this.updateReject;
-      }
       transaction?.reject(error);
     } else {
       this.warn(`received unhandled ${id}:`, update);
@@ -376,7 +325,7 @@ export class YeeAccessory {
     try {
       this.queryTimestamp = Date.now();
       // dont await. We're in an interval handler.
-      this.sendCommand("get_prop", this.device.info.trackedAttributes);
+      this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
     } catch (error) {
       this.error("Failed to retrieve attributes", error);
     }
@@ -395,10 +344,6 @@ export class YeeAccessory {
         this.attributes.bg_power = false;
         this.log("configured to mark as powered-off when disconnected");
         for (const service of this.services) service.onPowerOff();
-      }
-      if (this.updateReject) {
-        this.updateReject();
-        this.updatePromisePending = false;
       }
     }
     if (this.interval) {
