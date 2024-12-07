@@ -44,6 +44,18 @@ interface Deferred<T> {
   timestamp: number;
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, timeoutError = new Error("Promise timed out")): Promise<T> {
+  // create a promise that rejects in milliseconds
+  const timeout = new Promise<never>((_resolve, reject) => {
+    setTimeout(() => {
+      reject(timeoutError);
+    }, ms);
+  });
+
+  // returns a race between timeout and the passed promise
+  return Promise.race<T>([promise, timeout]);
+}
+
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
@@ -225,7 +237,10 @@ export class YeeAccessory {
     // Start a new fetch
     this.fetchInProgress = (async () => {
       try {
-        await this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
+        await withTimeout(
+          this.sendCommandPromise("get_prop", this.device.info.trackedAttributes),
+          this.platform.config.timeout || 5000
+        );
         // Cache the response with the current timestamp
         this.lastFetchTime = now;
         return this.attributes;
@@ -333,7 +348,6 @@ export class YeeAccessory {
     this.connected = true;
     this.log(`${this.info.model} Connected`);
 
-    // await here
     try {
       // dont await. We're in an interval handler.
       this.sendHeartbeat();
