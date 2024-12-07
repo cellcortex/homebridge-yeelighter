@@ -37,13 +37,6 @@
         "required": false,
         "description": "color temperature setting combined with color setting enabled."
       },
-      "blocking": {
-        "title": "use blocking getters (old behavior)",
-        "type": "boolean",
-        "default": "false",
-        "required": false,
-        "description": "If enabled, instead of regularly pulling updates from the lights, this will query updates only when homekit requests them. This has proven to be problematic since it freezes the homekit UI while waiting for updates."
-      },
       "split": {
         "title": "split lights with multiple services into separate homekit lights",
         "type": "boolean",
@@ -132,7 +125,7 @@
                 }
               }
             },
-            
+
             "address": {
               "title": "Force IP Address",
               "type": "string",

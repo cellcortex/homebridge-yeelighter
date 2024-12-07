@@ -210,10 +210,35 @@ export class YeeAccessory {
     this.platform.log.error(`[${this.name}] ${message}`, optionalParameters);
   };
 
+  private lastFetchTime?: number;
+
   public getAttributes = async (): Promise<Attributes> => {
-    if (this.config?.blocking) {
-      if (this.updateTimestamp < Date.now() - 1000 && !this.updatePromisePending) {
-        /*
+    const now = Date.now();
+
+    // Check if we have a cached response and if it's less than a second old
+    if (this.lastFetchTime && now - this.lastFetchTime < 1000) {
+      return this.attributes;
+    }
+
+    try {
+      await this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
+      // Cache the response with the current timestamp
+      this.lastFetchTime = now;
+      return this.attributes;
+    } catch (error) {
+      this.warn("Retrieving attributes failed. Using last attributes.", error);
+      // If there's an error and we have a cached response, return it
+      if (this.attributes) {
+        return this.attributes;
+      }
+      // throw error; // If no cached response, rethrow the error
+    }
+    return this.attributes;
+  };
+
+  public getAttributes_old = async (): Promise<Attributes> => {
+    if (this.updateTimestamp < Date.now() - 1000 && !this.updatePromisePending) {
+      /*
         // make sure we don't query in parallel and not more often than every second
         this.updatePromise = new Promise<string[]>((resolve, reject) => {
           this.updatePromisePending = true;
@@ -222,14 +247,14 @@ export class YeeAccessory {
           this.requestAttributes(); // do not await here since we use the transactions array and want to trigger the next
         });
         */
-        this.updatePromisePending = true; // will be set to false in onDeviceUpdate
-        try {
-          await this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
-        } catch (error) {
-          this.warn("Retrieving attributes failed. Using last attributes.", error);
-        }
+      this.updatePromisePending = true; // will be set to false in onDeviceUpdate
+      try {
+        await this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
+      } catch (error) {
+        this.warn("Retrieving attributes failed. Using last attributes.", error);
       }
-      /*
+    }
+    /*
       // this promise will be awaited for by everybody entering here while a request is still in the air
       if (this.updatePromise && this.connected) {
         const requestOrtimeout = (prom: Promise<string[]>, time: number) => {
@@ -247,7 +272,7 @@ export class YeeAccessory {
         }
       }
       */
-    }
+
     return this.attributes;
   };
 
