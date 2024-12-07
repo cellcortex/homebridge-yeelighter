@@ -60,10 +60,11 @@ export class YeeAccessory {
   private updateTimestamp: number;
   private attributes: Attributes = { ...EMPTY_ATTRIBUTES };
   private lastCommandId = 1;
-  private queryTimestamp = 0;
+  private heartbeatTimestamp = 0;
   public overrideConfig?: OverrideLightConfiguration;
   private interval?: NodeJS.Timeout;
   private transactions = new Map<number, Deferred<void>>();
+  private keepAlives = new Set<number>();
 
   private static handledAccessories = new Map<string, YeeAccessory>();
 
@@ -252,7 +253,8 @@ export class YeeAccessory {
     }
     // the the promise for the transaction
     const transaction = this.transactions.get(id);
-    if (!transaction) {
+    const keepAlive = this.keepAlives.delete(id);
+    if (!transaction || keepAlive) {
       this.warn(`no transactions found for ${id}`);
     }
     if (transaction) {
@@ -272,7 +274,7 @@ export class YeeAccessory {
         this.lastCommandId = id;
       }
 
-      const seconds = (Date.now() - this.queryTimestamp) / 1000;
+      const seconds = (Date.now() - this.heartbeatTimestamp) / 1000;
       this.debug(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
       const newAttributes = { ...EMPTY_ATTRIBUTES };
       for (const key of Object.keys(this.attributes)) {
@@ -323,9 +325,8 @@ export class YeeAccessory {
 
     // await here
     try {
-      this.queryTimestamp = Date.now();
       // dont await. We're in an interval handler.
-      this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
+      this.sendHeartbeat();
     } catch (error) {
       this.error("Failed to retrieve attributes", error);
     }
@@ -433,6 +434,13 @@ export class YeeAccessory {
     return id;
   }
 
+  private sendHeartbeat() {
+    this.debug("sending heartbeat");
+    this.heartbeatTimestamp = Date.now();
+    const id = this.sendCommand("get_prop", this.device.info.trackedAttributes);
+    this.keepAlives.add(id);
+  }
+
   async sendCommandPromise(method: string, parameters: Array<string | number | boolean>): Promise<void> {
     return new Promise((resolve, reject) => {
       const timestamp = Date.now();
@@ -464,9 +472,7 @@ export class YeeAccessory {
         );
         this.onDeviceDisconnected();
       } else {
-        this.queryTimestamp = Date.now();
-        // dont await. We're in an interval handler.
-        this.sendCommand("get_prop", this.device.info.trackedAttributes);
+        this.sendHeartbeat();
       }
       //
     } else {
@@ -477,15 +483,4 @@ export class YeeAccessory {
     }
     this.clearOldTransactions();
   };
-
-  /*
-  // request attributes. This will create a promise that will be resolved when the attributes are updated
-  // it will put this promise into this.transations
-  private requestAttributes() {
-    this.queryTimestamp = Date.now();
-    // do not await. We handle the resolve/reject in onDeviceUpdate
-    this.debug(`requesting attributes. Transactions: ${this.transactions.size}`);
-    return this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
-  }
-  */
 }
