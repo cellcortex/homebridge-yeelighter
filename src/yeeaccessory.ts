@@ -212,7 +212,8 @@ export class YeeAccessory {
 
   public getAttributes = async (): Promise<Attributes> => {
     if (this.config?.blocking) {
-      if (this.updateTimestamp < Date.now() - 1000 && (!this.updatePromise || !this.updatePromisePending)) {
+      if (this.updateTimestamp < Date.now() - 1000 && !this.updatePromisePending) {
+        /*
         // make sure we don't query in parallel and not more often than every second
         this.updatePromise = new Promise<string[]>((resolve, reject) => {
           this.updatePromisePending = true;
@@ -220,7 +221,15 @@ export class YeeAccessory {
           this.updateReject = reject;
           this.requestAttributes(); // do not await here since we use the transactions array and want to trigger the next
         });
+        */
+        this.updatePromisePending = true; // will be set to false in onDeviceUpdate
+        try {
+          await this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
+        } catch (error) {
+          this.warn("Retrieving attributes failed. Using last attributes.", error);
+        }
       }
+      /*
       // this promise will be awaited for by everybody entering here while a request is still in the air
       if (this.updatePromise && this.connected) {
         const requestOrtimeout = (prom: Promise<string[]>, time: number) => {
@@ -237,6 +246,7 @@ export class YeeAccessory {
           this.warn("Retrieving attributes failed. Using last attributes.", error);
         }
       }
+      */
     }
     return this.attributes;
   };
@@ -339,7 +349,9 @@ export class YeeAccessory {
 
     // await here
     try {
-      await this.requestAttributes();
+      this.queryTimestamp = Date.now();
+      // dont await. We're in an interval handler.
+      this.sendCommand("get_prop", this.device.info.trackedAttributes);
     } catch (error) {
       this.error("Failed to retrieve attributes", error);
     }
@@ -436,7 +448,7 @@ export class YeeAccessory {
     return infoService;
   }
 
-  sendCommand(method: string, parameters: Array<string | number | boolean>) {
+  public sendCommand(method: string, parameters: Array<string | number | boolean>) {
     if (!this.connected) {
       this.warn("send command but device doesn't seem connected");
     }
@@ -482,8 +494,9 @@ export class YeeAccessory {
         );
         this.onDeviceDisconnected();
       } else {
-        // dont await. We're in an interval handler. Promise will be kept in transactions
-        this.requestAttributes();
+        this.queryTimestamp = Date.now();
+        // dont await. We're in an interval handler.
+        this.sendCommand("get_prop", this.device.info.trackedAttributes);
       }
       //
     } else {
@@ -495,6 +508,7 @@ export class YeeAccessory {
     this.clearOldTransactions();
   };
 
+  /*
   // request attributes. This will create a promise that will be resolved when the attributes are updated
   // it will put this promise into this.transations
   private requestAttributes() {
@@ -503,4 +517,5 @@ export class YeeAccessory {
     this.debug(`requesting attributes. Transactions: ${this.transactions.size}`);
     return this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
   }
+  */
 }
