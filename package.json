@@ -1,7 +1,7 @@
 {
   "name": "homebridge-yeelighter",
   "displayName": "Yeelighter",
-  "version": "2.7.2-beta.12",
+  "version": "2.7.2-beta.13",
   "description": "Yeelight support for Homebridge with particular support of ceiling lights",
   "license": "MIT",
   "keywords": [
@@ -69,7 +69,6 @@
   },
   "homepage": "https://github.com/cellcortex/homebridge-yeelighter#readme",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
     "lint": "eslint src/**.ts --max-warnings=0",
     "watch": "npm run build && npm link && nodemon",
     "clean": "rm -rf ./dist",
