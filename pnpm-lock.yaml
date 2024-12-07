@@ -48,9 +48,6 @@ importers:
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
-      rifraf:
-        specifier: ^2.0.3
-        version: 2.0.3
       standard-version:
         specifier: ^9.5.0
         version: 9.5.0
@@ -2502,9 +2499,6 @@ packages:
 
   rfdc@1.4.1:
     resolution: {integrity: sha512-q1b3N5QkRUWUl7iyylaaj3kOpIT0N2i9MqIEQXP73GVsN9cw3fdx8X63cEmWhJGi2PPCF23Ijp7ktmd39rawIA==}
-
-  rifraf@2.0.3:
-    resolution: {integrity: sha512-4likEZrmIWT1MT3wDR0Gq3SC2q6CfUBQ7CbRlE365jMKgKpTLwUpJmTSurn8gIjyHIRWAFLtiDg7QfemHHI0rA==}
 
   run-async@2.4.1:
     resolution: {integrity: sha512-tvVnVv01b8c1RrA6Ep7JkStj85Guv/YrMcwqYQnwjsAS2cTmmPGBBjAjpCW7RrSodNSoE2/qg9O4bceNvUuDgQ==}
@@ -5893,8 +5887,6 @@ snapshots:
   reusify@1.0.4: {}
 
   rfdc@1.4.1: {}
-
-  rifraf@2.0.3: {}
 
   run-async@2.4.1: {}
 
