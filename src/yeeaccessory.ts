@@ -254,7 +254,7 @@ export class YeeAccessory {
     // the the promise for the transaction
     const transaction = this.transactions.get(id);
     const keepAlive = this.keepAlives.delete(id);
-    if (!transaction || keepAlive) {
+    if (!transaction || !keepAlive) {
       this.warn(`no transactions found for ${id}`);
     }
     if (transaction) {
