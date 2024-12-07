@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.10.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.9.0...v2.10.0) (2024-12-07)
+
+
+### Bug Fixes
+
+* plugin is slowing down homebridge ([74e39e9](https://github.com/cellcortex/homebridge-yeelighter/commit/74e39e992c7ab63b017ad56d0b63275b10e54e81))
+
 ## [2.9.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.8.0...v2.9.0) (2024-12-07)
 
 
