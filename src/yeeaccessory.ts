@@ -218,12 +218,12 @@ export class YeeAccessory {
           this.updatePromisePending = true;
           this.updateResolve = resolve;
           this.updateReject = reject;
-          this.requestAttributes();
+          this.requestAttributes(); // do not await here since we use the transactions array and want to trigger the next
         });
       }
       // this promise will be awaited for by everybody entering here while a request is still in the air
       if (this.updatePromise && this.connected) {
-        const timeout = (prom: Promise<string[]>, time: number) => {
+        const requestOrtimeout = (prom: Promise<string[]>, time: number) => {
           let timer: ReturnType<typeof setTimeout>;
           const timeoutPromise = new Promise((_resolve, reject) => {
             timer = setTimeout(() => reject(new Error("Operation timed out")), time);
@@ -232,7 +232,7 @@ export class YeeAccessory {
         };
 
         try {
-          await timeout(this.updatePromise, this.platform.config.timeout || 60_000);
+          await requestOrtimeout(this.updatePromise, this.platform.config.timeout || 60_000);
         } catch (error) {
           this.warn("Retrieving attributes failed. Using last attributes.", error);
         }
@@ -336,7 +336,10 @@ export class YeeAccessory {
   private onDeviceConnected = async () => {
     this.connected = true;
     this.log(`${this.info.model} Connected`);
-    this.requestAttributes();
+
+    // await here
+    await this.requestAttributes();
+
     if (this.platform.config.interval !== 0) {
       this.interval = setInterval(this.onInterval, this.platform.config.interval || 60_000);
     }
@@ -475,6 +478,7 @@ export class YeeAccessory {
         );
         this.onDeviceDisconnected();
       } else {
+        // dont await. We're in an interval handler. Promise will be kept in transactions
         this.requestAttributes();
       }
       //
@@ -487,10 +491,12 @@ export class YeeAccessory {
     this.clearOldTransactions();
   };
 
-  async requestAttributes() {
+  // request attributes. This will create a promise that will be resolved when the attributes are updated
+  // it will put this promise into this.transations
+  private requestAttributes() {
     this.queryTimestamp = Date.now();
     // do not await. We handle the resolve/reject in onDeviceUpdate
-    this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
     this.debug(`requesting attributes. Transactions: ${this.transactions.size}`);
+    return this.sendCommandPromise("get_prop", this.device.info.trackedAttributes);
   }
 }
