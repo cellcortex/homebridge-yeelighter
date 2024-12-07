@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.7.2-beta.22](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.7.2-beta.21...v2.7.2-beta.22) (2024-12-07)
+
+
+### Bug Fixes
+
+* crash when update fails ([eda7d0f](https://github.com/cellcortex/homebridge-yeelighter/commit/eda7d0fb1428657829f0b040a75d7aef07136a5c))
+
 ### [2.7.2-beta.21](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.7.2-beta.20...v2.7.2-beta.21) (2024-12-07)
 
 ### [2.7.2-beta.20](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.7.2-beta.19...v2.7.2-beta.20) (2024-12-07)
