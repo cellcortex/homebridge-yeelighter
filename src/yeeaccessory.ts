@@ -266,9 +266,7 @@ export class YeeAccessory {
       // simple ok
     } else if (result && result.length > 3) {
       this.connected = true;
-      if (this.lastCommandId !== id) {
-        this.warn(`update with unexpected id: ${id}, expected: ${this.lastCommandId}`);
-      } else {
+      if (this.lastCommandId == id) {
         const seconds = (Date.now() - this.queryTimestamp) / 1000;
         this.debug(`received update ${id} after ${seconds}s: ${JSON.stringify(result)}`);
         if (this.updateResolve) {
@@ -301,6 +299,8 @@ export class YeeAccessory {
         this.updateTimestamp = Date.now();
         this.onUpdateAttributes(newAttributes);
         transaction?.resolve();
+      } else {
+        this.warn(`update with unexpected id: ${id}, expected: ${this.lastCommandId}`);
       }
     } else if (error) {
       this.error(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
