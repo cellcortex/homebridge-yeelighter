@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.11.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.10.0...v2.11.0) (2024-12-07)
+
+
+### Bug Fixes
+
+* fix typos, less verbose logging ([4b7f6e5](https://github.com/cellcortex/homebridge-yeelighter/commit/4b7f6e5c3a2ce0c276943f9ef1bf78eedc963a46))
+* improve logging when timeout ([6bddca2](https://github.com/cellcortex/homebridge-yeelighter/commit/6bddca26ce47974bfa0fc7b18d7b377c1f2b0a3c))
+
 ## [2.10.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.9.0...v2.10.0) (2024-12-07)
 
 
