@@ -137,7 +137,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
             try {
               for (const item of purgeList) {
                 const index = this.accessories.indexOf(item);
-                if (index >= 0) {
+                if (index !== -1) {
                   this.accessories.splice(index, 1);
                 }
               }
@@ -160,7 +160,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
         try {
           this.log.info(`Separate Ambient Accessory not wanted anymore. Unregistering`, ambientAccessory.UUID);
           const index = this.accessories.indexOf(ambientAccessory);
-          if (index >= 0) {
+          if (index !== -1) {
             this.accessories.splice(index, 1);
           }
           this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [ambientAccessory]);
@@ -197,7 +197,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
             this.log.info("Removing existing accessory from cache:", existingAccessory.displayName);
             this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
             const index = this.accessories.indexOf(existingAccessory);
-            if (index >= 0) {
+            if (index !== -1) {
               this.accessories.splice(index, 1);
             }
           } catch (error) {

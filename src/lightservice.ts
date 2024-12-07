@@ -76,16 +76,20 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
     return POWERMODE_MOON;
   }
   switch (color_mode) {
-    case 1:
+    case 1: {
       // this is never used
       return POWERMODE_DEFAULT;
-    case 2:
+    }
+    case 2: {
       return POWERMODE_CT;
-    case 3:
+    }
+    case 3: {
       return POWERMODE_HSV;
-    default:
+    }
+    default: {
       // this should never happen!
       return POWERMODE_DEFAULT;
+    }
   }
 }
 
@@ -99,14 +103,18 @@ export function convertColorTemperature(value: number): number {
 
 export function isValidValue(value: unknown) {
   switch (typeof value) {
-    case "boolean":
+    case "boolean": {
       return true;
-    case "number":
+    }
+    case "number": {
       return Number.isFinite(value);
-    case "string":
+    }
+    case "string": {
       return true;
-    default:
+    }
+    default: {
       return false;
+    }
   }
 }
 
@@ -143,16 +151,19 @@ export class LightService {
 
     // we use powerMode to store the currently set mode
     switch (this.light.info.color_mode) {
-      case 2:
+      case 2: {
         this.powerMode = POWERMODE_CT;
         break;
-      case 3:
+      }
+      case 3: {
         this.powerMode = POWERMODE_HSV;
         break;
-      default:
+      }
+      default: {
         // this should never happen!
         this.powerMode = POWERMODE_DEFAULT;
         break;
+      }
     }
     this.name = this.config?.name || this.device.info.id;
 
@@ -278,7 +289,7 @@ export class LightService {
   protected async updateCharacteristic(uuid: any, value: boolean | number | string) {
     const characteristic = this.service.getCharacteristic(uuid);
     if (!characteristic) {
-      return Promise.reject();
+      throw undefined;
     }
     if (isValidValue(value)) {
       characteristic.updateValue(value);

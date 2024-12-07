@@ -282,17 +282,20 @@ export class YeeAccessory {
       for (const key of Object.keys(this.attributes)) {
         const index = TRACKED_ATTRIBUTES.indexOf(key);
         switch (typeof EMPTY_ATTRIBUTES[key]) {
-          case "number":
+          case "number": {
             if (!Number.isNaN(Number(result[index]))) {
               newAttributes[key] = Number(result[index]);
             }
             break;
-          case "boolean":
+          }
+          case "boolean": {
             newAttributes[key] = result[index] === "on";
             break;
-          default:
+          }
+          default: {
             newAttributes[key] = result[index];
             break;
+          }
         }
       }
       this.updateTimestamp = Date.now();
@@ -398,7 +401,15 @@ export class YeeAccessory {
     if (count > 1) {
       name = `${name} ${count}`;
     }
-    if (!infoService) {
+    if (infoService) {
+      // re-use service from cache
+      infoService
+        .updateCharacteristic(platform.Characteristic.Manufacturer, "Yeelighter")
+        .updateCharacteristic(platform.Characteristic.Model, specs.name)
+        .updateCharacteristic(platform.Characteristic.Name, name)
+        .updateCharacteristic(platform.Characteristic.SerialNumber, info.id)
+        .updateCharacteristic(platform.Characteristic.FirmwareRevision, info.fw_ver);
+    } else {
       infoService = new platform.Service.AccessoryInformation();
       infoService
         .updateCharacteristic(platform.Characteristic.Manufacturer, "Yeelighter")
@@ -407,14 +418,6 @@ export class YeeAccessory {
         .updateCharacteristic(platform.Characteristic.SerialNumber, info.id)
         .updateCharacteristic(platform.Characteristic.FirmwareRevision, info.fw_ver);
       accessory.addService(infoService);
-    } else {
-      // re-use service from cache
-      infoService
-        .updateCharacteristic(platform.Characteristic.Manufacturer, "Yeelighter")
-        .updateCharacteristic(platform.Characteristic.Model, specs.name)
-        .updateCharacteristic(platform.Characteristic.Name, name)
-        .updateCharacteristic(platform.Characteristic.SerialNumber, info.id)
-        .updateCharacteristic(platform.Characteristic.FirmwareRevision, info.fw_ver);
     }
     this.setNameService(infoService);
 

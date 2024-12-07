@@ -48,18 +48,22 @@ export class Discovery extends EventEmitter {
     for (const header of Object.keys(headers)) {
       const value = headers[header];
       switch (typeof EMPTY_DEVICEINFO[header]) {
-        case "number":
+        case "number": {
           device[header] = Number(value);
           break;
-        case "boolean":
+        }
+        case "boolean": {
           device[header] = value === "on";
           break;
-        case "string":
+        }
+        case "string": {
           device[header] = value;
           break;
-        default:
+        }
+        default: {
           // device[header] = value;
           break;
+        }
       }
     }
     if (device.id && device.location && device.id !== "") {
