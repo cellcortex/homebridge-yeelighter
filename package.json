@@ -1,7 +1,7 @@
 {
   "name": "homebridge-yeelighter",
   "displayName": "Yeelighter",
-  "version": "2.7.2-beta.2",
+  "version": "2.7.2-beta.3",
   "description": "Yeelight support for Homebridge with particular support of ceiling lights",
   "license": "MIT",
   "keywords": [
@@ -74,7 +74,7 @@
     "clean": "rimraf ./dist",
     "build": "tsc",
     "pre-commit": "lint-staged",
-    "prepublishOnly": "run-s clean lint build",
+    "prepublishOnly": "clean && lint && build",
     "start": "/usr/local/bin/homebridge -D -P ../homebridge-yeelighter",
     "debug": "DEBUG=* /usr/local/bin/homebridge -D -P ../homebridge-yeelighter",
     "postversion": "git push --tags && pnpm publish . --tag $npm_package_version && git push && echo \"Successfully released version $npm_package_version!\"",
