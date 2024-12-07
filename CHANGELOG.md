@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.8.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.8.0-beta.0...v2.8.0) (2024-12-07)
+
+
+### Features
+
+* homebridge 2.0 support (preview) ([d8f7f30](https://github.com/cellcortex/homebridge-yeelighter/commit/d8f7f30b98c122954814a0393ee7b46fe3a96adf))
+
+
+### Bug Fixes
+
+* was not checking for heartbeat messages correctly resulting in wrong warnings in log ([f4c4122](https://github.com/cellcortex/homebridge-yeelighter/commit/f4c412233a0dccd3313d14641e31467377b76f31))
+
 ## [2.8.0-beta.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.7.2-beta.27...v2.8.0-beta.0) (2024-12-07)
 
 
