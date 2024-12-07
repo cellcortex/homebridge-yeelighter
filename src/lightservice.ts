@@ -98,6 +98,7 @@ export function convertColorTemperature(value: number): number {
   if (Number.isFinite(value) && value > 0) {
     return Math.round(1_000_000 / value);
   }
+  // This will cause a warning in the logs
   return 1000;
 }
 

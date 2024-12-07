@@ -64,7 +64,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
     }
     delete this.timer;
     this.debug("sending override power command", mode);
-     
+
     if (mode === undefined) {
       await this.sendCommand("set_power", ["off", "smooth", 500]);
     } else {
@@ -89,7 +89,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           this.log(`Ignoring explicit power on`);
         } else {
           this.debug(`Manual power setting with powerMode: ${this.powerMode}`, value);
-           
+
           if (value) {
             this.sendDebouncedPower(this.powerMode || POWERMODE_CT);
             // await this.sendCommand("set_power", ["on", "sudden", 0, this.powerMode || POWERMODE_CT]);
@@ -149,10 +149,6 @@ export class TemperatureLightService extends LightService implements ConcreteLig
         await this.ensurePowerMode(POWERMODE_CT);
         await this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
         this.setAttributes({ ct: convertColorTemperature(value) });
-        /*this.updateCharacteristic(
-          this.platform.Characteristic.ColorTemperature,
-          value
-        );\*/
 
         this.saveDefaultIfNeeded();
       }

@@ -41,7 +41,7 @@ export const EMPTY_DEVICEINFO: DeviceInfo = {
   port: 0,
   debug: false,
   trackedAttributes: [],
-  fw_ver: "0,0.0",
+  fw_ver: "0.0.0",
   name: "string"
 };
 

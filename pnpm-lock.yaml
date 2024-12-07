@@ -12,6 +12,9 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
     devDependencies:
+      '@types/http-headers':
+        specifier: ^3.0.4
+        version: 3.0.4
       '@types/node':
         specifier: ^22.10.1
         version: 22.10.1
@@ -477,6 +480,9 @@ packages:
 
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
+
+  '@types/http-headers@3.0.4':
+    resolution: {integrity: sha512-TOqqS9BnBHnnLhvmdayIopNSMfCqya4jM6vurIGeCaHqMLvK3tY3KefSi1si+oIoWbZHLEe0+Eh2xsXHA+nvRg==}
 
   '@types/istanbul-lib-coverage@2.0.6':
     resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
@@ -3538,6 +3544,10 @@ snapshots:
   '@types/estree@1.0.6': {}
 
   '@types/graceful-fs@4.1.9':
+    dependencies:
+      '@types/node': 22.10.1
+
+  '@types/http-headers@3.0.4':
     dependencies:
       '@types/node': 22.10.1
 

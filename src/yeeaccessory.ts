@@ -67,6 +67,7 @@ export class YeeAccessory {
   private keepAlives = new Set<number>();
 
   private static handledAccessories = new Map<string, YeeAccessory>();
+  private floodAlarm?: number;
 
   public static instance(
     device: Device,
@@ -246,6 +247,9 @@ export class YeeAccessory {
 
   private onDeviceUpdate = (update: IncomingMessage) => {
     const { id, result, error } = update;
+
+    this.updateTimestamp = Date.now();
+
     if (!id) {
       // this is some strange unknown message
       this.warn("unknown response", update);
@@ -254,7 +258,7 @@ export class YeeAccessory {
     // the the promise for the transaction
     const transaction = this.transactions.get(id);
     const keepAlive = this.keepAlives.delete(id);
-    if (!transaction || !keepAlive) {
+    if (!transaction && !keepAlive) {
       this.warn(`no transactions found for ${id}`);
     }
     if (transaction) {
@@ -296,11 +300,17 @@ export class YeeAccessory {
           }
         }
       }
-      this.updateTimestamp = Date.now();
+
       this.onUpdateAttributes(newAttributes);
       transaction?.resolve();
     } else if (error) {
-      this.error(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
+      if (error.message.includes("quota")) {
+        this.warn(`quota exceeded for request [${id}]`);
+        this.floodAlarm = Date.now();
+        // this.onDeviceDisconnected();
+      } else {
+        this.error(`Error returned for request [${id}]: ${JSON.stringify(error)}`);
+      }
       transaction?.reject(error);
     } else {
       this.warn(`received unhandled ${id}:`, update);
@@ -463,16 +473,22 @@ export class YeeAccessory {
 
   private onInterval = () => {
     if (this.connected) {
-      const updateSince = (Date.now() - this.updateTimestamp) / 1000;
-      const updateThreshold =
-        ((this.platform.config.timeout || 5000) + (this.platform.config.interval || 60_000)) / 1000;
-      if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
-        this.log(
-          `No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.platform.config.timeout}+${this.platform.config.interval}) => switching to unreachable`
-        );
-        this.onDeviceDisconnected();
+      // if flooded wait for 5 minutes
+      if (this.floodAlarm && Date.now() - this.floodAlarm > 180_000_000) {
+        this.log(`flooded. waiting ${(Date.now() - this.floodAlarm) / 60_000}s`);
       } else {
-        this.sendHeartbeat();
+        // seconds since last update
+        const updateSince = (Date.now() - this.updateTimestamp) / 1000;
+        const updateThreshold =
+          ((this.platform.config.timeout || 5000) + (this.platform.config.interval || 60_000)) / 1000;
+        if (this.updateTimestamp !== 0 && updateSince > updateThreshold) {
+          this.log(
+            `No update received within ${updateSince}s (Threshold: ${updateThreshold} (${this.platform.config.timeout}+${this.platform.config.interval}) => switching to unreachable`
+          );
+          this.onDeviceDisconnected();
+        } else {
+          this.sendHeartbeat();
+        }
       }
       //
     } else {

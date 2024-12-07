@@ -31,7 +31,7 @@
   },
   "engines": {
     "homebridge": "^1.6.0 || ^2.0.0-beta.0",
-    "node": "^16.14.2 || ^18.20.4 || ^20.15.1 || >23.3.0"
+    "node": "^16.14.2 || ^18.20.4 || ^20.15.1 || >22.3.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -50,6 +50,7 @@
     ]
   },
   "devDependencies": {
+    "@types/http-headers": "^3.0.4",
     "@types/node": "^22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "cz-conventional-changelog": "^3.3.0",
