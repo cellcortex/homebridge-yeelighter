@@ -223,18 +223,18 @@ export class YeeAccessory {
       }
       // this promise will be awaited for by everybody entering here while a request is still in the air
       if (this.updatePromise && this.connected) {
-        let timer: ReturnType<typeof setTimeout>;
-        const timeout = async (prom: Promise<string[]>, time: number) => {
-          try {
-            return await Promise.race([prom, new Promise((_resolve, reject) => (timer = setTimeout(reject, time)))]);
-          } finally {
-            return clearTimeout(timer);
-          }
+        const timeout = (prom: Promise<string[]>, time: number) => {
+          let timer: ReturnType<typeof setTimeout>;
+          const timeoutPromise = new Promise((_resolve, reject) => {
+            timer = setTimeout(() => reject(new Error("Operation timed out")), time);
+          });
+          return Promise.race([prom, timeoutPromise]).finally(() => clearTimeout(timer)) as Promise<void>;
         };
+
         try {
           await timeout(this.updatePromise, this.platform.config.timeout || 60_000);
         } catch (error) {
-          this.warn("retrieving attributes failed. Using last attributes.", error);
+          this.warn("Retrieving attributes failed. Using last attributes.", error);
         }
       }
     }
