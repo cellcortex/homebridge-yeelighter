@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.8.0-beta.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.7.2-beta.27...v2.8.0-beta.0) (2024-12-07)
+
+
+### Features
+
+* add separate keep-alive interval ([c13cad8](https://github.com/cellcortex/homebridge-yeelighter/commit/c13cad8e5bdb7471a5d0e6ba239f448d7410e000))
+
 ### [2.7.2-beta.27](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.7.2-beta.26...v2.7.2-beta.27) (2024-12-07)
 
 
