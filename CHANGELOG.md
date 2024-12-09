@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.12.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.11.0...v2.12.0) (2024-12-09)
+
+
+### Bug Fixes
+
+* crash when charactistic getter times out first tim ([dc3ce97](https://github.com/cellcortex/homebridge-yeelighter/commit/dc3ce97fb7f1c16d07db890201701e750a33d1e5))
+
 ## [2.11.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.10.0...v2.11.0) (2024-12-07)
 
 
