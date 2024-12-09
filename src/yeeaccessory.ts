@@ -250,7 +250,8 @@ export class YeeAccessory {
             this.warn("Retrieving attributes timed out. Using last attributes.");
           } else {
             this.error("Retrieving attributes timed out. Returning EMPTY attributes.");
-            throw new Error("timeout");
+            // can't throw here - it would take down homebridge
+            // throw new Error("timeout");
           }
           // If the request times out, return the cached response
           return this.attributes;
