@@ -93,10 +93,16 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
   }
 }
 
-export function convertColorTemperature(value: number): number {
+/**
+ * Converts a color temperature in Kelvin to a mired value for Homebridge.
+ *
+ * @param kelvin - The color temperature in Kelvin (e.g., 2000K to 6500K).
+ * @returns The corresponding value in mireds (HomeKit-compatible scale).
+ */
+export function convertColorTemperature(kelvin: number): number {
   // check if value is valid
-  if (Number.isFinite(value) && value > 0) {
-    return Math.round(1_000_000 / value);
+  if (Number.isFinite(kelvin) && kelvin > 0) {
+    return Math.max(Math.round(1_000_000 / kelvin), 370);
   }
   // This will cause a warning in the logs
   return 1000;

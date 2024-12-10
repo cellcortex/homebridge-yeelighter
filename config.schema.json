@@ -15,11 +15,11 @@
       "timeout": {
         "title": "Timeout for requests",
         "type": "integer",
-        "default": "5000",
+        "default": "2000",
         "minimum": 0,
         "maximum": 600000,
         "required": false,
-        "description": "The timeout allowed for lights to respond to requests (in ms)"
+        "description": "The timeout allowed for lights to respond to requests (in ms). Setting this too high may 'slow' down homebridge"
       },
       "interval": {
         "title": "Polling interval for requests (0 means never)",

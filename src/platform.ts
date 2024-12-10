@@ -40,6 +40,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
   private agent: Discovery;
+  private recentAccessories: Map<string, number> = new Map();
 
   constructor(
     public readonly log: Logger,
@@ -88,7 +89,10 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
   private onDeviceDiscovery = (detectedInfo: DeviceInfo) => {
     try {
       if (!detectedInfo.id) {
-        this.log.warn("ingoring device with corrupt DeviceInfo", detectedInfo);
+        this.log.warn(
+          "ingoring device with corrupt DeviceInfo. This is often caused by an incorrect manual device in the config file",
+          detectedInfo
+        );
         return;
       }
 
@@ -115,6 +119,13 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       // if the device has a secondary (ambient) light and is configured to have
       // this shown as a separate top-level light, generate a separate UUID for it
       const ambientUuid = this.api.hap.uuid.generate(`${newDeviceInfo.id}#ambient`);
+
+      const recentTS = this.recentAccessories.get(uuid);
+      if (recentTS && Date.now() - recentTS < 1000) {
+        // this device was already registered recently, ignore it
+        this.log.debug("Ignoring device as it was already registered recently", detectedInfo.id);
+        return;
+      }
 
       if (overrideConfig) {
         this.log.info(`Override config for ${detectedInfo.id}: ${JSON.stringify(overrideConfig)}`);
@@ -229,6 +240,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
         // link the accessory to your platform
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, addedAccessories);
       }
+      this.recentAccessories.set(uuid, Date.now());
     } catch (error) {
       this.log.error("Device discovery handling failed", error);
     }

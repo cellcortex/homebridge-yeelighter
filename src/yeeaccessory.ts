@@ -239,7 +239,7 @@ export class YeeAccessory {
       try {
         await withTimeout(
           this.sendCommandPromise("get_prop", this.device.info.trackedAttributes),
-          this.platform.config.timeout || 5000
+          this.platform.config.timeout || 1000
         );
         // Cache the response with the current timestamp
         this.lastFetchTime = now;
