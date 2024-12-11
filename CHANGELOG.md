@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.15.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.14.1...v2.15.0) (2024-12-11)
+
+
+### Features
+
+* animations for colors and brightness (use animateChanges in config) ([1e559b0](https://github.com/cellcortex/homebridge-yeelighter/commit/1e559b0302e7989c92aad6aac334acd2901e3773)), closes [#123](https://github.com/cellcortex/homebridge-yeelighter/issues/123)
+
 ### [2.14.1](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.14.0...v2.14.1) (2024-12-11)
 
 
