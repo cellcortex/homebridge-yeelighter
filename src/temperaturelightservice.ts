@@ -135,6 +135,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
           // this.updateCharacteristic(this.platform.Characteristic.Brightness, this.getBrightness(valueToSet));
         } else {
           this.log(`set brightness to 0, power off`);
+          this.updateCharacteristic(this.platform.Characteristic.Brightness, 0);
           await this.sendDebouncedPowerOverride();
         }
         this.saveDefaultIfNeeded();

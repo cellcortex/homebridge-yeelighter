@@ -57,6 +57,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
         } else {
           this.log(`set brightness to 0, power off`);
           this.cancelAllDebounces();
+          this.updateCharacteristic(this.platform.Characteristic.Brightness, 0);
           await this.sendSuddenCommand("bg_set_power", "off");
         }
         this.saveDefaultIfNeeded();
