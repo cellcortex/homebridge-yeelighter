@@ -97,7 +97,7 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
  * Converts a color temperature in Kelvin to a mired value for Homebridge.
  * The mired value is the reciprocal of the color temperature in microreciprocal degrees.
  * The formula is: mired = 1,000,000 / kelvin.
- * Therefore it can also be used reversed: kelvin = 1,000,000 / mired.
+ * Therefore it can also be used for reversed: kelvin = 1,000,000 / mired.
  *
  * @param kelvin - The color temperature in Kelvin (e.g., 2000K to 6500K).
  * @returns The corresponding value in mireds (HomeKit-compatible scale).
@@ -348,35 +348,20 @@ export class LightService {
     return this.sendCommandPromiseWithErrorHandling(method, [parameter, "smooth", 500]);
   }
 
-  protected async sendAnimatedCommand(method: string, parameter: string | number | boolean) {
+  protected async sendAnimatedCommand(method: string, parameters: string | number | boolean | Array<number>) {
+    const messageParameters = Array.isArray(parameters) ? parameters : [parameters];
     if (this.platform.config?.animateChanges) {
       const animationTime = this.platform.config?.animationTime ?? 500;
       if (this.debounceTimers[method]) {
         clearTimeout(this.debounceTimers[method]);
       }
       this.debounceTimers[method] = setTimeout(async () => {
-        await this.sendCommandPromiseWithErrorHandling(method, [parameter, "smooth", animationTime]);
+        await this.sendCommandPromiseWithErrorHandling(method, [...messageParameters, "smooth", animationTime]);
         delete this.debounceTimers[method];
       }, animationTime);
       return;
     } else {
-      return this.sendCommandPromiseWithErrorHandling(method, [parameter, "sudden"]);
-    }
-  }
-
-  protected async sendAnimatedCommandA(method: string, parameters: Array<string | number | boolean>): Promise<void> {
-    if (this.platform.config?.animateChanges) {
-      const animationTime = this.platform.config?.animationTime ?? 500;
-      if (this.debounceTimers[method]) {
-        clearTimeout(this.debounceTimers[method]);
-      }
-      this.debounceTimers[method] = setTimeout(async () => {
-        await this.sendCommandPromiseWithErrorHandling(method, [...parameters, "smooth", animationTime]);
-        delete this.debounceTimers[method];
-      }, animationTime);
-      return;
-    } else {
-      return this.sendCommandPromiseWithErrorHandling(method, [...parameters, "sudden"]);
+      return this.sendCommandPromiseWithErrorHandling(method, [...messageParameters, "sudden", 0]);
     }
   }
 
@@ -390,7 +375,7 @@ export class LightService {
     if (this.powerMode !== mode) {
       await this.sendCommand(`${prefix}set_power`, ["on", "sudden", 0, mode]);
       this.powerMode = mode;
-      if (prefix == "bg") {
+      if (prefix == "bg_") {
         this.setAttributes({ bg_power: true });
       } else {
         this.setAttributes({ power: true, active_mode: mode == POWERMODE_MOON ? 1 : 0 });
@@ -403,11 +388,11 @@ export class LightService {
     const sat = this.lastSat;
     if (hue && sat) {
       await this.ensurePowerMode(POWERMODE_HSV, prefix);
-      const hsv = [hue, sat];
+      const hsv = [hue, sat, "sudden", 0];
       delete this.lastHue;
       delete this.lastSat;
-      await this.sendAnimatedCommandA(`${prefix}set_hsv`, hsv);
-      if (prefix == "bg") {
+      await this.sendAnimatedCommand(`${prefix}set_hsv`, hsv);
+      if (prefix == "bg_") {
         this.setAttributes({ bg_hue: hue, bg_sat: sat });
       } else {
         this.setAttributes({ hue, sat });
