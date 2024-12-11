@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.15.4](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.15.3...v2.15.4) (2024-12-11)
+
+
+### Bug Fixes
+
+* set brightness to 0 before switching off ([ef6d068](https://github.com/cellcortex/homebridge-yeelighter/commit/ef6d06810d1eb76941f154a8c0ff7bdc1d87cac0))
+
 ### [2.15.3](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.15.2...v2.15.3) (2024-12-11)
 
 
