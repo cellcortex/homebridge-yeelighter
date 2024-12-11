@@ -388,7 +388,7 @@ export class LightService {
     const sat = this.lastSat;
     if (hue && sat) {
       await this.ensurePowerMode(POWERMODE_HSV, prefix);
-      const hsv = [hue, sat, "sudden", 0];
+      const hsv = [hue, sat];
       delete this.lastHue;
       delete this.lastSat;
       await this.sendAnimatedCommand(`${prefix}set_hsv`, hsv);
