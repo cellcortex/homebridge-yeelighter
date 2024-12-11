@@ -209,7 +209,7 @@ export const MODEL_SPECS: { [index: string]: Specs } = {
     color: false
   },
   desklamp: {
-    colorTemperature: { min: 2700, max: 6599 },
+    colorTemperature: { min: 2700, max: 6500 },
     nightLight: false,
     backgroundLight: false,
     name: "Desk Lamp",

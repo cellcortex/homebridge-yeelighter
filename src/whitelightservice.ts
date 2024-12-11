@@ -31,7 +31,7 @@ export class WhiteLightService extends LightService implements ConcreteLightServ
       async (value) => {
         if (value > 0) {
           await this.ensurePowerMode(0);
-          await this.sendSuddenCommand("set_bright", value);
+          await this.sendAnimatedCommand("set_bright", value);
           this.setAttributes({ power: true, bright: value });
           this.saveDefaultIfNeeded();
         } else {

@@ -28,7 +28,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
       async (value) => {
         this.log(`set brightness to ${value}`);
         if (value > 0) {
-          await this.sendSuddenCommand("set_bright", value);
+          await this.sendAnimatedCommand("set_bright", value);
         } else {
           await this.sendSuddenCommand("set_power", "off");
           this.log(`set brightness to 0, power off`);

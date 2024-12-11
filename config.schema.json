@@ -51,6 +51,13 @@
         "default": false,
         "description": "Some Yeelight lights with background light do not properly turn on (even in the official yeelight app). By enabling this option, the plugin forces the light to be turned on by sending command to set a scene (which work in yeelight app as well), then changing the color to specified one."
       },
+      "animateChanges": {
+        "title": "Animate changes",
+        "type": "boolean",
+        "required": false,
+        "default": 0,
+        "description": "When changing in values, animate the change over given milliseconds. Use 0 for no animation."
+      },
       "override": {
         "type": "array",
         "items": {

@@ -147,6 +147,7 @@ export class LightService {
   protected readonly accessory: PlatformAccessory;
   protected light: YeeAccessory;
   protected name: string;
+  private debounceTimers: Record<string, NodeJS.Timeout> = {};
 
   constructor(
     parameters: LightServiceParameters,
@@ -199,6 +200,13 @@ export class LightService {
       this.platform.api.updatePlatformAccessories([this.accessory]);
       callback();
     });
+  }
+
+  public cancelAllDebounces() {
+    for (const key in this.debounceTimers) {
+      clearTimeout(this.debounceTimers[key]);
+      delete this.debounceTimers[key];
+    }
   }
 
   public get detailedLogging() {
@@ -331,6 +339,22 @@ export class LightService {
 
   protected async sendSmoothCommand(method: string, parameter: string | number | boolean) {
     return this.sendCommandPromiseWithErrorHandling(method, [parameter, "smooth", 500]);
+  }
+
+  protected async sendAnimatedCommand(method: string, parameter: string | number | boolean) {
+    if (this.platform.config?.animateChanges) {
+      const animationTime = this.platform.config?.animationTime ?? 500;
+      if (this.debounceTimers[method]) {
+        clearTimeout(this.debounceTimers[method]);
+      }
+      this.debounceTimers[method] = setTimeout(async () => {
+        await this.sendCommandPromiseWithErrorHandling(method, [parameter, "smooth", animationTime]);
+        delete this.debounceTimers[method];
+      }, animationTime);
+      return;
+    } else {
+      return this.sendCommandPromiseWithErrorHandling(method, [parameter, "sudden"]);
+    }
   }
 
   protected saveDefaultIfNeeded() {
