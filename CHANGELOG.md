@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.15.2](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.15.1...v2.15.2) (2024-12-11)
+
+
+### Bug Fixes
+
+* powermode was coded wrong for background ([fc4d6d3](https://github.com/cellcortex/homebridge-yeelighter/commit/fc4d6d3db0a73813b6dcb023819aa1581cd56229))
+
 ### [2.15.1](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.15.0...v2.15.1) (2024-12-11)
 
 
