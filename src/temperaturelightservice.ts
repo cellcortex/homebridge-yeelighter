@@ -147,7 +147,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
       },
       async (value) => {
         await this.ensurePowerMode(POWERMODE_CT);
-        await this.sendSuddenCommand("set_ct_abx", convertColorTemperature(value));
+        await this.sendAnimatedCommand("set_ct_abx", convertColorTemperature(value));
         this.setAttributes({ ct: convertColorTemperature(value) });
 
         this.saveDefaultIfNeeded();

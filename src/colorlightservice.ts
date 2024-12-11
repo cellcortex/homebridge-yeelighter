@@ -48,7 +48,7 @@ export class ColorLightService extends LightService implements ConcreteLightServ
           const kelvin = convertColorTemperature(value);
           await this.ensurePowerMode(POWERMODE_CT);
           this.debug(`setCT: ${convertColorTemperature(value)}`);
-          await this.sendSuddenCommand("set_ct_abx", kelvin);
+          await this.sendAnimatedCommand("set_ct_abx", kelvin);
           this.setAttributes({ ct: kelvin });
           this.updateColorFromCT(value);
           this.saveDefaultIfNeeded();

@@ -66,7 +66,7 @@ export class BackgroundLightService extends LightService implements ConcreteLigh
         async (value) => {
           await this.ensurePowerMode(POWERMODE_CT, "bg_");
           this.debug(`setCT ${convertColorTemperature(value)}`);
-          await this.sendSuddenCommand("bg_set_ct_abx", convertColorTemperature(value));
+          await this.sendAnimatedCommand("bg_set_ct_abx", convertColorTemperature(value));
           this.updateColorFromCT(value);
           this.saveDefaultIfNeeded();
         }

@@ -95,6 +95,9 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
 
 /**
  * Converts a color temperature in Kelvin to a mired value for Homebridge.
+ * The mired value is the reciprocal of the color temperature in microreciprocal degrees.
+ * The formula is: mired = 1,000,000 / kelvin.
+ * Therefore it can also be used reversed: kelvin = 1,000,000 / mired.
  *
  * @param kelvin - The color temperature in Kelvin (e.g., 2000K to 6500K).
  * @returns The corresponding value in mireds (HomeKit-compatible scale).
@@ -138,6 +141,10 @@ export interface LightServiceParameters {
   light: YeeAccessory;
 }
 
+/**
+ * Base class for services representing a light. This is a mixin class that is
+ * used by the concrete light services.
+ */
 export class LightService {
   public service: Service;
   protected powerMode: number;
@@ -357,6 +364,22 @@ export class LightService {
     }
   }
 
+  protected async sendAnimatedCommandA(method: string, parameters: Array<string | number | boolean>): Promise<void> {
+    if (this.platform.config?.animateChanges) {
+      const animationTime = this.platform.config?.animationTime ?? 500;
+      if (this.debounceTimers[method]) {
+        clearTimeout(this.debounceTimers[method]);
+      }
+      this.debounceTimers[method] = setTimeout(async () => {
+        await this.sendCommandPromiseWithErrorHandling(method, [...parameters, "smooth", animationTime]);
+        delete this.debounceTimers[method];
+      }, animationTime);
+      return;
+    } else {
+      return this.sendCommandPromiseWithErrorHandling(method, [...parameters, "sudden"]);
+    }
+  }
+
   protected saveDefaultIfNeeded() {
     if (this.config?.saveDefault) {
       this.sendCommand("set_default", []);
@@ -380,10 +403,10 @@ export class LightService {
     const sat = this.lastSat;
     if (hue && sat) {
       await this.ensurePowerMode(POWERMODE_HSV, prefix);
-      const hsv = [hue, sat, "sudden", 0];
+      const hsv = [hue, sat];
       delete this.lastHue;
       delete this.lastSat;
-      await this.sendCommand(`${prefix}set_hsv`, hsv);
+      await this.sendAnimatedCommandA(`${prefix}set_hsv`, hsv);
       if (prefix == "bg") {
         this.setAttributes({ bg_hue: hue, bg_sat: sat });
       } else {
