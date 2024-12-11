@@ -58,6 +58,7 @@ export class TemperatureLightService extends LightService implements ConcreteLig
   }
 
   protected async sendDebouncedPowerOverride(mode?: number) {
+    this.cancelAllDebounces();
     if (this.timer) {
       this.debug("aborting prior power command");
       clearTimeout(this.timer);

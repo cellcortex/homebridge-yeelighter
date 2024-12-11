@@ -121,7 +121,7 @@ export class YeelighterPlatform implements DynamicPlatformPlugin {
       const ambientUuid = this.api.hap.uuid.generate(`${newDeviceInfo.id}#ambient`);
 
       const recentTS = this.recentAccessories.get(uuid);
-      if (recentTS && Date.now() - recentTS < 1000) {
+      if (recentTS && Date.now() - recentTS < 4000) {
         // this device was already registered recently, ignore it
         this.log.debug("Ignoring device as it was already registered recently", detectedInfo.id);
         return;
