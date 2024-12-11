@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.15.1](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.15.0...v2.15.1) (2024-12-11)
+
+
+### Bug Fixes
+
+* power swtiching with animations still ongoing ([8f04f25](https://github.com/cellcortex/homebridge-yeelighter/commit/8f04f25ccd41bf33e3d21f8f0f8386866a2342b5))
+
 ## [2.15.0](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.14.1...v2.15.0) (2024-12-11)
 
 
