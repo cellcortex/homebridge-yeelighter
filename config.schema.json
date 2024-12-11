@@ -53,10 +53,12 @@
       },
       "animateChanges": {
         "title": "Animate changes",
-        "type": "boolean",
+        "type": "integer",
         "required": false,
         "default": 0,
-        "description": "When changing in values, animate the change over given milliseconds. Use 0 for no animation."
+        "minimum": 0,
+        "maximum": 5000,
+        "description": "When changing in values, animate the change over given milliseconds. Use 0 for no a"
       },
       "override": {
         "type": "array",
