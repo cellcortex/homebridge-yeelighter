@@ -105,7 +105,7 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
 export function convertColorTemperature(kelvin: number): number {
   // check if value is valid
   if (Number.isFinite(kelvin) && kelvin > 0) {
-    return Math.max(Math.round(1_000_000 / kelvin), 370);
+    return Math.min(Math.round(1_000_000 / kelvin), 370);
   }
   // This will cause a warning in the logs
   return 1000;
