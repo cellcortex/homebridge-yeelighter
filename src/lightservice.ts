@@ -105,7 +105,11 @@ export function powerModeFromColorModeAndActiveMode(color_mode: number, active_m
 export function convertColorTemperature(kelvin: number): number {
   // check if value is valid
   if (Number.isFinite(kelvin) && kelvin > 0) {
-    return Math.min(Math.round(1_000_000 / kelvin), 370);
+    // Clamp ONLY the *lower* bound so that the function never returns a number
+    // below 153 —the minimum mired value HomeKit will accept.
+    // No upper bound because the result can be a large kelvin value.
+    const converted = Math.round(1_000_000 / kelvin);
+    return Math.max(converted, 153);
   }
   // This will cause a warning in the logs
   return 1000;
