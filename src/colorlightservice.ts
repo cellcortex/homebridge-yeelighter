@@ -1,3 +1,4 @@
+import { AdaptiveLightingController, AdaptiveLightingControllerMode } from "homebridge";
 import {
   LightService,
   LightServiceParameters as LightServiceParameters,
@@ -10,10 +11,18 @@ import {
 } from "./lightservice";
 
 export class ColorLightService extends LightService implements ConcreteLightService {
+  private adaptiveLightingController?: AdaptiveLightingController;
+
   constructor(parameters: LightServiceParameters) {
     super(parameters);
     this.service.displayName = "Color Light";
     this.installHandlers();
+    if (this.platform.config.ctforcolor) {
+      this.adaptiveLightingController = new this.platform.AdaptiveLightingController(this.service, {
+        controllerMode: AdaptiveLightingControllerMode.AUTOMATIC
+      });
+      this.accessory.configureController(this.adaptiveLightingController);
+    }
   }
 
   private async installHandlers() {

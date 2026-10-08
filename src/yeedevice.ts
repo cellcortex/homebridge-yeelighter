@@ -93,6 +93,11 @@ export class Device extends EventEmitter {
   connect() {
     try {
       this.forceDisconnect = false;
+      if (this.socket) {
+        this.socket.removeAllListeners();
+        this.socket.destroy();
+        this.socket = undefined;
+      }
       this.socket = new net.Socket({ allowHalfOpen: false });
       this.bindSocket();
       this.socket.connect({ host: this.info.host, port: this.info.port }, () => {
@@ -138,20 +143,27 @@ export class Device extends EventEmitter {
     }
 
     if (error) {
-      if (error.message.includes("EHOSTUNREACH")) {
+      const msg = error.message ?? "";
+      if (msg.includes("EHOSTUNREACH")) {
         // unreachable, no need to retry
         this.disconnect(true);
       } else {
-        console.log(`Socket Closed with error "${error.name}, retrying to connect in 5s"`, error.message);
+        console.log(`Socket Closed with error "${error.name}, retrying to connect in 5s"`, msg);
         this.disconnect(false);
         if (this.retryTimer) {
           clearTimeout(this.retryTimer);
           delete this.retryTimer;
         }
-        this.retryTimer = setTimeout(this.connect.bind(this), 5000);
+        this.retryTimer = setTimeout(this.reconnect.bind(this), 5000);
       }
     } else {
+      // graceful close (e.g. device rebooted) — schedule reconnect
       this.disconnect(false);
+      if (this.retryTimer) {
+        clearTimeout(this.retryTimer);
+        delete this.retryTimer;
+      }
+      this.retryTimer = setTimeout(this.reconnect.bind(this), 5000);
     }
   }
 

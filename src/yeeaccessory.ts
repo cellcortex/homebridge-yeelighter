@@ -366,6 +366,10 @@ export class YeeAccessory {
       this.error("Failed to retrieve attributes", error);
     }
 
+    if (this.interval) {
+      clearInterval(this.interval);
+      delete this.interval;
+    }
     if (this.platform.config.interval !== 0) {
       this.interval = setInterval(this.onInterval, this.platform.config.interval || 60_000);
     }
@@ -385,6 +389,10 @@ export class YeeAccessory {
     if (this.interval) {
       clearInterval(this.interval);
       delete this.interval;
+    }
+    for (const [key, item] of this.transactions.entries()) {
+      item.reject(new Error("disconnected"));
+      this.transactions.delete(key);
     }
   };
 
@@ -488,7 +496,7 @@ export class YeeAccessory {
   private clearOldTransactions() {
     for (const [key, item] of this.transactions.entries()) {
       // clear transactions older than 60s
-      if (item.timestamp > Date.now() + 60_000) {
+      if (Date.now() - item.timestamp > 60_000) {
         this.log(`error: timeout for request ${key}`);
         item.reject(new Error("timeout"));
         this.transactions.delete(key);
@@ -499,7 +507,7 @@ export class YeeAccessory {
   private onInterval = () => {
     if (this.connected) {
       // if flooded wait for 5 minutes
-      if (this.floodAlarm && Date.now() - this.floodAlarm > 180_000_000) {
+      if (this.floodAlarm && Date.now() - this.floodAlarm > 300_000) {
         this.log(`flooded. waiting ${(Date.now() - this.floodAlarm) / 60_000}s`);
       } else {
         // seconds since last update
