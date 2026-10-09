@@ -159,6 +159,8 @@ export class LightService {
   protected light: YeeAccessory;
   protected name: string;
   private debounceTimers: Record<string, NodeJS.Timeout> = {};
+  private hsvGeneration = 0;
+  private hsvDesired?: { hue: number; sat: number };
 
   constructor(
     parameters: LightServiceParameters,
@@ -214,6 +216,10 @@ export class LightService {
   }
 
   public cancelAllDebounces() {
+    this.hsvGeneration++;
+    delete this.lastHue;
+    delete this.lastSat;
+    delete this.hsvDesired;
     for (const key in this.debounceTimers) {
       clearTimeout(this.debounceTimers[key]);
       delete this.debounceTimers[key];
@@ -388,21 +394,33 @@ export class LightService {
   }
 
   protected async setHSV(prefix = "") {
-    const hue = this.lastHue;
-    const sat = this.lastSat;
-    if (hue && sat) {
-      await this.ensurePowerMode(POWERMODE_HSV, prefix);
-      const hsv = [hue, sat];
-      delete this.lastHue;
-      delete this.lastSat;
-      await this.sendAnimatedCommand(`${prefix}set_hsv`, hsv);
-      if (prefix == "bg_") {
-        this.setAttributes({ bg_hue: hue, bg_sat: sat });
-      } else {
-        this.setAttributes({ hue, sat });
+    // HomeKit can write Hue and Saturation separately, including zero values.
+    const key = `${prefix}set_hsv_input`;
+    const generation = ++this.hsvGeneration;
+    clearTimeout(this.debounceTimers[key]);
+    this.debounceTimers[key] = setTimeout(async () => {
+      delete this.debounceTimers[key];
+      try {
+        const attributes = await this.attributes();
+        if (generation !== this.hsvGeneration) return;
+        const hue = this.lastHue ?? this.hsvDesired?.hue ?? (prefix === "bg_" ? attributes.bg_hue : attributes.hue);
+        const sat = this.lastSat ?? this.hsvDesired?.sat ?? (prefix === "bg_" ? attributes.bg_sat : attributes.sat);
+        if (!Number.isFinite(hue) || !Number.isFinite(sat)) return;
+        await this.ensurePowerMode(POWERMODE_HSV, prefix);
+        if (generation !== this.hsvGeneration) return;
+        delete this.lastHue;
+        delete this.lastSat;
+        this.hsvDesired = { hue, sat };
+        await this.sendAnimatedCommand(`${prefix}set_hsv`, [hue, sat]);
+        if (generation === this.hsvGeneration) {
+          this.setAttributes(prefix === "bg_" ? { bg_hue: hue, bg_sat: sat } : { hue, sat });
+          delete this.hsvDesired;
+          this.saveDefaultIfNeeded();
+        }
+      } catch (error) {
+        this.warn("Color update failed", error);
       }
-      this.saveDefaultIfNeeded();
-    }
+    }, 120);
   }
 
   protected updateColorFromCT(value: number) {
