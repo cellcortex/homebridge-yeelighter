@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.15.8](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.15.7...v2.15.8) (2026-10-09)
+
+
+### Bug Fixes
+
+* handle separate HomeKit hue and saturation updates ([#165](https://github.com/cellcortex/homebridge-yeelighter/issues/165)) ([c59b37b](https://github.com/cellcortex/homebridge-yeelighter/commit/c59b37b4bdc4df3f1acfb121cdefaaf803e0d7f5))
+* improve socket reconnection reliability ([#162](https://github.com/cellcortex/homebridge-yeelighter/issues/162)) ([f3ff1fc](https://github.com/cellcortex/homebridge-yeelighter/commit/f3ff1fcd22bc2400959fd9e99c6a80aae8e12556))
+
 ### [2.15.7](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.15.6...v2.15.7) (2025-09-02)
 
 ### [2.15.6](https://github.com/cellcortex/homebridge-yeelighter/compare/v2.15.6-beta.1...v2.15.6) (2025-09-02)
