@@ -143,12 +143,12 @@ export class Device extends EventEmitter {
     }
 
     if (error) {
-      const msg = error.message ?? "";
-      if (msg.includes("EHOSTUNREACH")) {
+      const message = error.message ?? "";
+      if (message.includes("EHOSTUNREACH")) {
         // unreachable, no need to retry
         this.disconnect(true);
       } else {
-        console.log(`Socket Closed with error "${error.name}, retrying to connect in 5s"`, msg);
+        console.log(`Socket Closed with error "${error.name}, retrying to connect in 5s"`, message);
         this.disconnect(false);
         if (this.retryTimer) {
           clearTimeout(this.retryTimer);
