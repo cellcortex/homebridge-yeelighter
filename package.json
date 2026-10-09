@@ -70,6 +70,7 @@
   },
   "homepage": "https://github.com/cellcortex/homebridge-yeelighter#readme",
   "scripts": {
+    "test": "npm run build && node test/lightservice.cjs",
     "lint": "eslint src/**.ts --max-warnings=0",
     "watch": "npm run build && npm link && nodemon",
     "clean": "rm -rf ./dist",

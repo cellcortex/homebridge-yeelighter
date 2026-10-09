@@ -48,6 +48,7 @@ In homebridge's config.json you need to specify homebridge-yeelighter as a platf
   {
     "platform": "Yeelighter",
     "name": "Yeelighter",
+    "ctforcolor": true,
     "timeout": 5000,
     "interval": 60000
   }
@@ -55,6 +56,14 @@ In homebridge's config.json you need to specify homebridge-yeelighter as a platf
 ```
 
 The plugin supports setting the configuration through [homebridge-config-ui-x](https://github.com/oznu/homebridge-config-ui-x).
+
+Set `ctforcolor` to `true` to enable white color temperature controls for RGB lights that support them.
+When editing JSON directly, include this option explicitly; the settings UI's default is not applied to omitted JSON fields.
+
+If rapid slider or swatch changes produce `client quota exceeded` in the logs, add `"animateChanges": 500`
+to the platform configuration. This enables the existing debounce and smooth transitions, combining repeated
+changes to the same command during the default 500 ms window. It reduces command traffic but does not enforce
+a total command rate limit. Restart Homebridge after changing these settings.
 
 You can use the override array to override the automatic configuration of the lights. An example for disabling the light with id `0x00000000deadbeef` and enabling moonlight and disabling background for `0x0000000012345678`:
 
